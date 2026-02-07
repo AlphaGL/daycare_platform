@@ -1,0 +1,334 @@
+<!-- Details Tab (Admin/Staff Only) -->
+<div class="admin-only-section mb-4">
+    <span class="admin-only-badge">
+        <i class="bi bi-shield-lock-fill me-1"></i>
+        ADMIN/STAFF ONLY - Not visible to parents
+    </span>
+</div>
+
+<!-- Demographics -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); color: #2E7D32;">
+            <i class="bi bi-person-badge-fill"></i>
+        </div>
+        <div>
+            <h4>Demographics</h4>
+            <p>Statistical information</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Race</label>
+                    <p>{{ student.get_race_display }}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Ethnicity</label>
+                    <p>{{ student.get_ethnicity_display }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Details -->
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #FFF3E0, #FFE0B2); color: #E65100;">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+        <div>
+            <h4>Financial Details</h4>
+            <p>Billing and subsidy information</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Parent's Employer</label>
+                    <p>{{ student.parent_employer|default:"Not provided" }}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Family Income</label>
+                    <p>
+                        {% if student.family_income %}
+                        ${{ student.family_income|floatformat:2 }}
+                        {% else %}
+                        Not provided
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Has Subsidy</label>
+                    <p>
+                        {% if student.has_subsidy %}
+                        <span class="badge bg-success">Yes</span>
+                        {% else %}
+                        <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Subsidy Details</label>
+                    <p>{{ student.subsidy_details|default:"N/A" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enrollment Details -->
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); color: #1565C0;">
+            <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <div>
+            <h4>Enrollment Timeline</h4>
+            <p>Key dates and milestones</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="timeline">
+            {% if student.first_contact_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <label>First Contact</label>
+                    <p>{{ student.first_contact_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.toured_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <label>Toured Facility</label>
+                    <p>{{ student.toured_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.paperwork_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <label>Paperwork Completed</label>
+                    <p>{{ student.paperwork_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.desired_start_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <label>Desired Start Date</label>
+                    <p>{{ student.desired_start_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.enrollment_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker active"></div>
+                <div class="timeline-content">
+                    <label>Enrollment Date</label>
+                    <p><strong>{{ student.enrollment_date|date:"F d, Y" }}</strong></p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.graduation_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <label>Expected Graduation</label>
+                    <p>{{ student.graduation_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Programs & Additional Details -->
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #F3E5F5, #E1BEE7); color: #7B1FA2;">
+            <i class="bi bi-stars"></i>
+        </div>
+        <div>
+            <h4>Programs & Additional Information</h4>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="row g-3">
+            {% if student.programs %}
+            <div class="col-12">
+                <div class="detail-item">
+                    <label>Enrolled Programs</label>
+                    <p>{{ student.programs|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.sibling_attending %}
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>Siblings Attending</label>
+                    <p>{{ student.sibling_attending }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if student.additional_details %}
+            <div class="col-12">
+                <div class="detail-item">
+                    <label>Additional Details</label>
+                    <p>{{ student.additional_details|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Custom Fields -->
+{% if custom_fields or user.is_admin or user.is_staff_member %}
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #FCE4EC, #F8BBD0); color: #C2185B;">
+            <i class="bi bi-file-earmark-plus-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h4>Custom Fields</h4>
+            <p>Additional custom information</p>
+        </div>
+        <a href="{% url 'students:custom_field_create' student.pk %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Field
+        </a>
+    </div>
+    <div class="content-card-body">
+        {% if custom_fields %}
+        <div class="row g-3">
+            {% for field in custom_fields %}
+            <div class="col-md-6">
+                <div class="detail-item">
+                    <label>{{ field.field_name }}</label>
+                    <p>{{ field.field_value|linebreaks }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-file-earmark-plus fs-1"></i>
+            <p class="mt-2">No custom fields added</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Notes -->
+{% if student.notes %}
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #FFF9C4, #FFF59D); color: #F57F17;">
+            <i class="bi bi-journal-text"></i>
+        </div>
+        <div>
+            <h4>General Notes</h4>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <p>{{ student.notes|linebreaks }}</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.detail-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.detail-item label {
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.detail-item p {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e0e0e0;
+}
+
+.timeline-marker.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+}
+
+.timeline-content label {
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.timeline-content p {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+}
+</style>

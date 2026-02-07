@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Timecards - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.timecard-header {
+    background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+    border-radius: 24px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.active-timecards-section {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.timecard-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.timecard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.active-timecard {
+    border-left: 5px solid #43A047;
+}
+
+.staff-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.staff-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.staff-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #43A047, #2E7D32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.time-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #43A047;
+}
+
+.duration-badge {
+    background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    color: #F57C00;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    color: #2E7D32;
+}
+
+.status-completed {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    color: #1976D2;
+}
+
+.table-custom {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table-custom thead {
+    background: linear-gradient(135deg, #F5F7FA, #E9ECEF);
+}
+
+.table-custom th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border: none;
+}
+
+.table-custom td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.table-custom tbody tr:hover {
+    background: #F8F9FA;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="timecard-header animate-fade-in">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2 fw-bold">
+                    <i class="bi bi-clock-history me-3"></i>
+                    Staff Timecards
+                </h2>
+                <p class="mb-0 opacity-90">Track staff clock-ins and hours worked</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'attendance:staff_clock_in' %}" class="btn btn-light btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-clock-fill me-2"></i>
+                    Clock In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Timecards -->
+    {% if active_timecards %}
+    <div class="active-timecards-section">
+        <h5 class="fw-bold mb-3">
+            <i class="bi bi-person-check-fill text-success me-2"></i>
+            Currently Clocked In ({{ active_timecards.count }})
+        </h5>
+        
+        <div class="row">
+            {% for timecard in active_timecards %}
+            <div class="col-lg-6 mb-3">
+                <div class="timecard-card active-timecard">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div class="staff-info flex-grow-1">
+                            {% if timecard.staff.profile_picture %}
+                                <img src="{{ timecard.staff.profile_picture.url }}" alt="{{ timecard.staff.get_full_name }}" class="staff-avatar">
+                            {% else %}
+                                <div class="staff-avatar-placeholder">
+                                    <i class="bi bi-person-fill text-white fs-4"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1 fw-bold">{{ timecard.staff.get_full_name }}</h6>
+                                <small class="text-muted">{{ timecard.staff.email }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <span class="status-badge status-active d-block mb-2">
+                                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                Active
+                            </span>
+                            <a href="{% url 'attendance:staff_clock_out' timecard.pk %}" class="btn btn-sm btn-warning rounded-pill">
+                                <i class="bi bi-stop-circle me-1"></i>Clock Out
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="text-muted small mb-1">Clock In</div>
+                                <div class="time-display">{{ timecard.clock_in_time|time:"g:i A" }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted small mb-1">Date</div>
+                                <div class="fw-bold">{{ timecard.date|date:"M j, Y" }}</div>
+                            </div>
+                        </div>
+                        
+                        {% if timecard.assigned_room %}
+                        <div class="mt-2 text-center">
+                            <span class="badge bg-info rounded-pill">
+                                <i class="bi bi-door-open me-1"></i>{{ timecard.assigned_room.name }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Timecards -->
+    <div class="mb-3">
+        <h5 class="fw-bold">
+            <i class="bi bi-list-check text-primary me-2"></i>
+            Recent Timecards
+        </h5>
+    </div>
+
+    {% if timecards %}
+        <div class="table-responsive table-custom">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Date</th>
+                        <th>Clock In</th>
+                        <th>Clock Out</th>
+                        <th>Room</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for timecard in timecards %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if timecard.staff.profile_picture %}
+                                    <img src="{{ timecard.staff.profile_picture.url }}" alt="{{ timecard.staff.get_full_name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ timecard.staff.get_full_name }}</div>
+                                    <small class="text-muted">{{ timecard.staff.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ timecard.date|date:"M j, Y" }}</strong>
+                            <br><small class="text-muted">{{ timecard.date|date:"l" }}</small>
+                        </td>
+                        <td>
+                            <div class="time-display" style="font-size: 1.125rem;">
+                                {{ timecard.clock_in_time|time:"g:i A" }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if timecard.clock_out_time %}
+                                <div class="time-display" style="font-size: 1.125rem; color: #F57C00;">
+                                    {{ timecard.clock_out_time|time:"g:i A" }}
+                                </div>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if timecard.assigned_room %}
+                                <span class="badge bg-info rounded-pill">
+                                    {{ timecard.assigned_room.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="duration-badge">
+                                <i class="bi bi-hourglass-split me-1"></i>
+                                {{ timecard.total_hours }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if timecard.clock_out_time %}
+                                <span class="status-badge status-completed">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Completed
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-active">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                    Active
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted opacity-25"></i>
+            <h5 class="mt-4 text-muted">No Timecard Records</h5>
+            <p class="text-muted">Staff timecards will appear here once they clock in</p>
+            <a href="{% url 'attendance:staff_clock_in' %}" class="btn btn-success rounded-pill px-5 mt-3">
+                <i class="bi bi-clock-fill me-2"></i>
+                Clock In Now
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.animate-fade-in {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Update Vaccines - {{ student.get_full_name }} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="mb-4">
+                <a href="{% url 'students:immunization_detail' student.pk %}" class="btn btn-outline-secondary mb-3">
+                    <i class="bi bi-arrow-left"></i> Back to Immunizations
+                </a>
+                <h2 class="fw-bold">
+                    <i class="bi bi-pencil-square text-primary me-2"></i>
+                    Bulk Update Vaccine Doses
+                </h2>
+                <p class="text-muted">For {{ student.get_full_name }}</p>
+            </div>
+
+            <!-- Instructions -->
+            <div class="alert alert-info mb-4">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Instructions:</strong> Select the vaccine doses you want to update, then fill in the common details below. This is useful when updating multiple doses from the same visit.
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Common Details -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-clipboard-data me-2"></i>
+                                Common Details for Selected Doses
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">{{ form.date_administered.label }}</label>
+                                    {{ form.date_administered }}
+                                    {% if form.date_administered.errors %}
+                                    <div class="text-danger mt-1">{{ form.date_administered.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">{{ form.administered_by.label }}</label>
+                                    {{ form.administered_by }}
+                                    {% if form.administered_by.errors %}
+                                    <div class="text-danger mt-1">{{ form.administered_by.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">{{ form.location.label }}</label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                    <div class="text-danger mt-1">{{ form.location.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vaccine Selection -->
+                        <div class="form-section">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="section-title mb-0">
+                                    <i class="bi bi-check-square me-2"></i>
+                                    Select Doses to Update
+                                </h5>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">
+                                        Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
+                                        Deselect All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="selectPending()">
+                                        Select Pending
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="vaccine-selection-grid">
+                                {% regroup doses by vaccine_type as vaccine_groups %}
+                                {% for vaccine_group in vaccine_groups %}
+                                <div class="vaccine-group mb-4">
+                                    <h6 class="vaccine-group-title">
+                                        <i class="bi bi-shield-fill-plus text-primary me-2"></i>
+                                        {{ vaccine_group.grouper.name }}
+                                    </h6>
+                                    <p class="text-muted small mb-3">{{ vaccine_group.grouper.full_name }}</p>
+                                    
+                                    <div class="row g-3">
+                                        {% for dose in vaccine_group.list %}
+                                        <div class="col-md-6">
+                                            <div class="dose-selection-item {% if dose.is_administered %}dose-administered{% endif %}">
+                                                <div class="form-check">
+                                                    <input 
+                                                        class="form-check-input dose-checkbox {% if not dose.is_administered %}pending-dose{% endif %}" 
+                                                        type="checkbox" 
+                                                        name="dose_ids" 
+                                                        value="{{ dose.id }}"
+                                                        id="dose_{{ dose.id }}"
+                                                    >
+                                                    <label class="form-check-label w-100" for="dose_{{ dose.id }}">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <div>
+                                                                <strong>Dose {{ dose.dose_schedule.dose_number }}</strong>
+                                                                <p class="mb-1 text-muted small">{{ dose.dose_schedule.cdc_recommendation_text }}</p>
+                                                                {% if dose.is_administered %}
+                                                                <p class="mb-0">
+                                                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                                                    <span class="text-success small">{{ dose.date_administered|date:"M d, Y" }}</span>
+                                                                </p>
+                                                                {% else %}
+                                                                <p class="mb-0">
+                                                                    {% if dose.is_overdue %}
+                                                                    <i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>
+                                                                    <span class="text-danger small">Overdue</span>
+                                                                    {% else %}
+                                                                    <i class="bi bi-circle text-muted me-1"></i>
+                                                                    <span class="text-muted small">Not given</span>
+                                                                    {% endif %}
+                                                                </p>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="dose-status-icon">
+                                                                {% if dose.is_administered %}
+                                                                <i class="bi bi-check-circle-fill text-success"></i>
+                                                                {% elif dose.is_overdue %}
+                                                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                                                {% else %}
+                                                                <i class="bi bi-circle text-muted"></i>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Selection Counter -->
+                        <div class="alert alert-secondary mt-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong id="selection-count">0 doses selected</strong>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Update Selected Doses
+                            </button>
+                            <a href="{% url 'students:immunization_detail' student.pk %}" class="btn btn-outline-secondary btn-lg px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.section-title {
+    color: #333;
+    font-weight: 700;
+    padding-bottom: 0.75rem;
+}
+
+.vaccine-group {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.vaccine-group-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.dose-selection-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.dose-selection-item:has(.form-check-input:checked) {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    border-color: #4CAF50;
+}
+
+.dose-selection-item.dose-administered {
+    opacity: 0.7;
+}
+
+.dose-selection-item:has(.form-check-input:checked).dose-administered {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    border-color: #2196F3;
+}
+
+.dose-status-icon {
+    font-size: 1.25rem;
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+</style>
+
+<script>
+function selectAll() {
+    document.querySelectorAll('.dose-checkbox').forEach(cb => {
+        cb.checked = true;
+    });
+    updateCount();
+}
+
+function deselectAll() {
+    document.querySelectorAll('.dose-checkbox').forEach(cb => {
+        cb.checked = false;
+    });
+    updateCount();
+}
+
+function selectPending() {
+    document.querySelectorAll('.dose-checkbox').forEach(cb => {
+        cb.checked = cb.classList.contains('pending-dose');
+    });
+    updateCount();
+}
+
+function updateCount() {
+    const count = document.querySelectorAll('.dose-checkbox:checked').length;
+    document.getElementById('selection-count').textContent = `${count} dose${count !== 1 ? 's' : ''} selected`;
+}
+
+// Add event listeners to all checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.dose-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateCount);
+    });
+    updateCount();
+});
+</script>
+{% endblock %}

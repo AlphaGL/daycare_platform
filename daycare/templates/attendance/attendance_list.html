@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attendance - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.attendance-header {
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+    border-radius: 24px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.table-custom {
+    margin-bottom: 0;
+}
+
+.table-custom thead {
+    background: linear-gradient(135deg, #F5F7FA, #E9ECEF);
+}
+
+.table-custom th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border: none;
+}
+
+.table-custom td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.table-custom tr:last-child td {
+    border-bottom: none;
+}
+
+.table-custom tbody tr:hover {
+    background: #F8F9FA;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.student-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.student-avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667EEA, #764BA2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-checked-in {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    color: #2E7D32;
+}
+
+.status-checked-out {
+    background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    color: #E65100;
+}
+
+.date-filter-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.action-btn {
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="attendance-header animate-fade-in">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2 fw-bold">
+                    <i class="bi bi-calendar-check-fill me-3"></i>
+                    Attendance Records
+                </h2>
+                <p class="mb-0 opacity-90">Track student check-ins and check-outs</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'attendance:checkin' %}" class="btn btn-light btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-plus-circle-fill me-2"></i>
+                    New Check-In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="display-4 fw-bold mb-2" style="background: linear-gradient(135deg, #667EEA, #764BA2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ total_checkins }}
+                </div>
+                <div class="text-muted">Total Check-Ins</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="display-4 fw-bold mb-2 text-success">{{ currently_in }}</div>
+                <div class="text-muted">Currently In</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="display-4 fw-bold mb-2 text-warning">{{ checked_out }}</div>
+                <div class="text-muted">Checked Out</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter -->
+    <div class="date-filter-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                    <i class="bi bi-calendar3 me-2"></i>Select Date
+                </label>
+                <input type="date" name="date" class="form-control form-control-lg" value="{{ selected_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100">
+                    <i class="bi bi-filter me-2"></i>Filter
+                </button>
+            </div>
+            <div class="col-md-5 text-md-end">
+                <small class="text-muted">
+                    Showing records for <strong>{{ selected_date|date:"F j, Y" }}</strong>
+                </small>
+            </div>
+        </form>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="attendance-table-card">
+        <div class="p-4 border-bottom">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-list-check me-2 text-primary"></i>
+                Attendance Records
+            </h5>
+        </div>
+
+        {% if attendance_records %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Room</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_records %}
+                        <tr>
+                            <td>
+                                <div class="student-info">
+                                    {% if record.student.photo %}
+                                        <img src="{{ record.student.photo.url }}" alt="{{ record.student.get_full_name }}" class="student-avatar">
+                                    {% else %}
+                                        <div class="student-avatar-placeholder">
+                                            <i class="bi bi-person-fill text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ record.student.get_full_name }}</div>
+                                        <small class="text-muted">{{ record.student.age }} years old</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info rounded-pill">
+                                    {{ record.room.name }}
+                                </span>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>{{ record.check_in_time|time:"g:i A" }}</strong>
+                                    <small class="d-block text-muted">by {{ record.check_in_by.get_full_name }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if record.check_out_time %}
+                                    <div>
+                                        <strong>{{ record.check_out_time|time:"g:i A" }}</strong>
+                                        <small class="d-block text-muted">by {{ record.check_out_by.get_full_name }}</small>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ record.duration }}</strong>
+                            </td>
+                            <td>
+                                {% if record.status == 'CHECKED_IN' %}
+                                    <span class="status-badge status-checked-in">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        In
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-checked-out">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Out
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    {% if record.status == 'CHECKED_IN' %}
+                                        <a href="{% url 'attendance:checkout' record.pk %}" class="btn btn-sm btn-warning action-btn">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            Check-Out
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'attendance:attendance_detail' record.pk %}" class="btn btn-sm btn-outline-primary action-btn">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted opacity-25"></i>
+                <h5 class="mt-4 text-muted">No attendance records for this date</h5>
+                <p class="text-muted">Check-ins will appear here once students arrive</p>
+                <a href="{% url 'attendance:checkin' %}" class="btn btn-primary rounded-pill px-5 mt-3">
+                    <i class="bi bi-plus-circle-fill me-2"></i>
+                    Check In Student
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.animate-fade-in {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}

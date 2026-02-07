@@ -1,0 +1,1314 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register Your Child - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <!-- ==================== HEADER SECTION ==================== -->
+            <div class="text-center mb-5 animate-on-scroll">
+                <div class="register-icon-wrapper mx-auto mb-4">
+                    <i class="bi bi-heart-fill"></i>
+                </div>
+                <h2 class="gradient-text mb-2">Welcome to Our Family!</h2>
+                <p class="lead text-muted">Let's get your little one registered</p>
+                
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="step completed">
+                        <div class="step-circle">
+                            <i class="bi bi-check"></i>
+                        </div>
+                        <p>Account</p>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <p>Child Info</p>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <p>Payment</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== REGISTRATION FORM CARD ==================== -->
+            <div class="registration-card animate-on-scroll">
+                <div class="card-decorative-header"></div>
+                
+                <div class="card-body p-4 p-md-5">
+                    
+                    <!-- ========== Required Documents Notice ========== -->
+                    {% if not student %}
+                    <div class="documents-notice animate-on-scroll" style="animation-delay: 0.1s;">
+                        <div class="notice-badge">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                        <div class="notice-content">
+                            <div class="notice-header">
+                                <h5>
+                                    <i class="bi bi-exclamation-triangle-fill pulse-icon"></i> 
+                                    Required Documents
+                                </h5>
+                            </div>
+                            <p>Please ensure you have the following documents ready for submission:</p>
+                            
+                            <div class="documents-grid">
+                                <div class="document-card">
+                                    <div class="doc-icon birth-cert">
+                                        <i class="bi bi-file-earmark-medical-fill"></i>
+                                    </div>
+                                    <div class="doc-details">
+                                        <h6>Birth Certificate</h6>
+                                        <p>Original or certified copy</p>
+                                    </div>
+                                    <i class="bi bi-check-circle-fill status-icon"></i>
+                                </div>
+                                
+                                <div class="document-card">
+                                    <div class="doc-icon physical-form">
+                                        <i class="bi bi-clipboard2-heart-fill"></i>
+                                    </div>
+                                    <div class="doc-details">
+                                        <h6>Physical Form</h6>
+                                        <p>Completed by licensed physician</p>
+                                    </div>
+                                    <i class="bi bi-check-circle-fill status-icon"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="notice-footer">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span>These documents must be presented during the admission process</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- ========== WhatsApp Payment Info ========== -->
+                    <div class="info-alert mb-4">
+                        <div class="alert-icon">
+                            <i class="bi bi-whatsapp"></i>
+                        </div>
+                        <div>
+                            <strong>What happens next?</strong>
+                            <p class="mb-0">After submitting, you'll be redirected to WhatsApp to complete the payment process with our team.</p>
+                        </div>
+                    </div>
+
+                    <!-- ========== REGISTRATION FORM ========== -->
+                    <form method="post" id="registrationForm">
+                        {% csrf_token %}
+                        
+                        <!-- Child Information Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <div>
+                                    <h4>Child's Information</h4>
+                                    <p>Tell us about your little one</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        {{ form.child_first_name }}
+                                        <label>
+                                            <i class="bi bi-star-fill text-warning"></i> First Name
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        {{ form.child_middle_name }}
+                                        <label>
+                                            <i class="bi bi-star-fill text-warning"></i> Middle Name
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        {{ form.child_last_name }}
+                                        <label>
+                                            <i class="bi bi-star-fill text-warning"></i> Last Name
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.child_dob }}
+                                        <label>
+                                            <i class="bi bi-cake2-fill text-primary"></i> Date of Birth
+                                        </label>
+                                    </div>
+                                    <small class="form-hint">
+                                        <i class="bi bi-info-circle-fill"></i> 
+                                        This helps us plan age-appropriate activities
+                                    </small>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.child_gender }}
+                                        <label>
+                                            <i class="bi bi-gender-ambiguous"></i> Gender
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Information Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon health">
+                                    <i class="bi bi-heart-pulse-fill"></i>
+                                </div>
+                                <div>
+                                    <h4>Health Information</h4>
+                                    <p>Important medical details (optional but recommended)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        {{ form.medical_info }}
+                                        <label>
+                                            <i class="bi bi-capsule"></i> Medical Information
+                                        </label>
+                                    </div>
+                                    <small class="form-hint">
+                                        <i class="bi bi-info-circle-fill"></i> 
+                                        Include allergies, medications, or conditions we should know about
+                                    </small>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        {{ form.special_needs }}
+                                        <label>
+                                            <i class="bi bi-clipboard2-pulse"></i> Special Needs
+                                        </label>
+                                    </div>
+                                    <small class="form-hint">
+                                        <i class="bi bi-info-circle-fill"></i> 
+                                        Any special requirements or accommodations needed
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Fee Section -->
+                        <div class="fee-section">
+                            <div class="fee-content">
+                                <div class="fee-icon">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+                                <div>
+                                    <h5>Registration Fee</h5>
+                                    <div class="fee-amount">
+                                        {% if school_settings.registration_fee %}
+                                            ₦{{ school_settings.registration_fee|floatformat:2 }}
+                                        {% else %}
+                                            Contact us for pricing
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">One-time registration fee</small>
+                                </div>
+                            </div>
+                            <div class="fee-decoration">
+                                <i class="bi bi-stars"></i>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn-submit">
+                            <span class="btn-icon">
+                                <i class="bi bi-whatsapp"></i>
+                            </span>
+                            <span class="btn-text">
+                                <strong>Continue to WhatsApp Payment</strong>
+                                <small>You'll be redirected to complete payment</small>
+                            </span>
+                            <span class="btn-arrow">
+                                <i class="bi bi-arrow-right-circle-fill"></i>
+                            </span>
+                        </button>
+
+                        <!-- Security Note -->
+                        <div class="security-note">
+                            <i class="bi bi-shield-fill-check"></i>
+                            <p>Your information is secure and will only be used for registration purposes.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ==================== SUPPORT SECTION ==================== -->
+            <div class="support-section text-center mt-4 animate-on-scroll">
+                <p class="text-muted">
+                    <i class="bi bi-question-circle-fill"></i>
+                    Need help? <a href="#" class="support-link">Contact our support team</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ============================================================
+   CSS VARIABLES & ROOT SETTINGS
+   ============================================================ */
+:root {
+    --primary-gradient: linear-gradient(135deg, #ff9a9e, #fecfef);
+    --success-gradient: linear-gradient(135deg, #25d366, #128c7e);
+    --warning-gradient: linear-gradient(135deg, #ffd93d, #ffb74d);
+    --danger-gradient: linear-gradient(135deg, #ff6b6b, #ff8787);
+    
+    --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 15px 60px rgba(0, 0, 0, 0.12);
+    
+    --border-radius-sm: 12px;
+    --border-radius-md: 18px;
+    --border-radius-lg: 25px;
+    --border-radius-xl: 30px;
+    
+    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   HEADER & BRANDING
+   ============================================================ */
+.register-icon-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff9a9e, #fecfef, #ffecd2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 50px rgba(255, 154, 158, 0.4);
+    animation: float 3s ease-in-out infinite;
+    position: relative;
+}
+
+.register-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(135deg, #ff9a9e, #fecfef, #ffecd2);
+    border-radius: 32px;
+    opacity: 0.3;
+    filter: blur(10px);
+    z-index: -1;
+}
+
+.register-icon-wrapper i {
+    font-size: 3.5rem;
+    color: white;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    font-size: 2.5rem;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(255, 154, 158, 0.1);
+}
+
+/* ============================================================
+   PROGRESS STEPS
+   ============================================================ */
+.progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.step-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #adb5bd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    transition: var(--transition-base);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.step.completed .step-circle {
+    background: linear-gradient(135deg, #38d9a9, #20c997);
+    color: white;
+    box-shadow: 0 4px 15px rgba(56, 217, 169, 0.4);
+}
+
+.step.active .step-circle {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 8px 25px rgba(255, 154, 158, 0.5);
+    transform: scale(1.15);
+    animation: pulse-circle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-circle {
+    0%, 100% { box-shadow: 0 8px 25px rgba(255, 154, 158, 0.5); }
+    50% { box-shadow: 0 8px 35px rgba(255, 154, 158, 0.7); }
+}
+
+.step p {
+    font-weight: 600;
+    color: #adb5bd;
+    margin: 0;
+    font-size: 0.9rem;
+    transition: var(--transition-base);
+}
+
+.step.active p,
+.step.completed p {
+    color: #495057;
+}
+
+.step-line {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #e9ecef 0%, #e9ecef 100%);
+    margin: 0 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.step.completed + .step-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, #38d9a9, #20c997);
+    animation: fill-line 0.6s ease-in-out forwards;
+}
+
+@keyframes fill-line {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* ============================================================
+   REGISTRATION CARD
+   ============================================================ */
+.registration-card {
+    background: white;
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+}
+
+.card-decorative-header {
+    height: 10px;
+    background: linear-gradient(90deg, 
+        #ff9a9e 0%, 
+        #fecfef 25%, 
+        #ffecd2 50%, 
+        #fcb69f 75%, 
+        #ff9a9e 100%);
+    background-size: 200% 100%;
+    animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ============================================================
+   DOCUMENT NOTICE SECTION
+   ============================================================ */
+.documents-notice {
+    background: linear-gradient(135deg, rgba(255, 154, 158, 0.05), rgba(254, 207, 239, 0.08));
+    border: 2px solid rgba(255, 154, 158, 0.2);
+    border-radius: var(--border-radius-lg);
+    padding: 25px;
+    margin-bottom: 30px;
+    display: flex;
+    gap: 20px;
+}
+
+.notice-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--border-radius-md);
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(255, 154, 158, 0.3);
+}
+
+.notice-content {
+    flex: 1;
+}
+
+.notice-header h5 {
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #495057;
+}
+
+.pulse-icon {
+    color: #ffd93d;
+    animation: pulse-glow 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.notice-content > p {
+    margin-bottom: 15px;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.document-card {
+    background: white;
+    border: 2px solid #f1f3f5;
+    border-radius: var(--border-radius-sm);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: var(--transition-base);
+}
+
+.document-card:hover {
+    border-color: #ff9a9e;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.doc-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.doc-icon.birth-cert {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.doc-icon.physical-form {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.doc-details {
+    flex: 1;
+}
+
+.doc-details h6 {
+    margin: 0 0 3px 0;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.doc-details p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #adb5bd;
+}
+
+.status-icon {
+    color: #38d9a9;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.notice-footer {
+    background: rgba(255, 154, 158, 0.08);
+    border-radius: 10px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.notice-footer i {
+    color: #ff9a9e;
+    font-size: 1.1rem;
+}
+
+/* ============================================================
+   INFO ALERT
+   ============================================================ */
+.info-alert {
+    background: linear-gradient(135deg, rgba(37, 211, 102, 0.05), rgba(18, 140, 126, 0.08));
+    border-left: 4px solid #25d366;
+    border-radius: var(--border-radius-md);
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--border-radius-sm);
+    background: var(--success-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.info-alert strong {
+    display: block;
+    color: #495057;
+    font-size: 1.05rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.info-alert p {
+    color: #6c757d;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ============================================================
+   FORM SECTIONS
+   ============================================================ */
+.form-section {
+    margin-bottom: 35px;
+    padding-bottom: 35px;
+    border-bottom: 2px dashed #f1f3f5;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.section-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--border-radius-md);
+    background: linear-gradient(135deg, rgba(255, 154, 158, 0.1), rgba(254, 207, 239, 0.15));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: #ff9a9e;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.1);
+    transition: var(--transition-base);
+}
+
+.section-icon:hover {
+    transform: scale(1.05);
+}
+
+.section-icon.health {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.15));
+    color: #ff6b6b;
+}
+
+.section-header h4 {
+    margin: 0 0 3px 0;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #495057;
+}
+
+.section-header p {
+    margin: 0;
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   FORM FIELDS
+   ============================================================ */
+.form-floating > .form-control,
+.form-floating > .form-select,
+.form-floating > textarea.form-control {
+    height: 60px;
+    border: 2px solid #e9ecef;
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    padding: 1.5rem 1rem 0.5rem;
+    transition: var(--transition-base);
+    background-color: #fafbfc;
+}
+
+.form-floating > .form-control:hover,
+.form-floating > .form-select:hover,
+.form-floating > textarea.form-control:hover {
+    border-color: #dee2e6;
+    background-color: white;
+}
+
+.form-floating > textarea.form-control {
+    height: 100px !important;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus,
+.form-floating > textarea.form-control:focus {
+    border-color: #ff9a9e;
+    box-shadow: 0 0 0 4px rgba(255, 154, 158, 0.1);
+    background-color: white;
+    outline: none;
+}
+
+.form-floating > label {
+    padding: 1.2rem 1rem;
+    font-weight: 600;
+    color: #6c757d;
+    transition: var(--transition-base);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-select:focus ~ label,
+.form-floating > textarea.form-control:focus ~ label {
+    color: #ff9a9e;
+}
+
+.form-floating > label i {
+    margin-right: 6px;
+}
+
+.form-hint {
+    display: block;
+    margin-top: 8px;
+    padding-left: 5px;
+    color: #6c757d;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.form-hint i {
+    color: #ff9a9e;
+    margin-right: 4px;
+}
+
+/* ============================================================
+   FEE SECTION
+   ============================================================ */
+.fee-section {
+    background: linear-gradient(135deg, rgba(255, 211, 61, 0.08), rgba(255, 183, 77, 0.12));
+    border: 2px solid rgba(255, 211, 61, 0.3);
+    border-radius: var(--border-radius-lg);
+    padding: 25px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.fee-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 211, 61, 0.1) 0%, transparent 70%);
+    animation: rotate-gradient 10s linear infinite;
+}
+
+@keyframes rotate-gradient {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.fee-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.fee-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: var(--border-radius-md);
+    background: var(--warning-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(255, 217, 61, 0.4);
+    animation: float 3s ease-in-out infinite;
+}
+
+.fee-content h5 {
+    margin: 0 0 5px 0;
+    font-weight: 700;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.fee-amount {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--warning-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.fee-decoration {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 8rem;
+    color: rgba(255, 217, 61, 0.1);
+    transform: rotate(15deg);
+    z-index: 1;
+}
+
+/* ============================================================
+   SUBMIT BUTTON
+   ============================================================ */
+.btn-submit {
+    width: 100%;
+    padding: 20px 30px;
+    background: var(--success-gradient);
+    border: none;
+    border-radius: var(--border-radius-lg);
+    color: white;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-submit:hover::before {
+    left: 100%;
+}
+
+.btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(37, 211, 102, 0.45);
+}
+
+.btn-submit:active {
+    transform: translateY(-1px);
+}
+
+.btn-icon {
+    font-size: 2rem;
+    animation: bounce-icon 2s ease-in-out infinite;
+}
+
+@keyframes bounce-icon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.btn-text {
+    flex: 1;
+    text-align: left;
+    line-height: 1.3;
+}
+
+.btn-text strong {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.btn-text small {
+    display: block;
+    opacity: 0.9;
+    font-size: 0.85rem;
+    margin-top: 3px;
+}
+
+.btn-arrow {
+    font-size: 1.8rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-submit:hover .btn-arrow {
+    transform: translateX(8px);
+}
+
+/* ============================================================
+   SECURITY NOTE
+   ============================================================ */
+.security-note {
+    text-align: center;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #f1f3f5);
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.security-note i {
+    font-size: 1.3rem;
+    color: #38d9a9;
+}
+
+.security-note p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   SUPPORT SECTION
+   ============================================================ */
+.support-section {
+    padding: 20px;
+}
+
+.support-section p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.support-section i {
+    color: #ff9a9e;
+    margin-right: 6px;
+}
+
+.support-link {
+    color: #ff9a9e;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition-base);
+    position: relative;
+}
+
+.support-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ff9a9e;
+    transition: width 0.3s ease;
+}
+
+.support-link:hover::after {
+    width: 100%;
+}
+
+.support-link:hover {
+    color: #ff7a80;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-on-scroll.animate-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+@media (max-width: 768px) {
+    .gradient-text {
+        font-size: 2rem;
+    }
+    
+    .register-icon-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .register-icon-wrapper i {
+        font-size: 3rem;
+    }
+    
+    .progress-steps {
+        max-width: 100%;
+    }
+    
+    .step-line {
+        width: 40px;
+    }
+    
+    .step-circle {
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+    
+    .step p {
+        font-size: 0.75rem;
+    }
+    
+    .documents-notice {
+        flex-direction: column;
+    }
+    
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .fee-amount {
+        font-size: 1.5rem;
+    }
+    
+    .btn-submit {
+        padding: 18px 20px;
+    }
+    
+    .btn-text strong {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .fee-decoration {
+        font-size: 5rem;
+        top: 0;
+        right: 0;
+    }
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible for keyboard navigation */
+.btn-submit:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.support-link:focus-visible {
+    outline: 3px solid #ff9a9e;
+    outline-offset: 3px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
+    
+    /* ============================================================
+       INTERSECTION OBSERVER FOR SCROLL ANIMATIONS
+       ============================================================ */
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('animate-fade-in');
+                }, index * 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+
+    /* ============================================================
+       FORM VALIDATION
+       ============================================================ */
+    const form = document.getElementById('registrationForm');
+    
+    if (form) {
+        // Real-time validation on input
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                    validateField(this);
+                }
+            });
+        });
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            let firstInvalidField = null;
+            
+            requiredFields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                    if (!firstInvalidField) {
+                        firstInvalidField = field;
+                    }
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Scroll to first invalid field
+                if (firstInvalidField) {
+                    firstInvalidField.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                    firstInvalidField.focus();
+                }
+                
+                // Show error message
+                showNotification('Please fill in all required fields marked with a star (⭐)', 'error');
+            } else {
+                // Show loading state
+                const submitBtn = form.querySelector('.btn-submit');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="btn-text">
+                            <strong>Processing...</strong>
+                            <small>Please wait</small>
+                        </span>
+                    `;
+                }
+            }
+        });
+    }
+    
+    /* ============================================================
+       FIELD VALIDATION FUNCTION
+       ============================================================ */
+    function validateField(field) {
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required');
+        
+        if (isRequired && !value) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+            field.style.borderColor = '#ff6b6b';
+            return false;
+        } else if (value) {
+            field.classList.add('is-valid');
+            field.classList.remove('is-invalid');
+            field.style.borderColor = '#38d9a9';
+            return true;
+        } else {
+            field.classList.remove('is-invalid', 'is-valid');
+            field.style.borderColor = '';
+            return true;
+        }
+    }
+    
+    /* ============================================================
+       NOTIFICATION SYSTEM
+       ============================================================ */
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="bi bi-${type === 'error' ? 'exclamation-circle' : 'check-circle'}-fill"></i>
+            <span>${message}</span>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#ff6b6b' : '#38d9a9'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+    
+    /* ============================================================
+       SMOOTH SCROLL ENHANCEMENT
+       ============================================================ */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+
+/* ============================================================
+   NOTIFICATION ANIMATIONS (ADD TO CSS IF NEEDED)
+   ============================================================ */
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

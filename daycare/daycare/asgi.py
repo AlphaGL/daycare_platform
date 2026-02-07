@@ -1,5 +1,5 @@
 """
-WSGI config for Daycare Management System.
+WSGI config for Sugamama sugababies Daycare.
 """
 
 import os

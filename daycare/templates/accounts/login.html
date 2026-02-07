@@ -4,136 +4,146 @@
 {% block title %}Login - {{ school.school_name|default:"Daycare" }}{% endblock %}
 
 {% block content %}
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <!-- Card Header with Gradient -->
-                    <div class="card-header bg-gradient-primary text-white text-center py-4 border-0">
-                        <i class="bi bi-box-arrow-in-right display-4 mb-3"></i>
-                        <h3 class="mb-0 fw-bold">Welcome Back!</h3>
-                        <p class="mb-0 opacity-75">Login to your account</p>
-                    </div>
-                    
-                    <!-- Card Body -->
-                    <div class="card-body p-4 p-md-5">
-                        <form method="post" class="needs-validation" novalidate>
-                            {% csrf_token %}
-                            
-                            <!-- Username Field -->
-                            <div class="mb-4">
-                                <label for="id_username" class="form-label">
-                                    <i class="bi bi-person"></i> Username or Email
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0">
-                                        <i class="bi bi-person-circle text-primary"></i>
-                                    </span>
-                                    <input 
-                                        type="text" 
-                                        name="username" 
-                                        id="id_username"
-                                        class="form-control border-start-0 ps-0" 
-                                        placeholder="Enter your username or email"
-                                        required
-                                        autofocus
-                                    >
-                                </div>
-                                {% if form.username.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {{ form.username.errors }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Password Field -->
-                            <div class="mb-4">
-                                <label for="id_password" class="form-label">
-                                    <i class="bi bi-lock"></i> Password
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0">
-                                        <i class="bi bi-shield-lock text-primary"></i>
-                                    </span>
-                                    <input 
-                                        type="password" 
-                                        name="password" 
-                                        id="id_password"
-                                        class="form-control border-start-0 border-end-0 ps-0" 
-                                        placeholder="Enter your password"
-                                        required
-                                    >
-                                    <button 
-                                        class="btn btn-outline-secondary border-start-0" 
-                                        type="button"
-                                        data-toggle-password="id_password"
-                                    >
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                                {% if form.password.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {{ form.password.errors }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Remember Me & Forgot Password -->
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div class="form-check">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        name="remember_me" 
-                                        id="remember_me"
-                                    >
-                                    <label class="form-check-label" for="remember_me">
-                                        Remember me
-                                    </label>
-                                </div>
-                                <a href="#" class="text-primary text-decoration-none small">
-                                    Forgot Password?
-                                </a>
-                            </div>
-                            
-                            <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill mb-3">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>
-                                Login to Account
-                            </button>
-                            
-                            <!-- Divider -->
-                            <div class="text-center text-muted my-3">
-                                <small>or</small>
-                            </div>
-                            
-                            <!-- Register Link -->
-                            <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg w-100 rounded-pill">
-                                <i class="bi bi-person-plus me-2"></i>
-                                Create New Account
-                            </a>
-                        </form>
-                    </div>
-                    
-                    <!-- Card Footer -->
-                    <div class="card-footer bg-light text-center py-3 border-0">
-                        <small class="text-muted">
-                            <i class="bi bi-shield-check"></i>
-                            Your data is safe and secure
-                        </small>
-                    </div>
+<section class="login-section">
+    <div class="login-container">
+        <!-- Left Side - Decorative -->
+        <div class="login-visual">
+            <div class="visual-content">
+                <div class="floating-shapes">
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                    <div class="shape shape-3"></div>
+                    <div class="shape shape-4"></div>
                 </div>
-                
-                <!-- Help Text -->
-                <div class="text-center mt-4">
-                    <p class="text-muted">
-                        <i class="bi bi-info-circle"></i>
-                        Need help? Contact us at 
-                        <a href="mailto:{{ school.email }}" class="text-primary">
-                            {{ school.email|default:"support@daycare.com" }}
-                        </a>
-                    </p>
+                <div class="visual-text">
+                    <h1 class="visual-title">Welcome to<br>{{ school.school_name|default:"Daycare" }}</h1>
+                    <p class="visual-subtitle">Where every child's journey begins with care and creativity</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Form -->
+        <div class="login-form-wrapper">
+            <div class="login-form-container">
+                <div class="form-header">
+                    <h2 class="form-title">Sign In</h2>
+                    <p class="form-subtitle">Access your parent dashboard</p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <span class="alert-icon">
+                                {% if message.tags == 'error' %}⚠{% elif message.tags == 'success' %}✓{% else %}ℹ{% endif %}
+                            </span>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error">
+                        <span class="alert-icon">⚠</span>
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <form method="post" id="loginForm" class="auth-form">
+                    {% csrf_token %}
+                    
+                    <!-- Username Field -->
+                    <div class="form-group">
+                        <label for="id_username" class="form-label">Username or Email</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input 
+                                type="text" 
+                                name="username" 
+                                id="id_username"
+                                class="form-input {% if form.username.errors %}input-error{% endif %}" 
+                                placeholder="Enter your username"
+                                required
+                                autofocus
+                                value="{{ form.username.value|default:'' }}"
+                            >
+                        </div>
+                        {% if form.username.errors %}
+                            <span class="field-error">{{ form.username.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="id_password" class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <input 
+                                type="password" 
+                                name="password" 
+                                id="id_password"
+                                class="form-input {% if form.password.errors %}input-error{% endif %}" 
+                                placeholder="Enter your password"
+                                required
+                            >
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <svg class="eye-icon" id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                            <span class="field-error">{{ form.password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Remember & Forgot -->
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember_me" id="remember_me">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-text">Keep me signed in</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span class="btn-text" id="btnText">Sign In</span>
+                        <span class="btn-loader" id="btnLoader"></span>
+                        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <!-- Register Link -->
+                <a href="{% url 'accounts:register' %}" class="btn-secondary">
+                    <span>Create new account</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                </a>
+
+                <!-- Footer -->
+                <div class="form-footer">
+                    <p>Need help? <a href="mailto:{{ school.email }}">Contact support</a></p>
                 </div>
             </div>
         </div>
@@ -143,17 +153,658 @@
 
 {% block extra_css %}
 <style>
-    .card {
-        animation: fadeInUp 0.6s ease-out;
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Outfit:wght@300;400;500&display=swap');
+
+    :root {
+        --primary: #FF6B35;
+        --primary-dark: #E85A2B;
+        --secondary: #004E89;
+        --accent: #FFD23F;
+        --text-dark: #1A1A2E;
+        --text-light: #6B7280;
+        --background: #F8F9FA;
+        --surface: #FFFFFF;
+        --error: #EF4444;
+        --success: #10B981;
+        --border: #E5E7EB;
     }
-    
-    .input-group-text {
-        border: 2px solid #e2e8f0;
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-    
-    .form-control:focus ~ .input-group-text,
-    .form-control:focus {
-        border-color: var(--primary-color);
+
+    body {
+        font-family: 'Outfit', sans-serif;
+        background: var(--background);
+        min-height: 100vh;
+    }
+
+    /* Login Section */
+    .login-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .login-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 1200px;
+        width: 100%;
+        background: var(--surface);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Visual Side */
+    .login-visual {
+        background: linear-gradient(135deg, var(--secondary) 0%, #003366 100%);
+        padding: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .floating-shapes {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.1;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    .shape-1 {
+        width: 200px;
+        height: 200px;
+        background: var(--accent);
+        top: -50px;
+        left: -50px;
+        animation-delay: 0s;
+    }
+
+    .shape-2 {
+        width: 150px;
+        height: 150px;
+        background: var(--primary);
+        bottom: 50px;
+        right: -30px;
+        animation-delay: 3s;
+    }
+
+    .shape-3 {
+        width: 100px;
+        height: 100px;
+        background: white;
+        top: 40%;
+        left: 10%;
+        animation-delay: 5s;
+    }
+
+    .shape-4 {
+        width: 120px;
+        height: 120px;
+        background: var(--accent);
+        bottom: 20%;
+        left: 60%;
+        animation-delay: 7s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(10px, -20px) rotate(90deg); }
+        50% { transform: translate(-15px, 10px) rotate(180deg); }
+        75% { transform: translate(20px, 15px) rotate(270deg); }
+    }
+
+    .visual-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+
+    .visual-title {
+        font-family: 'Bricolage Grotesque', sans-serif;
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        animation: slideUp 0.8s ease-out;
+    }
+
+    .visual-subtitle {
+        font-size: 1.125rem;
+        color: rgba(255,255,255,0.8);
+        line-height: 1.6;
+        max-width: 400px;
+        margin: 0 auto;
+        animation: slideUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Form Side */
+    .login-form-wrapper {
+        padding: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-form-container {
+        width: 100%;
+        max-width: 420px;
+        animation: fadeIn 0.6s ease-out 0.3s both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .form-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .form-title {
+        font-family: 'Bricolage Grotesque', sans-serif;
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-subtitle {
+        color: var(--text-light);
+        font-size: 0.938rem;
+    }
+
+    /* Alerts */
+    .alert {
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--error);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .alert-icon {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    /* Form */
+    .auth-form {
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        width: 20px;
+        height: 20px;
+        color: var(--text-light);
+        pointer-events: none;
+        stroke-width: 2;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 0.938rem;
+        font-family: 'Outfit', sans-serif;
+        color: var(--text-dark);
+        background: var(--surface);
+        transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-light);
+    }
+
+    .input-error {
+        border-color: var(--error);
+    }
+
+    .input-error:focus {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 1rem;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        transition: color 0.2s ease;
+    }
+
+    .toggle-password:hover {
+        color: var(--text-dark);
+    }
+
+    .eye-icon {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+    }
+
+    .field-error {
+        display: block;
+        color: var(--error);
+        font-size: 0.813rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Form Options */
+    .form-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        display: none;
+    }
+
+    .checkbox-custom {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+        content: '✓';
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .checkbox-text {
+        font-size: 0.875rem;
+        color: var(--text-dark);
+    }
+
+    .forgot-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+        color: var(--primary-dark);
+    }
+
+    /* Buttons */
+    .btn-submit {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-text {
+        transition: opacity 0.2s ease;
+    }
+
+    .btn-loader {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    .btn-submit.loading .btn-text {
+        opacity: 0;
+    }
+
+    .btn-submit.loading .btn-loader {
+        display: block;
+    }
+
+    .btn-submit.loading .btn-arrow {
+        opacity: 0;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .btn-arrow {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-submit:hover .btn-arrow {
+        transform: translateX(4px);
+    }
+
+    /* Divider */
+    .divider {
+        position: relative;
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .divider span {
+        position: relative;
+        background: var(--surface);
+        padding: 0 1rem;
+        color: var(--text-light);
+        font-size: 0.875rem;
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: transparent;
+        color: var(--text-dark);
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 500;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: rgba(255, 107, 53, 0.05);
+    }
+
+    .btn-secondary svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+    }
+
+    /* Footer */
+    .form-footer {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+
+    .form-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .form-footer a:hover {
+        color: var(--primary-dark);
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+        .login-container {
+            grid-template-columns: 1fr;
+        }
+
+        .login-visual {
+            display: none;
+        }
+
+        .login-form-wrapper {
+            padding: 2rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .login-section {
+            padding: 1rem;
+        }
+
+        .visual-title {
+            font-size: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+        }
+
+        .login-form-wrapper {
+            padding: 1.5rem;
+        }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function() {
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('id_password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        if (togglePassword && passwordField) {
+            togglePassword.addEventListener('click', function() {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+                } else {
+                    passwordField.type = 'password';
+                    eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                }
+            });
+        }
+
+        // Form submission handling
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoader = document.getElementById('btnLoader');
+
+        if (loginForm && submitBtn) {
+            let isSubmitting = false;
+
+            loginForm.addEventListener('submit', function(e) {
+                // Prevent double submission
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Basic validation
+                const username = document.getElementById('id_username').value.trim();
+                const password = document.getElementById('id_password').value;
+
+                if (!username || !password) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Set loading state
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+
+                // Auto-reset after 30 seconds
+                setTimeout(function() {
+                    resetButton();
+                }, 30000);
+            });
+
+            function resetButton() {
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+
+            // Reset on page load
+            window.addEventListener('pageshow', resetButton);
+            resetButton();
+        }
+    })();
+</script>
 {% endblock %}

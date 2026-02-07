@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Main Profile Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-on-scroll">
+                <!-- Header with Gradient -->
+                <div class="card-header text-white py-4 position-relative" style="background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);">
+                    <div class="position-relative" style="z-index: 2;">
+                        <h3 class="mb-1 fw-bold">
+                            <i class="bi bi-person-circle me-2"></i> My Profile
+                        </h3>
+                        <p class="mb-0 opacity-90">Manage your personal information</p>
+                    </div>
+                    <!-- Decorative Elements -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="opacity: 0.1; z-index: 1;">
+                        <i class="bi bi-stars position-absolute" style="top: 20%; right: 15%; font-size: 3rem;"></i>
+                        <i class="bi bi-heart-fill position-absolute" style="bottom: 20%; left: 20%; font-size: 2rem;"></i>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Profile Photo Section -->
+                        <div class="text-center mb-5 pb-4 border-bottom">
+                            <div class="position-relative d-inline-block">
+                                {% if user.profile_photo %}
+                                    <img src="{{ user.profile_photo.url }}" class="rounded-circle border border-4 border-white shadow-lg mb-3" width="150" height="150" id="photo-preview" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle border border-4 border-white shadow-lg mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));" id="photo-preview">
+                                        <i class="bi bi-person-fill text-white" style="font-size: 5rem;"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Camera icon overlay -->
+                                <div class="position-absolute bottom-0 end-0 translate-middle">
+                                    <label for="id_profile_photo" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; cursor: pointer;" title="Change Photo">
+                                        <i class="bi bi-camera-fill fs-5"></i>
+                                    </label>
+                                </div>
+                            </div>
+                            {{ form.profile_photo }}
+                            
+                            <div class="mt-3">
+                                <h4 class="mb-1 fw-bold">{{ user.get_full_name }}</h4>
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-envelope me-2"></i>{{ user.email }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Form Fields -->
+                        <div class="row g-4">
+                            <!-- First Name -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-person text-primary me-2"></i>First Name
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-person-fill text-muted"></i>
+                                    </span>
+                                    {{ form.first_name }}
+                                </div>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-person text-success me-2"></i>Last Name
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-person-fill text-muted"></i>
+                                    </span>
+                                    {{ form.last_name }}
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-envelope-fill text-info me-2"></i>Email Address
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-envelope-fill text-muted"></i>
+                                    </span>
+                                    {{ form.email }}
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-telephone-fill text-warning me-2"></i>Phone Number
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-telephone-fill text-muted"></i>
+                                    </span>
+                                    {{ form.phone }}
+                                </div>
+                            </div>
+
+                            <!-- Check-in Code Button -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-shield-lock-fill text-danger me-2"></i>Security Code
+                                </label>
+                                <a href="{% url 'accounts:check_in_code' %}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" style="height: 48px;">
+                                    <i class="bi bi-key-fill me-2"></i>Update Check-In Code
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-5 pt-4 border-top d-flex gap-3 flex-wrap">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm hover-lift">
+                                <i class="bi bi-check-circle-fill me-2"></i> Save Changes
+                            </button>
+                            <a href="{% url 'school:dashboard' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 hover-lift">
+                                <i class="bi bi-x-circle me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-shield-lock"></i> Check-In Code</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.check_in_code %}
+                        <div class="alert alert-success">
+                            <h4 class="text-center mb-0">{{ user.check_in_code }}</h4>
+                            <p class="text-center mb-0 small">Your check-in code</p>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:check_in_code' %}" class="btn btn-primary">
+                            Generate Check-In Code
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'accounts:check_in_code' %}" class="btn btn-outline-secondary">
+                        Change Code
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Activity Card -->
+            {% if recent_activities %}
+            <div class="card border-0 shadow-sm rounded-4 mt-4 animate-on-scroll">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-clock-history text-primary me-2"></i> Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activities|slice:":5" %}
+                        <div class="list-group-item border-0 px-4 py-3 hover-bg-light transition-all">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-dot text-primary fs-1"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="mb-1">{{ activity.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>{{ activity.timestamp|timesince }} ago
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Profile photo preview
+document.getElementById('id_profile_photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image size should be less than 5MB');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('photo-preview');
+            preview.innerHTML = '<img src="' + e.target.result + '" class="rounded-circle border border-4 border-white shadow-lg" width="150" height="150" style="object-fit: cover;">';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const firstName = document.querySelector('[name="first_name"]').value.trim();
+    const lastName = document.querySelector('[name="last_name"]').value.trim();
+    const email = document.querySelector('[name="email"]').value.trim();
+    
+    if (!firstName || !lastName || !email) {
+        e.preventDefault();
+        alert('Please fill in all required fields');
+        return false;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        e.preventDefault();
+        alert('Please enter a valid email address');
+        return false;
+    }
+});
+
+// Add animation on scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+
+// Add smooth transitions to input groups
+document.querySelectorAll('.input-group').forEach(group => {
+    const input = group.querySelector('input, select, textarea');
+    if (input) {
+        input.addEventListener('focus', function() {
+            group.style.transform = 'scale(1.02)';
+            group.style.boxShadow = '0 4px 15px rgba(255, 107, 107, 0.15)';
+        });
+        
+        input.addEventListener('blur', function() {
+            group.style.transform = 'scale(1)';
+            group.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+        });
+    }
+});
+</script>
+
+<style>
+#id_profile_photo {
+    display: none;
+}
+
+.input-group {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.input-group-text {
+    border-right: none;
+}
+
+.form-control {
+    border-left: none;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-bg-light:hover {
+    background-color: rgba(255, 107, 107, 0.05);
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+{% endblock %}

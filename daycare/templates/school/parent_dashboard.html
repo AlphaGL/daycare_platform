@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parent Dashboard - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.parent-dashboard {
+    background: linear-gradient(135deg, #FFF9F0 0%, #FFE8CC 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.welcome-header {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.child-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.child-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: #4ECDC4;
+}
+
+.child-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.child-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFE66D, #FFA94D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.card-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.announcement-item {
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    transition: background 0.2s ease;
+}
+
+.announcement-item:hover {
+    background: #e9ecef;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.help-card {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.help-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.animate-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="parent-dashboard">
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="welcome-header animate-in">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="welcome-title">Welcome back, {{ user.first_name }}! 👋</h1>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-calendar3 me-2"></i>{% now "l, F j, Y" %}
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'students:register' %}" class="action-button btn btn-primary">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span>Register Child</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- My Children Section -->
+                <div class="card-section animate-in" style="animation-delay: 0.1s;">
+                    <h2 class="section-title">
+                        <i class="bi bi-people-fill text-primary"></i>
+                        My Children
+                    </h2>
+                    
+                    {% if children %}
+                        {% for child in children %}
+                        <div class="child-card">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    {% if child.photo %}
+                                        <img src="{{ child.photo.url }}" alt="{{ child.get_full_name }}" class="child-avatar">
+                                    {% else %}
+                                        <div class="child-avatar-placeholder">
+                                            <i class="bi bi-person-fill text-white fs-2"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <h4 class="fw-bold mb-2">{{ child.get_full_name }}</h4>
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="info-badge" style="background: #FFF3E0; color: #E65100;">
+                                            <i class="bi bi-cake2-fill me-1"></i>
+                                            {{ child.age }} years old
+                                        </span>
+                                        {% if child.room %}
+                                            <span class="info-badge" style="background: #E0F2F1; color: #00695C;">
+                                                <i class="bi bi-door-open me-1"></i>
+                                                {{ child.room.name }}
+                                            </span>
+                                        {% endif %}
+                                        
+                                        {# Check if child has attendance today #}
+                                        {% for attendance_record in child.attendance_records.all %}
+                                            {% if attendance_record.date == today_date and attendance_record.check_in_time %}
+                                                <span class="info-badge" style="background: #E8F5E9; color: #2E7D32;">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                                    Checked in at {{ attendance_record.check_in_time|time:"g:i A" }}
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {# Show not checked in if no attendance record found #}
+                                        {% if not child.attendance_records.all %}
+                                            <span class="info-badge" style="background: #FFEBEE; color: #C62828;">
+                                                <i class="bi bi-x-circle-fill me-1"></i>
+                                                Not checked in today
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'students:detail' child.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">
+                                        <i class="bi bi-eye-fill me-1"></i>
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="help-icon mx-auto">
+                                <i class="bi bi-person-plus display-4 text-white"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">No Children Registered</h5>
+                            <p class="text-muted mb-4">Get started by registering your first child</p>
+                            <a href="{% url 'students:register' %}" class="btn btn-primary btn-lg rounded-pill px-5">
+                                <i class="bi bi-person-plus-fill me-2"></i>
+                                Register Now
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Announcements Section -->
+                <div class="card-section animate-in" style="animation-delay: 0.2s;">
+                    <h2 class="section-title">
+                        <i class="bi bi-megaphone-fill text-warning"></i>
+                        Recent Announcements
+                    </h2>
+                    
+                    {% if recent_announcements %}
+                        {% for announcement in recent_announcements %}
+                        <div class="announcement-item">
+                            <div class="d-flex align-items-start">
+                                <div class="rounded-circle p-2 me-3" style="background: #FFF3CD;">
+                                    <i class="bi bi-megaphone text-warning"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-1">{{ announcement.title }}</h6>
+                                    <p class="small text-muted mb-2">{{ announcement.content|truncatewords:25 }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        {{ announcement.publish_date|date:"M d, Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'messages:announcements' %}" class="btn btn-outline-warning rounded-pill">
+                                View All Announcements <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4 mb-0">No announcements available</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Messages Card -->
+                <div class="card-section animate-in" style="animation-delay: 0.3s;">
+                    <h3 class="h6 fw-bold mb-3">
+                        <i class="bi bi-envelope-fill text-primary me-2"></i>
+                        Messages
+                    </h3>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'messages:inbox' %}" class="action-button btn btn-outline-primary position-relative">
+                            <i class="bi bi-inbox-fill"></i>
+                            <span>Inbox</span>
+                            {% if unread_messages > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ unread_messages }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'messages:compose' %}" class="action-button btn btn-primary">
+                            <i class="bi bi-pencil-fill"></i>
+                            <span>Compose Message</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Help Card -->
+                <div class="help-card animate-in" style="animation-delay: 0.4s;">
+                    <div class="help-icon mx-auto">
+                        <i class="bi bi-question-circle-fill text-white fs-1"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">Need Help?</h6>
+                    <p class="small text-muted mb-3">We're here to support you</p>
+                    <div class="d-grid gap-2">
+                        <a href="tel:{{ school.phone }}" class="btn btn-success rounded-pill shadow-sm">
+                            <i class="bi bi-telephone-fill me-1"></i>
+                            Call Us
+                        </a>
+                        <a href="mailto:{{ school.email }}" class="btn btn-outline-success rounded-pill">
+                            <i class="bi bi-envelope-fill me-1"></i>
+                            Email Us
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="card-section animate-in" style="animation-delay: 0.5s;">
+                    <h3 class="h6 fw-bold mb-3">
+                        <i class="bi bi-lightning-fill text-warning me-2"></i>
+                        Quick Links
+                    </h3>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:profile' %}" class="action-button btn btn-outline-secondary">
+                            <i class="bi bi-person-fill"></i>
+                            <span>My Profile</span>
+                        </a>
+                        {% if children %}
+                        <a href="#" class="action-button btn btn-outline-secondary">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>View Calendar</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate elements on scroll
+    const elements = document.querySelectorAll('.animate-in');
+    elements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
+{% endblock %}

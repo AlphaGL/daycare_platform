@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ message.subject|default:"Message" }} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Back Button -->
+            <div class="mb-4 animate-on-scroll">
+                <a href="{% url 'messages:inbox' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Inbox
+                </a>
+            </div>
+
+            <!-- Main Message Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-on-scroll">
+                <!-- Header -->
+                <div class="card-header bg-white border-0 py-4 px-4 px-md-5">
+                    <h3 class="mb-4 fw-bold">{{ message.subject|default:"(No Subject)" }}</h3>
+                    
+                    <!-- Sender Info -->
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 flex-shrink-0">
+                            {% if message.sender.profile_photo %}
+                                <img src="{{ message.sender.profile_photo.url }}" 
+                                     class="rounded-circle border border-3 border-white shadow" 
+                                     width="64" height="64" style="object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle border border-3 border-white shadow d-flex align-items-center justify-content-center" 
+                                     style="width: 64px; height: 64px; background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+                                    <i class="bi bi-person-fill text-white fs-3"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1 fw-bold">{{ message.sender.get_full_name }}</h5>
+                            <p class="text-muted mb-0 d-flex align-items-center">
+                                <i class="bi bi-calendar3 me-2"></i>
+                                {{ message.created_at|date:"F j, Y" }}
+                                <span class="mx-2">•</span>
+                                <i class="bi bi-clock me-2"></i>
+                                {{ message.created_at|date:"g:i a" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Body -->
+                <div class="card-body p-4 p-md-5">
+                    <div class="message-body p-4 rounded-4" style="background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%); line-height: 1.8;">
+                        {{ message.body|linebreaks }}
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="card-footer bg-white border-0 p-4 p-md-5">
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="{% url 'messages:compose' %}?reply={{ message.pk }}" class="btn btn-primary rounded-pill px-5 hover-lift">
+                            <i class="bi bi-reply-fill me-2"></i> Reply
+                        </a>
+                        <button class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="bi bi-archive me-2"></i> Archive
+                        </button>
+                        <button class="btn btn-outline-danger rounded-pill px-4">
+                            <i class="bi bi-trash me-2"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reply Thread -->
+            {% if message.replies.all %}
+            <div class="mt-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-chat-dots-fill text-primary me-2"></i> 
+                            Replies ({{ message.replies.count }})
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for reply in message.replies.all %}
+                        <div class="p-4 {% if not forloop.last %}border-bottom{% endif %} hover-bg-light transition-all">
+                            <div class="d-flex align-items-start">
+                                <!-- Avatar -->
+                                <div class="me-3 flex-shrink-0">
+                                    {% if reply.sender.profile_photo %}
+                                        <img src="{{ reply.sender.profile_photo.url }}" 
+                                             class="rounded-circle border border-2 border-white shadow-sm" 
+                                             width="48" height="48" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle border border-2 border-white shadow-sm d-flex align-items-center justify-content-center" 
+                                             style="width: 48px; height: 48px; background: linear-gradient(135deg, #FFE66D, #FFA94D);">
+                                            <i class="bi bi-person-fill text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Reply Content -->
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 fw-bold">{{ reply.sender.get_full_name }}</h6>
+                                        <small class="text-muted">
+                                            {{ reply.created_at|date:"M d, Y, g:i a" }}
+                                        </small>
+                                    </div>
+                                    <div class="p-3 rounded-3" style="background-color: #f8f9fa;">
+                                        {{ reply.body|linebreaks }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.message-body {
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.message-body p:last-child {
+    margin-bottom: 0;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-bg-light:hover {
+    background-color: rgba(78, 205, 196, 0.05);
+}
+
+@media (max-width: 768px) {
+    .card-body, .card-header, .card-footer {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

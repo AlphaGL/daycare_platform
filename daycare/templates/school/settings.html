@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}School Settings - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Back Button -->
+            <div class="mb-4 animate-on-scroll">
+                <a href="{% url 'school:dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Main Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-on-scroll">
+                <!-- Header -->
+                <div class="card-header text-white py-5 position-relative" style="background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%);">
+                    <div class="position-relative" style="z-index: 2;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 p-3 mb-3">
+                            <i class="bi bi-gear-fill fs-1"></i>
+                        </div>
+                        <h3 class="mb-1 fw-bold">School Settings</h3>
+                        <p class="mb-0 opacity-90">Configure system behavior and preferences</p>
+                    </div>
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="opacity: 0.1; z-index: 1;">
+                        <i class="bi bi-sliders position-absolute" style="top: 20%; right: 15%; font-size: 4rem;"></i>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Check-in Settings -->
+                        <div class="mb-5 pb-4 border-bottom">
+                            <h5 class="mb-4 fw-bold d-flex align-items-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-door-open text-primary"></i>
+                                </div>
+                                Check-in Settings
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.checkin_enabled }}
+                                        <label class="form-check-label" for="{{ form.checkin_enabled.id_for_label }}">
+                                            <strong>Enable Check-in Kiosk Mode</strong>
+                                            <p class="small text-muted mb-0">Allow parents to check students in/out</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.require_checkin_code }}
+                                        <label class="form-check-label" for="{{ form.require_checkin_code.id_for_label }}">
+                                            <strong>Require Check-in Code</strong>
+                                            <p class="small text-muted mb-0">Parents must enter their code</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Room Settings -->
+                        <div class="mb-5 pb-4 border-bottom">
+                            <h5 class="mb-4 fw-bold d-flex align-items-center">
+                                <div class="rounded-circle bg-success bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-building text-success"></i>
+                                </div>
+                                Room Management
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.auto_assign_rooms }}
+                                        <label class="form-check-label" for="{{ form.auto_assign_rooms.id_for_label }}">
+                                            <strong>Auto-Assign Rooms</strong>
+                                            <p class="small text-muted mb-0">Automatically assign students based on age</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Max Students Per Room</label>
+                                    {{ form.max_students_per_room }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Learning Framework</label>
+                                    {{ form.learning_framework }}
+                                    <small class="text-muted d-block mt-1">Primary educational approach</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parent Permissions -->
+                        <div class="mb-5 pb-4 border-bottom">
+                            <h5 class="mb-4 fw-bold d-flex align-items-center">
+                                <div class="rounded-circle bg-info bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-people text-info"></i>
+                                </div>
+                                Parent Permissions
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.parents_can_edit_student_info }}
+                                        <label class="form-check-label" for="{{ form.parents_can_edit_student_info.id_for_label }}">
+                                            <strong>Parents Can Edit Student Info</strong>
+                                            <p class="small text-muted mb-0">Allow parents to update child information</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.parents_can_add_activities }}
+                                        <label class="form-check-label" for="{{ form.parents_can_add_activities.id_for_label }}">
+                                            <strong>Parents Can Add Activities</strong>
+                                            <p class="small text-muted mb-0">Allow parents to log activities</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Communication Settings -->
+                        <div class="mb-5 pb-4 border-bottom">
+                            <h5 class="mb-4 fw-bold d-flex align-items-center">
+                                <div class="rounded-circle bg-warning bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-chat-dots text-warning"></i>
+                                </div>
+                                Communication
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.enable_parent_messaging }}
+                                        <label class="form-check-label" for="{{ form.enable_parent_messaging.id_for_label }}">
+                                            <strong>Enable Parent Messaging</strong>
+                                            <p class="small text-muted mb-0">Parents can message staff</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.enable_staff_messaging }}
+                                        <label class="form-check-label" for="{{ form.enable_staff_messaging.id_for_label }}">
+                                            <strong>Enable Staff Messaging</strong>
+                                            <p class="small text-muted mb-0">Staff can message each other</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Settings -->
+                        <div class="mb-5 pb-4 border-bottom">
+                            <h5 class="mb-4 fw-bold d-flex align-items-center">
+                                <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-person-plus text-danger"></i>
+                                </div>
+                                Registration
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.registration_enabled }}
+                                        <label class="form-check-label" for="{{ form.registration_enabled.id_for_label }}">
+                                            <strong>Allow New Registrations</strong>
+                                            <p class="small text-muted mb-0">Enable/disable new parent sign-ups</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Registration Fee (₦)</label>
+                                    {{ form.registration_fee }}
+                                    <small class="text-muted d-block mt-1">One-time registration fee</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="mb-5">
+                            <h5 class="mb-4 fw-bold d-flex align-items-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                    <i class="bi bi-bell text-primary"></i>
+                                </div>
+                                Notifications
+                            </h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.send_welcome_emails }}
+                                        <label class="form-check-label" for="{{ form.send_welcome_emails.id_for_label }}">
+                                            <strong>Send Welcome Emails</strong>
+                                            <p class="small text-muted mb-0">Email new users upon registration</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.send_activity_notifications }}
+                                        <label class="form-check-label" for="{{ form.send_activity_notifications.id_for_label }}">
+                                            <strong>Activity Notifications</strong>
+                                            <p class="small text-muted mb-0">Notify about important activities</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 pt-4 border-top flex-wrap">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm hover-lift">
+                                <i class="bi bi-check-circle-fill me-2"></i> Save Settings
+                            </button>
+                            <a href="{% url 'school:dashboard' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 hover-lift">
+                                <i class="bi bi-x-circle me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer text-center py-4" style="background: linear-gradient(135deg, #F5F5F5, #E0E0E0);">
+                    <small class="text-muted d-flex align-items-center justify-content-center">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Changes take effect immediately after saving
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-check-input {
+    width: 3.5em;
+    height: 1.75em;
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.form-control, .form-select {
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.15);
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

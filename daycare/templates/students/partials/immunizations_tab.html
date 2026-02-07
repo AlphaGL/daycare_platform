@@ -1,0 +1,191 @@
+<!-- Immunizations Tab (Admin/Staff Only) -->
+<div class="admin-only-section mb-4">
+    <span class="admin-only-badge">
+        <i class="bi bi-shield-lock-fill me-1"></i>
+        ADMIN/STAFF ONLY - Not visible to parents
+    </span>
+    <p class="mb-0 mt-2"><strong>Important:</strong> This information is confidential and follows CDC immunization guidelines.</p>
+</div>
+
+<!-- Immunization Overview -->
+<div class="immunization-overview">
+    <div class="overview-card complete">
+        <h3>{{ completion_percentage }}%</h3>
+        <p>Complete</p>
+    </div>
+    <div class="overview-card {% if overdue_vaccines %}overdue{% endif %}">
+        <h3>{{ overdue_vaccines|length }}</h3>
+        <p>Overdue</p>
+    </div>
+    <div class="overview-card">
+        <h3>{{ due_soon_vaccines|length }}</h3>
+        <p>Due Soon</p>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="d-flex gap-2 mb-4">
+    <a href="{% url 'students:immunization_settings' student.pk %}" class="btn btn-primary">
+        <i class="bi bi-gear-fill"></i> Settings
+    </a>
+    <a href="{% url 'students:vaccine_bulk_update' student.pk %}" class="btn btn-secondary">
+        <i class="bi bi-pencil-square"></i> Bulk Update
+    </a>
+</div>
+
+<!-- Overdue Vaccines Alert -->
+{% if overdue_vaccines %}
+<div class="alert alert-danger d-flex align-items-center mb-4">
+    <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+    <div>
+        <strong>{{ overdue_vaccines|length }} dose(s) overdue</strong>
+        <p class="mb-0">Please update vaccination records as soon as possible.</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Exemption Notice -->
+{% if immunization_record.is_exempt %}
+<div class="alert alert-warning">
+    <i class="bi bi-shield-exclamation me-2"></i>
+    <strong>Student Exempt from Immunizations</strong>
+    <p class="mb-0">{{ immunization_record.exemption_reason }}</p>
+</div>
+{% endif %}
+
+<!-- Vaccine Table -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); color: #2E7D32;">
+            <i class="bi bi-shield-fill-check"></i>
+        </div>
+        <div>
+            <h4>Vaccination Records</h4>
+            <p>Based on CDC recommendations for age {{ student.age_display }}</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        {% if vaccines_by_type %}
+        {% for vaccine_name, vaccine_data in vaccines_by_type.items %}
+        <div class="vaccine-section mb-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h5 class="vaccine-name mb-1">{{ vaccine_data.vaccine.name }}</h5>
+                    <p class="vaccine-full-name mb-0">{{ vaccine_data.vaccine.full_name }}</p>
+                </div>
+            </div>
+            
+            <div class="dose-grid">
+                <div class="row g-2">
+                    {% for dose in vaccine_data.doses %}
+                    <div class="col-md-6">
+                        <div class="dose-card {% if dose.is_overdue %}dose-overdue-card{% elif dose.is_administered %}dose-complete-card{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>Dose {{ dose.dose_schedule.dose_number }}</strong>
+                                    <p class="text-muted small mb-1">
+                                        CDC: {{ dose.dose_schedule.cdc_recommendation_text }}
+                                    </p>
+                                    {% if dose.is_administered %}
+                                    <p class="mb-0">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        {{ dose.date_administered|date:"M d, Y" }}
+                                    </p>
+                                    {% if dose.administered_by %}
+                                    <small class="text-muted">By {{ dose.administered_by }}</small>
+                                    {% endif %}
+                                    {% else %}
+                                    <p class="mb-0">
+                                        {% if dose.is_overdue %}
+                                        <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                        <span class="text-danger">Overdue</span>
+                                        {% else %}
+                                        <i class="bi bi-circle text-muted"></i>
+                                        <span class="text-muted">Not given</span>
+                                        {% endif %}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'students:vaccine_dose_update' dose.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <hr>
+        {% endfor %}
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-shield-x fs-1"></i>
+            <p class="mt-2">No vaccine records found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Catch-up Schedule Notice -->
+{% if immunization_record.on_catch_up_schedule %}
+<div class="alert alert-info mt-4">
+    <i class="bi bi-calendar-week me-2"></i>
+    <strong>On Catch-up Schedule</strong>
+    <p class="mb-0">{{ immunization_record.catch_up_notes }}</p>
+</div>
+{% endif %}
+
+<!-- Notes -->
+{% if immunization_record.notes %}
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #FFF3E0, #FFE0B2); color: #E65100;">
+            <i class="bi bi-journal-text"></i>
+        </div>
+        <div>
+            <h4>Immunization Notes</h4>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <p>{{ immunization_record.notes|linebreaks }}</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.dose-grid {
+    margin-top: 1rem;
+}
+
+.dose-card {
+    background: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.dose-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dose-complete-card {
+    border-color: #C8E6C9;
+    background: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%);
+}
+
+.dose-overdue-card {
+    border-color: #FFCDD2;
+    background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+}
+
+.vaccine-section {
+    padding-bottom: 1.5rem;
+}
+
+.vaccine-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+</style>

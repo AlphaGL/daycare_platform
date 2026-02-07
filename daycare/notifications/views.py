@@ -11,7 +11,7 @@ def inbox(request):
     messages = Message.objects.filter(recipient=request.user).order_by('-created_at')
     unread_count = messages.filter(is_read=False).count()
     
-    return render(request, 'messages/inbox.html', {
+    return render(request, 'notifications/inbox.html', {
         'messages': messages,
         'unread_count': unread_count
     })
@@ -25,7 +25,7 @@ def message_detail(request, pk):
     if message.recipient == request.user:
         message.mark_as_read()
     
-    return render(request, 'messages/message_detail.html', {'message': message})
+    return render(request, 'notifications/message_detail.html', {'message': message})
 
 
 @login_required
@@ -42,11 +42,11 @@ def compose_message(request):
     else:
         form = MessageForm()
     
-    return render(request, 'messages/compose.html', {'form': form})
+    return render(request, 'notifications/compose.html', {'form': form})
 
 
 @login_required
 def announcements(request):
     """View announcements"""
     all_announcements = Announcement.objects.filter(is_published=True).order_by('-publish_date')
-    return render(request, 'messages/announcements.html', {'announcements': all_announcements})
+    return render(request, 'notifications/announcements.html', {'announcements': all_announcements})

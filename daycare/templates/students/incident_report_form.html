@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if incident %}Edit Incident Report{% else %}Add Incident Report{% endif %} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <a href="{% url 'students:detail' student.pk %}" class="btn btn-outline-secondary mb-3">
+                    <i class="bi bi-arrow-left"></i> Back to Student
+                </a>
+                <h2 class="fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                    {% if incident %}Edit Incident Report{% else %}New Incident Report{% endif %}
+                </h2>
+                <p class="text-muted">For {{ student.get_full_name }}</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Report Details -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-file-text me-2"></i>
+                                Report Details
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">{{ form.report_date.label }}</label>
+                                    {{ form.report_date }}
+                                    {% if form.report_date.errors %}
+                                    <div class="text-danger mt-1">{{ form.report_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">{{ form.report_time.label }}</label>
+                                    {{ form.report_time }}
+                                    {% if form.report_time.errors %}
+                                    <div class="text-danger mt-1">{{ form.report_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">{{ form.incident_type.label }}</label>
+                                    {{ form.incident_type }}
+                                    {% if form.incident_type.errors %}
+                                    <div class="text-danger mt-1">{{ form.incident_type.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Incident Description -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-chat-left-text me-2"></i>
+                                What Happened?
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ form.description.label }}</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="text-danger mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Provide a detailed description of what happened, including when and where it occurred.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Witnesses and Actions -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-people me-2"></i>
+                                Witnesses & Actions Taken
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">{{ form.witnesses.label }}</label>
+                                    {{ form.witnesses }}
+                                    {% if form.witnesses.errors %}
+                                    <div class="text-danger mt-1">{{ form.witnesses.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Optional - List any staff or students who witnessed the incident</small>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">{{ form.action_taken.label }}</label>
+                                    {{ form.action_taken }}
+                                    {% if form.action_taken.errors %}
+                                    <div class="text-danger mt-1">{{ form.action_taken.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Describe what actions were taken immediately following the incident</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parent Notification -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-telephone me-2"></i>
+                                Parent/Guardian Notification
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch p-3 bg-light rounded">
+                                        {{ form.parent_notified }}
+                                        <label class="form-check-label ms-2" for="{{ form.parent_notified.id_for_label }}">
+                                            <strong>Parent/Guardian Notified</strong>
+                                        </label>
+                                    </div>
+                                    {% if form.parent_notified.errors %}
+                                    <div class="text-danger mt-1">{{ form.parent_notified.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">{{ form.notification_method.label }}</label>
+                                    {{ form.notification_method }}
+                                    {% if form.notification_method.errors %}
+                                    <div class="text-danger mt-1">{{ form.notification_method.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Follow-up -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Follow-up Required
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <div class="form-check form-switch p-3 bg-light rounded">
+                                        {{ form.follow_up_required }}
+                                        <label class="form-check-label ms-2" for="{{ form.follow_up_required.id_for_label }}">
+                                            <strong>This incident requires follow-up</strong>
+                                            <p class="mb-0 text-muted small">Check if additional actions or monitoring is needed</p>
+                                        </label>
+                                    </div>
+                                    {% if form.follow_up_required.errors %}
+                                    <div class="text-danger mt-1">{{ form.follow_up_required.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">{{ form.follow_up_notes.label }}</label>
+                                    {{ form.follow_up_notes }}
+                                    {% if form.follow_up_notes.errors %}
+                                    <div class="text-danger mt-1">{{ form.follow_up_notes.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Optional - Describe what follow-up is needed</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <button type="submit" class="btn btn-warning btn-lg px-5">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {% if incident %}Update Report{% else %}Submit Report{% endif %}
+                            </button>
+                            <a href="{% url 'students:detail' student.pk %}" class="btn btn-outline-secondary btn-lg px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.section-title {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.form-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+</style>
+{% endblock %}

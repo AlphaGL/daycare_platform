@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Reminder - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Back Button -->
+            <div class="mb-4 animate-on-scroll">
+                <a href="{% url 'school:reminder_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Reminders
+                </a>
+            </div>
+
+            <!-- Main Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-on-scroll">
+                <!-- Header -->
+                <div class="card-header text-white py-5 position-relative" style="background: linear-gradient(135deg, #FFB347 0%, #FF8C00 100%);">
+                    <div class="position-relative" style="z-index: 2;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 p-3 mb-3">
+                            <i class="bi bi-bell-fill fs-1"></i>
+                        </div>
+                        <h3 class="mb-1 fw-bold">Create Reminder</h3>
+                        <p class="mb-0 opacity-90">Set up a reminder for important tasks</p>
+                    </div>
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="opacity: 0.1; z-index: 1;">
+                        <i class="bi bi-alarm position-absolute" style="top: 20%; right: 15%; font-size: 4rem;"></i>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold mb-2">
+                                <i class="bi bi-text-left text-primary me-2"></i> Title *
+                            </label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-card-heading text-muted"></i>
+                                </span>
+                                {{ form.title }}
+                            </div>
+                            {% if form.title.errors %}
+                                <small class="text-danger">{{ form.title.errors }}</small>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">
+                                <i class="bi bi-info-circle me-1"></i> Brief description of what you need to remember
+                            </small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold mb-2">
+                                <i class="bi bi-card-text text-success me-2"></i> Description *
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <small class="text-danger">{{ form.description.errors }}</small>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">
+                                <i class="bi bi-info-circle me-1"></i> Detailed information about this reminder
+                            </small>
+                        </div>
+
+                        <!-- Priority & Date -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.priority.id_for_label }}" class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-flag-fill text-warning me-2"></i> Priority *
+                                </label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                    <small class="text-danger d-block">{{ form.priority.errors }}</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.remind_at.id_for_label }}" class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-calendar-event text-info me-2"></i> Remind Me At *
+                                </label>
+                                {{ form.remind_at }}
+                                {% if form.remind_at.errors %}
+                                    <small class="text-danger d-block">{{ form.remind_at.errors }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Email Notification -->
+                        <div class="mb-4 p-4 rounded-4" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB);">
+                            <div class="form-check form-switch">
+                                {{ form.send_email }}
+                                <label class="form-check-label" for="{{ form.send_email.id_for_label }}">
+                                    <strong class="d-block mb-1">Send Email Notification</strong>
+                                    <small class="text-muted">Receive an email reminder at the scheduled time</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Priority Guide -->
+                        <div class="card border-0 mb-4" style="background: linear-gradient(135deg, #FFF9E6, #FFE8B3);">
+                            <div class="card-body p-4">
+                                <h6 class="mb-3 fw-bold d-flex align-items-center">
+                                    <i class="bi bi-info-circle-fill text-warning me-2"></i> Priority Guide
+                                </h6>
+                                <ul class="mb-0" style="line-height: 2;">
+                                    <li class="mb-2">
+                                        <strong class="text-secondary">Low:</strong> General tasks with flexible deadlines
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong class="text-info">Medium:</strong> Important tasks requiring attention
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong class="text-warning">High:</strong> Critical tasks with approaching deadlines
+                                    </li>
+                                    <li>
+                                        <strong class="text-danger">Urgent:</strong> Immediate action required
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 pt-3 flex-wrap">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm hover-lift">
+                                <i class="bi bi-check-circle-fill me-2"></i> Create Reminder
+                            </button>
+                            <a href="{% url 'school:reminder_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 hover-lift">
+                                <i class="bi bi-x-circle me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="card border-0 shadow-sm rounded-4 mt-4 animate-on-scroll" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9);">
+                <div class="card-body p-4">
+                    <h6 class="mb-3 fw-bold">
+                        <i class="bi bi-lightbulb-fill text-success me-2"></i> Tips for Effective Reminders
+                    </h6>
+                    <ul class="mb-0" style="line-height: 2;">
+                        <li>Use clear, actionable titles (e.g., "Submit monthly report")</li>
+                        <li>Set reminders with enough advance time to take action</li>
+                        <li>Include all necessary details in the description</li>
+                        <li>Choose priority levels that reflect actual urgency</li>
+                        <li>Enable email notifications for critical reminders</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.input-group {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.input-group-text {
+    border-right: none;
+}
+
+.form-control, .form-select {
+    border-left: none;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+textarea.form-control {
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: 150px;
+}
+
+.form-check-input {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+
+    // Input group focus effects
+    document.querySelectorAll('.input-group').forEach(group => {
+        const input = group.querySelector('input, select, textarea');
+        if (input) {
+            input.addEventListener('focus', function() {
+                group.style.transform = 'scale(1.02)';
+                group.style.boxShadow = '0 4px 15px rgba(255, 179, 71, 0.15)';
+            });
+            
+            input.addEventListener('blur', function() {
+                group.style.transform = 'scale(1)';
+                group.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

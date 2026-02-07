@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Schedule - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.delete-container {
+    background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+    display: flex;
+    align-items: center;
+}
+
+.delete-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.delete-header {
+    background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: white;
+}
+
+.warning-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.schedule-info {
+    background: #FFF3E0;
+    border-left: 4px solid #FF9800;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="delete-card animate-in">
+                    <div class="delete-header">
+                        <div class="warning-icon">
+                            <i class="bi bi-exclamation-triangle-fill display-1"></i>
+                        </div>
+                        <h2 class="mb-2 fw-bold">Delete Schedule?</h2>
+                        <p class="mb-0 opacity-90">This action cannot be undone</p>
+                    </div>
+
+                    <div class="p-4 p-md-5">
+                        <div class="alert alert-danger rounded-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-exclamation-circle-fill fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-2 fw-bold">Warning</h6>
+                                    <p class="mb-0">
+                                        You are about to permanently delete this schedule. 
+                                        All associated data will be removed and cannot be recovered.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Schedule Details:</h5>
+                        
+                        <div class="schedule-info">
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-bookmark me-2"></i>Title
+                                </span>
+                                <strong>{{ schedule.title }}</strong>
+                            </div>
+                            
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-tag me-2"></i>Type
+                                </span>
+                                <strong>{{ schedule.get_schedule_type_display }}</strong>
+                            </div>
+                            
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-calendar-event me-2"></i>Date Range
+                                </span>
+                                <strong>
+                                    {{ schedule.start_date|date:"M j, Y" }}
+                                    {% if schedule.end_date %} - {{ schedule.end_date|date:"M j, Y" }}{% endif %}
+                                </strong>
+                            </div>
+                            
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-clock me-2"></i>Time
+                                </span>
+                                <strong>{{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}</strong>
+                            </div>
+                            
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-arrow-repeat me-2"></i>Recurrence
+                                </span>
+                                <strong>{{ schedule.get_recurrence_type_display }}</strong>
+                            </div>
+                            
+                            {% if schedule.assigned_staff.count > 0 %}
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-people me-2"></i>Assigned Staff
+                                </span>
+                                <strong>{{ schedule.assigned_staff.count }} staff member(s)</strong>
+                            </div>
+                            {% endif %}
+                            
+                            {% if schedule.assigned_students.count > 0 %}
+                            <div class="info-row">
+                                <span class="text-muted">
+                                    <i class="bi bi-person me-2"></i>Assigned Students
+                                </span>
+                                <strong>{{ schedule.assigned_students.count }} student(s)</strong>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            
+                            <div class="d-flex gap-3 flex-wrap justify-content-center pt-4 border-top">
+                                <button type="submit" class="btn btn-danger btn-lg rounded-pill px-5">
+                                    <i class="bi bi-trash-fill me-2"></i>
+                                    Yes, Delete Schedule
+                                </button>
+                                <a href="{% url 'attendance:schedule_detail' schedule.pk %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

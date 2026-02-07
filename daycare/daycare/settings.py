@@ -1,5 +1,5 @@
 """
-Django settings for Daycare Management System.
+Django settings for Sugamama sugababies Daycare.
 Security-first, scalable configuration.
 """
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'rooms',
     'staff',
     'notifications',
+    'attendance',
 ]
 
 MIDDLEWARE = [
@@ -65,7 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'school.context_processors.school_settings',  # Global school settings
+                'school.context_processors.school_context',  # ✅ Correct  # Global school settings
             ],
         },
     },
@@ -130,10 +131,13 @@ DEFAULT_FROM_NAME = config('DEFAULT_FROM_NAME', default='Daycare Management')
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Login/Logout redirects
+# Login/Logout redirects - FIXED TO PREVENT INFINITE LOOPS
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'home'
+# Changed: Instead of redirecting to dashboard (which might need permissions),
+# redirect to profile which is accessible to all authenticated users
+LOGIN_REDIRECT_URL = 'accounts:profile'
+# Changed: Redirect to login instead of non-existent 'home' URL
+LOGOUT_REDIRECT_URL = 'accounts:login'
 
 # WhatsApp Settings
 WHATSAPP_NUMBER = config('WHATSAPP_NUMBER', default='')
@@ -143,7 +147,7 @@ WHATSAPP_MESSAGE_TEMPLATE = config(
 )
 
 # Site Settings
-SITE_NAME = config('SITE_NAME', default='Daycare Management System')
+SITE_NAME = config('SITE_NAME', default='Sugamama sugababies Daycare')
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
 
 # Security Settings (Production)
@@ -165,3 +169,8 @@ PAGINATION_PER_PAGE = 20
 
 # Activity Tracking
 TRACK_USER_ACTIVITY = True
+
+# Session settings - ADDED TO FIX LOGIN ISSUES
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_SAVE_EVERY_REQUEST = False
+SESSION_COOKIE_HTTPONLY = True

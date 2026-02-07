@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <a href="{% url 'messages:compose' %}" class="btn btn-primary w-100 rounded-pill mb-4 py-3 shadow-sm hover-lift">
+                        <i class="bi bi-pencil-square-fill me-2"></i> Compose Message
+                    </a>
+                    
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'messages:inbox' %}" class="list-group-item list-group-item-action active border-0 rounded-3 mb-2 d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-inbox-fill me-2"></i> Inbox</span>
+                            {% if unread_count > 0 %}
+                                <span class="badge bg-danger rounded-pill">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'messages:announcements' %}" class="list-group-item list-group-item-action border-0 rounded-3">
+                            <i class="bi bi-megaphone-fill me-2"></i> Announcements
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header bg-white border-0 py-4 px-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div>
+                            <h4 class="mb-1 fw-bold">
+                                <i class="bi bi-inbox text-primary me-2"></i> Inbox
+                            </h4>
+                            <p class="text-muted mb-0 small">Your messages and conversations</p>
+                        </div>
+                        {% if unread_count > 0 %}
+                            <div class="badge px-4 py-2 rounded-pill" style="background: linear-gradient(135deg, #FF6B6B, #FF5252);">
+                                {{ unread_count }} unread message{{ unread_count|pluralize }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Messages List -->
+                <div class="card-body p-0">
+                    {% if messages %}
+                        <div class="list-group list-group-flush">
+                            {% for message in messages %}
+                            <a href="{% url 'messages:detail' message.pk %}" 
+                               class="list-group-item list-group-item-action border-0 p-4 {% if not message.is_read %}bg-light{% endif %} hover-bg-gradient transition-all">
+                                <div class="d-flex align-items-start">
+                                    <!-- Avatar -->
+                                    <div class="me-3 flex-shrink-0">
+                                        {% if message.sender.profile_photo %}
+                                            <img src="{{ message.sender.profile_photo.url }}" 
+                                                 class="rounded-circle border border-2 border-white shadow-sm" 
+                                                 width="56" height="56" style="object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center border border-2 border-white shadow-sm" 
+                                                 style="width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                                                <i class="bi bi-person-fill text-white fs-4"></i>
+                                            </div>
+                                        {% endif %}
+                                        {% if not message.is_read %}
+                                            <div class="position-absolute translate-middle badge rounded-circle bg-primary p-2" style="top: 0; left: 50px;">
+                                                <span class="visually-hidden">New message</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Message Content -->
+                                    <div class="flex-grow-1 min-width-0">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0 {% if not message.is_read %}fw-bold{% else %}fw-semibold{% endif %} text-truncate">
+                                                {{ message.sender.get_full_name }}
+                                            </h6>
+                                            <small class="text-muted flex-shrink-0 ms-2">
+                                                <i class="bi bi-clock me-1"></i>{{ message.created_at|timesince }} ago
+                                            </small>
+                                        </div>
+                                        <p class="mb-2 {% if not message.is_read %}fw-semibold text-dark{% else %}text-secondary{% endif %} text-truncate">
+                                            {{ message.subject|default:"(No Subject)" }}
+                                        </p>
+                                        <p class="text-muted small mb-0 text-truncate">
+                                            {{ message.body|truncatewords:20 }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Unread Badge -->
+                                    {% if not message.is_read %}
+                                        <div class="badge bg-primary rounded-pill ms-3 align-self-center">
+                                            New
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <!-- Empty State -->
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-5" style="background: linear-gradient(135deg, #F5F5F5, #E0E0E0); width: 150px; height: 150px;">
+                                    <i class="bi bi-inbox display-1 text-muted opacity-50"></i>
+                                </div>
+                            </div>
+                            <h4 class="mb-2 fw-bold">No Messages Yet</h4>
+                            <p class="text-muted mb-4">Your inbox is empty. Start a conversation!</p>
+                            <a href="{% url 'messages:compose' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-sm hover-lift">
+                                <i class="bi bi-pencil-fill me-2"></i> Send Your First Message
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-bg-gradient {
+    transition: all 0.3s ease;
+}
+
+.hover-bg-gradient:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(78, 205, 196, 0.05) 100%) !important;
+    transform: translateX(5px);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.min-width-0 {
+    min-width: 0;
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+    .sticky-top {
+        position: relative !important;
+        top: 0 !important;
+    }
+}
+</style>
+
+<script>
+// Mark as read when clicked
+document.querySelectorAll('.list-group-item').forEach(item => {
+    item.addEventListener('click', function() {
+        this.classList.remove('bg-light');
+        const badge = this.querySelector('.badge.bg-primary');
+        if (badge) {
+            badge.style.opacity = '0';
+            setTimeout(() => badge.remove(), 300);
+        }
+    });
+});
+</script>
+{% endblock %}

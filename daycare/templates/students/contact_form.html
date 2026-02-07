@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if contact %}Edit Contact{% else %}Add Contact{% endif %} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <a href="{% url 'students:detail' student.pk %}" class="btn btn-outline-secondary mb-3">
+                    <i class="bi bi-arrow-left"></i> Back to Student
+                </a>
+                <h2 class="fw-bold">
+                    <i class="bi bi-person-plus-fill text-success me-2"></i>
+                    {% if contact %}Edit Contact{% else %}Add New Contact{% endif %}
+                </h2>
+                <p class="text-muted">For {{ student.get_full_name }}</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Basic Information -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Basic Information
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">{{ form.full_name.label }}</label>
+                                    {{ form.full_name }}
+                                    {% if form.full_name.errors %}
+                                    <div class="text-danger mt-1">{{ form.full_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">{{ form.relationship.label }}</label>
+                                    {{ form.relationship }}
+                                    {% if form.relationship.errors %}
+                                    <div class="text-danger mt-1">{{ form.relationship.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">{{ form.phone.label }}</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                    <div class="text-danger mt-1">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">{{ form.email.label }}</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="text-danger mt-1">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Optional</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Permissions -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Permissions & Access
+                            </h5>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <div class="form-check form-switch">
+                                        {{ form.can_pickup }}
+                                        <label class="form-check-label" for="{{ form.can_pickup.id_for_label }}">
+                                            <strong>Can Pickup Student</strong>
+                                            <p class="mb-0 text-muted small">Authorized to pick up the child</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="permission-item">
+                                    <div class="form-check form-switch">
+                                        {{ form.is_emergency_contact }}
+                                        <label class="form-check-label" for="{{ form.is_emergency_contact.id_for_label }}">
+                                            <strong>Emergency Contact</strong>
+                                            <p class="mb-0 text-muted small">Contact in case of emergency</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="permission-item">
+                                    <div class="form-check form-switch">
+                                        {{ form.is_billing_contact }}
+                                        <label class="form-check-label" for="{{ form.is_billing_contact.id_for_label }}">
+                                            <strong>Billing Contact</strong>
+                                            <p class="mb-0 text-muted small">Receives billing information</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="permission-item">
+                                    <div class="form-check form-switch">
+                                        {{ form.can_view_brightwheel }}
+                                        <label class="form-check-label" for="{{ form.can_view_brightwheel.id_for_label }}">
+                                            <strong>App Access</strong>
+                                            <p class="mb-0 text-muted small">Can access the parent app</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-journal-text me-2"></i>
+                                Additional Notes
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">{{ form.notes.label }}</label>
+                                    {{ form.notes }}
+                                    {% if form.notes.errors %}
+                                    <div class="text-danger mt-1">{{ form.notes.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Optional - Any additional information about this contact</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {% if contact %}Update Contact{% else %}Add Contact{% endif %}
+                            </button>
+                            <a href="{% url 'students:detail' student.pk %}" class="btn btn-outline-secondary btn-lg px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.section-title {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.permission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.permission-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.permission-item:has(.form-check-input:checked) {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+}
+
+.form-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+</style>
+{% endblock %}

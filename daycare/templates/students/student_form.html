@@ -1,0 +1,1404 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if student %}Edit{% else %}Add{% endif %} Student - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="student-form-wrapper">
+    <!-- Decorative Background Elements -->
+    <div class="background-decoration">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="header-section animate-on-scroll">
+            <div class="form-icon-wrapper">
+                <div class="icon-glow"></div>
+                <i class="bi bi-person-{% if student %}pencil{% else %}plus-circle{% endif %}-fill"></i>
+            </div>
+            <h1 class="form-title">{% if student %}Edit Student Profile{% else %}Add New Student{% endif %}</h1>
+            <p class="form-subtitle">{% if student %}Update student information{% else %}Register a new student in the system{% endif %}</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- ========== FORM ERRORS DISPLAY ========== -->
+                {% if form.errors %}
+                <div class="alert-danger-custom animate-on-scroll" style="animation-delay: 0.05s;">
+                    <div class="alert-icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h5>Please correct the following errors:</h5>
+                        <ul class="error-list">
+                            {% for field in form %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if form.non_field_errors %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ========== SUCCESS MESSAGES ========== -->
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert-{{ message.tags }}-custom animate-on-scroll" style="animation-delay: 0.05s;">
+                        <div class="alert-icon">
+                            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}-fill"></i>
+                        </div>
+                        <div class="alert-content">
+                            <p>{{ message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Important Documents Alert -->
+                {% if not student %}
+                <div class="documents-notice animate-on-scroll" style="animation-delay: 0.1s;">
+                    <div class="notice-badge">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                    </div>
+                    <div class="notice-content">
+                        <div class="notice-header">
+                            <h5><i class="bi bi-exclamation-triangle-fill pulse-icon"></i> Required Documents</h5>
+                        </div>
+                        <p>Please ensure you have the following documents ready for submission:</p>
+                        <div class="documents-grid">
+                            <div class="document-card">
+                                <div class="doc-icon birth-cert">
+                                    <i class="bi bi-file-earmark-medical-fill"></i>
+                                </div>
+                                <div class="doc-details">
+                                    <h6>Birth Certificate</h6>
+                                    <p>Original or certified copy</p>
+                                </div>
+                                <i class="bi bi-check-circle-fill status-icon"></i>
+                            </div>
+                            <div class="document-card">
+                                <div class="doc-icon physical-form">
+                                    <i class="bi bi-clipboard2-heart-fill"></i>
+                                </div>
+                                <div class="doc-details">
+                                    <h6>Physical Form</h6>
+                                    <p>Completed by licensed physician</p>
+                                </div>
+                                <i class="bi bi-check-circle-fill status-icon"></i>
+                            </div>
+                        </div>
+                        <div class="notice-footer">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <span>These documents must be presented during the admission process</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Main Form Card -->
+                <div class="form-card animate-on-scroll" style="animation-delay: 0.2s;">
+                    <div class="card-accent"></div>
+                    
+                    <form method="post" enctype="multipart/form-data" id="studentForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Parent/Guardian Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">01</div>
+                                <div class="section-info">
+                                    <h3>Parent/Guardian</h3>
+                                    <p>Select the parent or guardian for this student</p>
+                                </div>
+                                <div class="section-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="fields-grid single">
+                                <div class="field-group {% if form.parent.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.parent }}
+                                        <label>Parent/Guardian</label>
+                                        <span class="field-icon"><i class="bi bi-person-heart"></i></span>
+                                        <span class="required-mark">*</span>
+                                    </div>
+                                    {% if form.parent.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.parent.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.parent.help_text %}
+                                        <div class="field-help">{{ form.parent.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">02</div>
+                                <div class="section-info">
+                                    <h3>Personal Information</h3>
+                                    <p>Basic details about the student</p>
+                                </div>
+                                <div class="section-icon">
+                                    <i class="bi bi-person-badge-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.first_name.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.first_name }}
+                                        <label>First Name</label>
+                                        <span class="field-icon"><i class="bi bi-person"></i></span>
+                                        <span class="required-mark">*</span>
+                                    </div>
+                                    {% if form.first_name.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.first_name.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="field-group {% if form.middle_name.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.middle_name }}
+                                        <label>Middle Name</label>
+                                        <span class="field-icon"><i class="bi bi-person"></i></span>
+                                    </div>
+                                    {% if form.middle_name.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.middle_name.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="field-group {% if form.last_name.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.last_name }}
+                                        <label>Last Name</label>
+                                        <span class="field-icon"><i class="bi bi-person"></i></span>
+                                        <span class="required-mark">*</span>
+                                    </div>
+                                    {% if form.last_name.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.last_name.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="field-group {% if form.date_of_birth.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.date_of_birth }}
+                                        <label>Date of Birth</label>
+                                        <span class="field-icon"><i class="bi bi-calendar-event"></i></span>
+                                        <span class="required-mark">*</span>
+                                    </div>
+                                    {% if form.date_of_birth.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.date_of_birth.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="field-group {% if form.gender.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.gender }}
+                                        <label>Gender</label>
+                                        <span class="field-icon"><i class="bi bi-gender-ambiguous"></i></span>
+                                        <span class="required-mark">*</span>
+                                    </div>
+                                    {% if form.gender.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.gender.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photo Upload Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">03</div>
+                                <div class="section-info">
+                                    <h3>Profile Photo</h3>
+                                    <p>Upload a recent photo (optional)</p>
+                                </div>
+                                <div class="section-icon">
+                                    <i class="bi bi-camera-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="photo-upload-zone">
+                                <div class="upload-preview" id="photoPreview">
+                                    {% if student.photo %}
+                                        <img src="{{ student.photo.url }}" alt="Student photo">
+                                    {% else %}
+                                        <div class="preview-placeholder">
+                                            <i class="bi bi-image"></i>
+                                            <p>No photo uploaded</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="upload-controls">
+                                    {{ form.photo }}
+                                    <label for="{{ form.photo.id_for_label }}" class="upload-button">
+                                        <i class="bi bi-cloud-upload-fill"></i>
+                                        <span>Choose Photo</span>
+                                    </label>
+                                    <p class="upload-hint">JPG, PNG or GIF (MAX. 5MB)</p>
+                                    {% if form.photo.errors %}
+                                        <div class="field-error mt-2">
+                                            {% for error in form.photo.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Room Assignment Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">04</div>
+                                <div class="section-info">
+                                    <h3>Room Assignment</h3>
+                                    <p>Select which room the student belongs to</p>
+                                </div>
+                                <div class="section-icon">
+                                    <i class="bi bi-door-open-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="fields-grid single">
+                                <div class="field-group {% if form.room.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.room }}
+                                        <label>Assign to Room</label>
+                                        <span class="field-icon"><i class="bi bi-building"></i></span>
+                                    </div>
+                                    {% if form.room.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.room.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical Information Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">05</div>
+                                <div class="section-info">
+                                    <h3>Medical Information</h3>
+                                    <p>Important health details and allergies</p>
+                                </div>
+                                <div class="section-icon medical">
+                                    <i class="bi bi-heart-pulse-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.allergies.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.allergies }}
+                                        <label>Allergies</label>
+                                        <span class="field-icon"><i class="bi bi-exclamation-triangle"></i></span>
+                                    </div>
+                                    {% if form.allergies.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.allergies.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="field-group {% if form.medical_conditions.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.medical_conditions }}
+                                        <label>Medical Conditions</label>
+                                        <span class="field-icon"><i class="bi bi-capsule"></i></span>
+                                    </div>
+                                    {% if form.medical_conditions.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.medical_conditions.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">06</div>
+                                <div class="section-info">
+                                    <h3>Emergency Contact</h3>
+                                    <p>Alternative contact in case of emergency</p>
+                                </div>
+                                <div class="section-icon emergency">
+                                    <i class="bi bi-telephone-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.emergency_contact_name.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.emergency_contact_name }}
+                                        <label>Emergency Contact Name</label>
+                                        <span class="field-icon"><i class="bi bi-person-badge"></i></span>
+                                    </div>
+                                    {% if form.emergency_contact_name.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.emergency_contact_name.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="field-group {% if form.emergency_contact_phone.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.emergency_contact_phone }}
+                                        <label>Emergency Contact Phone</label>
+                                        <span class="field-icon"><i class="bi bi-phone"></i></span>
+                                    </div>
+                                    {% if form.emergency_contact_phone.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.emergency_contact_phone.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if form.emergency_contact_relationship %}
+                                <div class="field-group {% if form.emergency_contact_relationship.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.emergency_contact_relationship }}
+                                        <label>Relationship to Child</label>
+                                        <span class="field-icon"><i class="bi bi-hearts"></i></span>
+                                    </div>
+                                    {% if form.emergency_contact_relationship.errors %}
+                                        <div class="field-error">
+                                            {% for error in form.emergency_contact_relationship.errors %}
+                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <a href="{% url 'students:list' %}" class="action-button secondary">
+                                <i class="bi bi-x-circle"></i>
+                                <span>Cancel</span>
+                            </a>
+                            <button type="submit" class="action-button primary" id="submitBtn">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>{% if student %}Update Student{% else %}Add Student{% endif %}</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --success-color: #38d9a9;
+    --danger-color: #ff6b6b;
+    --warning-color: #ffd93d;
+    --info-color: #4facfe;
+    
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --text-light: #a0aec0;
+    
+    --bg-light: #f7fafc;
+    --bg-white: #ffffff;
+    --border-color: #e2e8f0;
+    
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #38d9a9 0%, #20c997 100%);
+    --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    --radius-sm: 0.375rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ============================================================
+   ALERT MESSAGES
+   ============================================================ */
+.alert-danger-custom,
+.alert-success-custom,
+.alert-error-custom,
+.alert-info-custom {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.alert-danger-custom,
+.alert-error-custom {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 111, 0.15));
+    border-left: 4px solid var(--danger-color);
+}
+
+.alert-success-custom {
+    background: linear-gradient(135deg, rgba(56, 217, 169, 0.1), rgba(32, 201, 151, 0.15));
+    border-left: 4px solid var(--success-color);
+}
+
+.alert-info-custom {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.15));
+    border-left: 4px solid var(--info-color);
+}
+
+.alert-icon {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.alert-danger-custom .alert-icon,
+.alert-error-custom .alert-icon {
+    background: var(--danger-gradient);
+}
+
+.alert-success-custom .alert-icon {
+    background: var(--success-gradient);
+}
+
+.alert-info-custom .alert-icon {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-content h5 {
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.alert-content p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.error-list {
+    list-style: none;
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+}
+
+.error-list li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.error-list li strong {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+/* ============================================================
+   FIELD ERRORS
+   ============================================================ */
+.field-group.has-error .floating-input input,
+.field-group.has-error .floating-input select,
+.field-group.has-error .floating-input textarea {
+    border-color: var(--danger-color) !important;
+    background-color: rgba(255, 107, 107, 0.05);
+}
+
+.field-group.has-error .floating-input label {
+    color: var(--danger-color);
+}
+
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: var(--radius-sm);
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.field-error i {
+    flex-shrink: 0;
+}
+
+.field-help {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(79, 172, 254, 0.1);
+    border-radius: var(--radius-sm);
+    color: var(--info-color);
+    font-size: 0.875rem;
+}
+
+/* Background Decoration */
+.student-form-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    overflow: hidden;
+}
+
+.background-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.3;
+    animation: float 20s ease-in-out infinite;
+}
+
+.blob-1 {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    top: -100px;
+    left: -100px;
+    animation-delay: 0s;
+}
+
+.blob-2 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #38d9a9, #4facfe);
+    bottom: -100px;
+    right: -100px;
+    animation-delay: 5s;
+}
+
+.blob-3 {
+    width: 350px;
+    height: 350px;
+    background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 10s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+    50% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+    75% {
+        transform: translate(20px, 30px) scale(1.05);
+    }
+}
+
+/* Header Section */
+.header-section {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.form-icon-wrapper {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-gradient);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    animation: morph 8s ease-in-out infinite, rotate 20s linear infinite;
+    opacity: 0.2;
+    filter: blur(20px);
+}
+
+@keyframes morph {
+    0%, 100% {
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    }
+    50% {
+        border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.form-icon-wrapper i {
+    font-size: 4rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    z-index: 2;
+}
+
+.form-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Documents Notice */
+.documents-notice {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+}
+
+.notice-badge {
+    position: absolute;
+    top: -20px;
+    right: 2rem;
+    width: 70px;
+    height: 70px;
+    background: var(--primary-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    transform: rotate(-5deg);
+}
+
+.notice-badge i {
+    font-size: 2rem;
+    color: white;
+}
+
+.notice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.notice-header h5 {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pulse-icon {
+    color: var(--warning-color);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+.notice-content p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.document-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.document-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.doc-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.doc-icon.birth-cert {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.doc-icon.physical-form {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.doc-details h6 {
+    margin: 0 0 0.25rem 0;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.doc-details p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.status-icon {
+    margin-left: auto;
+    font-size: 1.5rem;
+    color: var(--success-color);
+}
+
+.notice-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.notice-footer i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+/* Form Card */
+.form-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--primary-gradient);
+}
+
+/* Form Sections */
+.form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 2px dashed var(--border-color);
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-md);
+}
+
+.section-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.section-info p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.section-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.section-icon.medical {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 111, 0.1));
+    color: var(--danger-color);
+}
+
+.section-icon.emergency {
+    background: linear-gradient(135deg, rgba(255, 217, 61, 0.1), rgba(255, 183, 77, 0.1));
+    color: var(--warning-color);
+}
+
+/* Fields Grid */
+.fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.fields-grid.single {
+    grid-template-columns: 1fr;
+}
+
+/* Floating Input */
+.field-group {
+    position: relative;
+}
+
+.floating-input {
+    position: relative;
+}
+
+.floating-input input,
+.floating-input select,
+.floating-input textarea {
+    width: 100%;
+    padding: 1.25rem 1rem 0.5rem 3rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: white;
+    transition: var(--transition);
+    outline: none;
+}
+
+.floating-input textarea {
+    resize: vertical;
+    min-height: 100px;
+    padding-top: 1.5rem;
+}
+
+.floating-input input:focus,
+.floating-input select:focus,
+.floating-input textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.floating-input label {
+    position: absolute;
+    left: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 500;
+    pointer-events: none;
+    transition: var(--transition);
+    background: white;
+    padding: 0 0.5rem;
+}
+
+.floating-input textarea ~ label {
+    top: 1.5rem;
+    transform: none;
+}
+
+.floating-input input:focus ~ label,
+.floating-input input:not(:placeholder-shown) ~ label,
+.floating-input select:focus ~ label,
+.floating-input select:not([value=""]) ~ label,
+.floating-input textarea:focus ~ label,
+.floating-input textarea:not(:placeholder-shown) ~ label {
+    top: -0.5rem;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.field-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 1.25rem;
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.floating-input textarea ~ .field-icon {
+    top: 1.5rem;
+    transform: none;
+}
+
+.floating-input input:focus ~ .field-icon,
+.floating-input select:focus ~ .field-icon,
+.floating-input textarea:focus ~ .field-icon {
+    color: var(--primary-color);
+}
+
+.required-mark {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--danger-color);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+/* Photo Upload */
+.photo-upload-zone {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.upload-preview {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 3px dashed var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-light);
+}
+
+.upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-placeholder {
+    text-align: center;
+    color: var(--text-light);
+}
+
+.preview-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.preview-placeholder p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.upload-controls {
+    flex: 1;
+}
+
+.upload-controls input[type="file"] {
+    display: none;
+}
+
+.upload-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+}
+
+.upload-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.upload-hint {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 2rem;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2.5rem;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.action-button.secondary {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.action-button.secondary:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.action-button.primary {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.action-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Animations */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-title {
+        font-size: 2rem;
+    }
+    
+    .form-card {
+        padding: 1.5rem;
+    }
+    
+    .section-header {
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+    }
+    
+    .section-icon {
+        grid-column: 1;
+        grid-row: 1 / 3;
+    }
+    
+    .section-number {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+    
+    .fields-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .photo-upload-zone {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .notice-badge {
+        top: -10px;
+        right: 1rem;
+        width: 60px;
+        height: 60px;
+    }
+    
+    .notice-badge i {
+        font-size: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .action-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .notice-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate elements on scroll
+    const animateElements = document.querySelectorAll('.animate-on-scroll');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    animateElements.forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+    
+    // Photo preview
+    const photoInput = document.querySelector('input[type="file"]');
+    const photoPreview = document.getElementById('photoPreview');
+    
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Add placeholder attribute to all inputs for floating label effect
+    const inputs = document.querySelectorAll('.floating-input input, .floating-input textarea, .floating-input select');
+    inputs.forEach(input => {
+        if (!input.hasAttribute('placeholder')) {
+            input.setAttribute('placeholder', ' ');
+        }
+    });
+    
+    // Form submission - add loading state
+    const form = document.getElementById('studentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Show loading state
+            submitBtn.disabled = true;
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.innerHTML = `
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span>Saving...</span>
+            `;
+            
+            // Re-enable after a timeout (in case of validation errors)
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHTML;
+            }, 3000);
+        });
+    }
+    
+    // Scroll to first error on page load
+    const firstError = document.querySelector('.field-group.has-error, .alert-danger-custom');
+    if (firstError) {
+        setTimeout(() => {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

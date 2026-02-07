@@ -1,0 +1,604 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Schedules - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle-large me-3">
+                    <i class="bi bi-calendar-week-fill"></i>
+                </div>
+                <div>
+                    <h2 class="gradient-text mb-1">Staff Schedules</h2>
+                    <p class="text-muted mb-0">Weekly work schedules and room assignments</p>
+                </div>
+            </div>
+        </div>
+        {% if user.is_admin %}
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="#" class="btn btn-primary btn-lg shadow-lg">
+                <i class="bi bi-plus-circle-fill"></i> Add Schedule
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Week Selector -->
+    <div class="week-selector-card animate-on-scroll">
+        <button class="week-nav-btn prev-week">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <div class="week-info">
+            <div class="week-icon">
+                <i class="bi bi-calendar3"></i>
+            </div>
+            <div>
+                <h5>Week of {% now "F j, Y" %}</h5>
+                <p class="text-muted mb-0">Current Schedule</p>
+            </div>
+        </div>
+        <button class="week-nav-btn next-week">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+
+    {% if schedules %}
+        <!-- Calendar View -->
+        <div class="schedule-calendar-card animate-on-scroll">
+            <div class="card-header-custom">
+                <i class="bi bi-calendar-range-fill"></i>
+                <h4>Weekly Calendar View</h4>
+            </div>
+            <div class="calendar-container">
+                <div class="table-responsive">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th class="staff-column">Staff Member</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                                <th>Saturday</th>
+                                <th>Sunday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% regroup schedules by staff as staff_schedules %}
+                            {% for staff_group in staff_schedules %}
+                            <tr>
+                                <td class="staff-column">
+                                    <div class="staff-info-cell">
+                                        {% if staff_group.grouper.profile_photo %}
+                                            <img src="{{ staff_group.grouper.profile_photo.url }}" class="staff-mini-photo">
+                                        {% else %}
+                                            <div class="staff-mini-avatar">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ staff_group.grouper.get_full_name }}</strong>
+                                            <small class="staff-position">{{ staff_group.grouper.staff_profile.position }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% for day in "1234567" %}
+                                <td class="day-cell">
+                                    {% for schedule in staff_group.list %}
+                                        {% if schedule.day_of_week == day|add:0 %}
+                                            <div class="schedule-slot">
+                                                <div class="time-badge">
+                                                    <i class="bi bi-clock-fill"></i>
+                                                    {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                                                </div>
+                                                {% if schedule.room %}
+                                                    <div class="room-badge">
+                                                        <i class="bi bi-door-open-fill"></i> {{ schedule.room.name }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div class="schedule-list-card animate-on-scroll">
+            <div class="card-header-custom">
+                <i class="bi bi-list-ul"></i>
+                <h4>Detailed Schedule List</h4>
+            </div>
+            <div class="schedule-list-body">
+                {% for schedule in schedules %}
+                <div class="schedule-item">
+                    <div class="schedule-item-content">
+                        <div class="staff-section">
+                            {% if schedule.staff.profile_photo %}
+                                <img src="{{ schedule.staff.profile_photo.url }}" class="staff-photo-list">
+                            {% else %}
+                                <div class="staff-avatar-list">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ schedule.staff.get_full_name }}</strong>
+                                <small>{{ schedule.staff.staff_profile.position }}</small>
+                            </div>
+                        </div>
+                        <div class="day-section">
+                            <span class="day-badge">
+                                {{ schedule.get_day_of_week_display }}
+                            </span>
+                        </div>
+                        <div class="time-section">
+                            <i class="bi bi-clock text-primary"></i>
+                            {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                        </div>
+                        <div class="room-section">
+                            {% if schedule.room %}
+                                <i class="bi bi-door-open text-success"></i>
+                                {{ schedule.room.name }}
+                            {% else %}
+                                <span class="text-muted">No room</span>
+                            {% endif %}
+                        </div>
+                        {% if user.is_admin %}
+                        <div class="actions-section">
+                            <div class="dropdown">
+                                <button class="btn-actions" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i> Delete</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if schedule.notes %}
+                    <div class="schedule-notes">
+                        <i class="bi bi-sticky"></i> {{ schedule.notes }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state animate-on-scroll">
+            <div class="empty-state-icon">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+            <h3 class="empty-state-title">No Schedules Found</h3>
+            <p class="empty-state-text">
+                {% if user.is_admin %}
+                    Create staff schedules to manage work hours and room assignments
+                {% else %}
+                    Your schedule will appear here once it's been created
+                {% endif %}
+            </p>
+            {% if user.is_admin %}
+            <a href="#" class="btn btn-primary btn-lg mt-3">
+                <i class="bi bi-plus-circle-fill"></i> Create First Schedule
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.icon-circle-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+}
+
+.icon-circle-large i {
+    font-size: 2rem;
+    color: white;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+.week-selector-card {
+    background: white;
+    border-radius: 25px;
+    padding: 25px 30px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.week-nav-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    border: 2px solid #e9ecef;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: var(--text-dark);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.week-nav-btn:hover {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    border-color: transparent;
+    transform: scale(1.1);
+}
+
+.week-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    justify-content: center;
+}
+
+.week-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #4facfe;
+}
+
+.week-info h5 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.schedule-calendar-card,
+.schedule-list-card {
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.05));
+    padding: 25px 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-header-custom i {
+    font-size: 1.5rem;
+    color: #4facfe;
+}
+
+.card-header-custom h4 {
+    margin: 0;
+    font-weight: 800;
+}
+
+.calendar-container {
+    padding: 25px;
+    overflow-x: auto;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.schedule-table thead th {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+}
+
+.schedule-table thead th:first-child {
+    border-radius: 15px 0 0 15px;
+}
+
+.schedule-table thead th:last-child {
+    border-radius: 0 15px 15px 0;
+}
+
+.schedule-table tbody tr {
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.schedule-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.staff-column {
+    min-width: 200px !important;
+}
+
+.staff-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+}
+
+.staff-mini-photo,
+.staff-mini-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.staff-mini-photo {
+    object-fit: cover;
+    border: 2px solid #4facfe;
+}
+
+.staff-mini-avatar {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.staff-position {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.day-cell {
+    padding: 10px;
+    text-align: center;
+    min-width: 140px;
+    vertical-align: top;
+}
+
+.schedule-slot {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 5px;
+}
+
+.time-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4facfe;
+    margin-bottom: 5px;
+}
+
+.time-badge i {
+    font-size: 0.75rem;
+}
+
+.room-badge {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.schedule-list-body {
+    padding: 20px;
+}
+
+.schedule-item {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.schedule-item:hover {
+    background: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transform: translateX(5px);
+}
+
+.schedule-item-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.staff-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.staff-photo-list,
+.staff-avatar-list {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.staff-photo-list {
+    object-fit: cover;
+    border: 2px solid #4facfe;
+}
+
+.staff-avatar-list {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.staff-section strong {
+    display: block;
+    font-weight: 700;
+}
+
+.staff-section small {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.day-badge {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+.btn-actions {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-actions:hover {
+    background: #4facfe;
+    color: white;
+    border-color: transparent;
+}
+
+.schedule-notes {
+    margin-top: 15px;
+    padding: 12px;
+    background: white;
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid #4facfe;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state-icon {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+}
+
+.empty-state-icon i {
+    font-size: 5rem;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.empty-state-title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.empty-state-text {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.animate-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 992px) {
+    .schedule-item-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .day-section,
+    .time-section,
+    .room-section,
+    .actions-section {
+        justify-self: start;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('animate-fade-in');
+                }, index * 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+});
+</script>
+{% endblock %}

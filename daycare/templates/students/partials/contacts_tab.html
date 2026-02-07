@@ -1,0 +1,144 @@
+<!-- Contacts Tab -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); color: #2E7D32;">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h4>Authorized Contacts</h4>
+            <p>People authorized to interact with this student</p>
+        </div>
+        {% if user.is_admin or user.is_staff_member %}
+        <a href="{% url 'students:contact_create' student.pk %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Contact
+        </a>
+        {% endif %}
+    </div>
+    <div class="content-card-body">
+        {% if contacts %}
+        <div class="contacts-list">
+            {% for contact in contacts %}
+            <div class="contact-list-item">
+                <div class="contact-info">
+                    <h6>{{ contact.full_name }}</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-person-badge text-muted me-2"></i>
+                        {{ contact.relationship }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone text-muted me-2"></i>
+                        {{ contact.phone }}
+                    </p>
+                    {% if contact.email %}
+                    <p class="mb-1">
+                        <i class="bi bi-envelope text-muted me-2"></i>
+                        {{ contact.email }}
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Permissions -->
+                    <div class="permission-badges mt-2">
+                        {% if contact.can_pickup %}
+                        <span class="permission-badge can-pickup">
+                            <i class="bi bi-check-circle-fill"></i> Can Pickup
+                        </span>
+                        {% endif %}
+                        {% if contact.is_emergency_contact %}
+                        <span class="permission-badge emergency">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Emergency
+                        </span>
+                        {% endif %}
+                        {% if contact.is_billing_contact %}
+                        <span class="permission-badge billing">
+                            <i class="bi bi-credit-card-fill"></i> Billing
+                        </span>
+                        {% endif %}
+                        {% if contact.can_view_brightwheel %}
+                        <span class="permission-badge" style="background: #F3E5F5; color: #7B1FA2;">
+                            <i class="bi bi-eye-fill"></i> App Access
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Access Code -->
+                    {% if contact.can_view_brightwheel and contact.access_code and user.is_admin or user.is_staff_member %}
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Access Code: <strong>{{ contact.access_code }}</strong>
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if user.is_admin or user.is_staff_member %}
+                <div class="contact-actions">
+                    <a href="{% url 'students:contact_update' contact.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'students:contact_delete' contact.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-people fs-1"></i>
+            <p class="mt-3">No additional contacts added yet</p>
+            {% if user.is_admin or user.is_staff_member %}
+            <a href="{% url 'students:contact_create' student.pk %}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-circle"></i> Add First Contact
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Primary Parent/Guardian -->
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); color: #1565C0;">
+            <i class="bi bi-person-heart"></i>
+        </div>
+        <div>
+            <h4>Primary Parent/Guardian</h4>
+            <p>Main account holder</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="contact-list-item">
+            <div class="contact-info">
+                <h6>{{ student.parent.get_full_name }}</h6>
+                <p class="mb-1">
+                    <i class="bi bi-envelope text-muted me-2"></i>
+                    {{ student.parent.email }}
+                </p>
+                {% if student.parent.phone %}
+                <p class="mb-0">
+                    <i class="bi bi-telephone text-muted me-2"></i>
+                    {{ student.parent.phone }}
+                </p>
+                {% endif %}
+            </div>
+            <div>
+                <span class="badge bg-primary">Primary Account</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.contacts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+</style>

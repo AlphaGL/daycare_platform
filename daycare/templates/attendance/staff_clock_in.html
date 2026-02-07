@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Clock In - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.clock-in-container {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.clock-in-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.clock-in-header {
+    background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: white;
+}
+
+.clock-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.current-time-display {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.time-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1976D2;
+    font-family: 'Courier New', monospace;
+}
+
+.date-value {
+    font-size: 1.25rem;
+    color: #424242;
+    font-weight: 600;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #43A047, #2E7D32);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.clock-in-btn {
+    background: linear-gradient(135deg, #43A047, #2E7D32);
+    border: none;
+    padding: 1.25rem 3rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border-radius: 16px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.clock-in-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="clock-in-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Back Button -->
+                <div class="mb-4 animate-in">
+                    <a href="{% url 'attendance:timecard_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Timecards
+                    </a>
+                </div>
+
+                <div class="clock-in-card animate-in" style="animation-delay: 0.1s;">
+                    <div class="clock-in-header">
+                        <div class="clock-icon">
+                            <i class="bi bi-clock-fill display-3"></i>
+                        </div>
+                        <h2 class="mb-2 fw-bold">Clock In</h2>
+                        <p class="mb-0 opacity-90">Start your shift</p>
+                    </div>
+
+                    <div class="p-4 p-md-5">
+                        <!-- Current Time Display -->
+                        <div class="current-time-display">
+                            <div class="time-value" id="currentTime">--:--:--</div>
+                            <div class="date-value" id="currentDate">Loading...</div>
+                        </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <!-- Staff Selection -->
+                            <div class="form-section">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="section-icon">
+                                        <i class="bi bi-person-fill text-white"></i>
+                                    </div>
+                                    <h5 class="mb-0 fw-bold">Staff Member</h5>
+                                </div>
+                                
+                                <label class="form-label fw-semibold">
+                                    {{ form.staff.label }}
+                                </label>
+                                {{ form.staff }}
+                                {% if form.staff.errors %}
+                                    <div class="alert alert-danger mt-2 rounded-4">
+                                        {{ form.staff.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Room Assignment -->
+                            <div class="form-section">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="section-icon">
+                                        <i class="bi bi-door-open text-white"></i>
+                                    </div>
+                                    <h5 class="mb-0 fw-bold">Room Assignment</h5>
+                                </div>
+                                
+                                <label class="form-label fw-semibold">
+                                    {{ form.assigned_room.label }} <span class="text-muted">(Optional)</span>
+                                </label>
+                                {{ form.assigned_room }}
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Select the room you'll be working in today
+                                </small>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="form-section">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="section-icon">
+                                        <i class="bi bi-journal-text text-white"></i>
+                                    </div>
+                                    <h5 class="mb-0 fw-bold">Shift Notes</h5>
+                                </div>
+                                
+                                <label class="form-label fw-semibold">
+                                    {{ form.notes.label }}
+                                </label>
+                                {{ form.notes }}
+                                <small class="text-muted d-block mt-2">
+                                    Any important notes about your shift
+                                </small>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 pt-4 border-top flex-wrap justify-content-center">
+                                <button type="submit" class="clock-in-btn">
+                                    <i class="bi bi-play-circle-fill me-2"></i>
+                                    Clock In Now
+                                </button>
+                                <a href="{% url 'attendance:timecard_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="alert alert-info mt-4 rounded-4 animate-in" style="animation-delay: 0.2s;">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-2 fw-bold">Remember to Clock Out</h6>
+                            <p class="mb-0">
+                                Don't forget to clock out at the end of your shift to accurately track your hours worked.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update current time display
+function updateTime() {
+    const now = new Date();
+    
+    // Format time
+    const timeOptions = { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+    };
+    const timeString = now.toLocaleTimeString('en-US', timeOptions);
+    document.getElementById('currentTime').textContent = timeString;
+    
+    // Format date
+    const dateOptions = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const dateString = now.toLocaleDateString('en-US', dateOptions);
+    document.getElementById('currentDate').textContent = dateString;
+}
+
+// Update immediately and then every second
+updateTime();
+setInterval(updateTime, 1000);
+</script>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Announcements - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row align-items-center mb-4 animate-on-scroll">
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-2">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle me-3 p-3" style="background: linear-gradient(135deg, #FFE66D, #FFA94D); width: 60px; height: 60px;">
+                    <i class="bi bi-megaphone-fill text-white fs-4"></i>
+                </div>
+                Announcements
+            </h2>
+            <p class="text-muted mb-0">Stay updated with important news and updates</p>
+        </div>
+        {% if user.is_admin or user.is_staff_member %}
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="#" class="btn btn-primary rounded-pill px-4 shadow-sm hover-lift">
+                <i class="bi bi-plus-circle-fill me-2"></i> New Announcement
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if announcements %}
+        <div class="row g-4">
+            {% for announcement in announcements %}
+            <div class="col-12 animate-on-scroll">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden hover-lift transition-all {% if announcement.is_pinned %}border-3 border-warning{% endif %}">
+                    <!-- Pinned Badge -->
+                    {% if announcement.is_pinned %}
+                    <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
+                        <div class="badge px-3 py-2 rounded-pill d-flex align-items-center" style="background: linear-gradient(135deg, #FFE66D, #FFA94D);">
+                            <i class="bi bi-pin-angle-fill me-1"></i> Pinned
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Header Section -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                <!-- Priority Badge -->
+                                <span class="badge px-3 py-2 rounded-pill {% if announcement.priority == 'URGENT' %}bg-danger{% elif announcement.priority == 'HIGH' %}bg-warning text-dark{% elif announcement.priority == 'NORMAL' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    <i class="bi bi-{% if announcement.priority == 'URGENT' %}exclamation-triangle-fill{% elif announcement.priority == 'HIGH' %}flag-fill{% else %}info-circle-fill{% endif %} me-1"></i>
+                                    {{ announcement.get_priority_display }}
+                                </span>
+                                
+                                <!-- Audience Badge -->
+                                <span class="badge bg-light text-dark px-3 py-2 rounded-pill border">
+                                    <i class="bi bi-people-fill me-1"></i>
+                                    {{ announcement.get_target_audience_display }}
+                                </span>
+                            </div>
+                            
+                            <h3 class="mb-3 fw-bold">{{ announcement.title }}</h3>
+                            
+                            <div class="d-flex align-items-center text-muted">
+                                <div class="d-flex align-items-center me-4">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                                        <i class="bi bi-person-fill text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <small class="d-block fw-semibold text-dark">{{ announcement.created_by.get_full_name }}</small>
+                                        <small class="d-block">
+                                            <i class="bi bi-calendar3 me-1"></i>{{ announcement.publish_date|date:"F j, Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Content Section -->
+                        <div class="announcement-content mb-4 p-4 rounded-3" style="background-color: #f8f9fa; line-height: 1.8;">
+                            {{ announcement.content|linebreaks }}
+                        </div>
+
+                        <!-- Footer Section -->
+                        {% if announcement.expiry_date %}
+                        <div class="pt-3 border-top">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle p-2 me-2 {% if announcement.is_active %}bg-success{% else %}bg-danger{% endif %} bg-opacity-10">
+                                    <i class="bi bi-clock-fill {% if announcement.is_active %}text-success{% else %}text-danger{% endif %}"></i>
+                                </div>
+                                <small class="{% if announcement.is_active %}text-success{% else %}text-danger{% endif %} fw-semibold">
+                                    {% if announcement.is_active %}
+                                        Valid until {{ announcement.expiry_date|date:"F j, Y" }}
+                                    {% else %}
+                                        Expired on {{ announcement.expiry_date|date:"F j, Y" }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Info -->
+        <div class="text-center mt-5 animate-on-scroll">
+            <div class="card border-0 shadow-sm rounded-4 d-inline-block px-4 py-3">
+                <p class="mb-0 text-muted">
+                    <i class="bi bi-megaphone me-2"></i>
+                    Showing <strong>{{ announcements|length }}</strong> announcement{{ announcements|length|pluralize }}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5 animate-on-scroll">
+            <div class="mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-5" style="background: linear-gradient(135deg, #F5F5F5, #E0E0E0); width: 150px; height: 150px;">
+                    <i class="bi bi-megaphone display-1 text-muted opacity-50"></i>
+                </div>
+            </div>
+            <h3 class="mb-2 fw-bold">No Announcements Yet</h3>
+            <p class="text-muted mb-4">There are no announcements at this time. Check back later!</p>
+            {% if user.is_admin or user.is_staff_member %}
+            <a href="#" class="btn btn-primary rounded-pill px-5 py-3 shadow-sm hover-lift">
+                <i class="bi bi-plus-circle-fill me-2"></i> Create First Announcement
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.announcement-content {
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+.announcement-content p:last-child {
+    margin-bottom: 0;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .announcement-content {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Animate elements on scroll */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate elements on scroll
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Add hover effect to cards
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transition = 'all 0.3s ease';
+        });
+    });
+});
+</script>
+{% endblock %}

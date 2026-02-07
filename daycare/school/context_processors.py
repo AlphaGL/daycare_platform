@@ -1,14 +1,22 @@
+"""
+Context Processors
+Makes common data available across all templates
+"""
 from .models import SchoolProfile, SchoolSettings
 
 
-def school_settings(request):
+def school_context(request):
     """
-    Makes school profile & settings available globally in templates
+    Add school profile and settings to all template contexts
     """
-    profile = SchoolProfile.get_instance()
-    settings = SchoolSettings.get_instance()
-
+    try:
+        school = SchoolProfile.get_instance()
+        settings = SchoolSettings.get_instance()
+    except:
+        school = None
+        settings = None
+    
     return {
-        'school_profile': profile,
+        'school': school,
         'school_settings': settings,
     }

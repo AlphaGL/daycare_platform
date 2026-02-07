@@ -1,5 +1,5 @@
 """
-Main URL Configuration for Daycare Management System
+Main URL Configuration for Sugamama sugababies Daycare
 """
 from django.contrib import admin
 from django.urls import path, include
@@ -19,6 +19,7 @@ urlpatterns = [
     path('rooms/', include('rooms.urls')),
     path('staff/', include('staff.urls')),
     path('messages/', include('notifications.urls')),
+    path('attendance/', include('attendance.urls')),
 ]
 
 # Customize admin site

@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Schedules - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.schedule-header {
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+    border-radius: 24px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.filter-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.schedule-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 5px solid #667EEA;
+}
+
+.schedule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-type-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.type-staff-shift {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    color: #1976D2;
+}
+
+.type-student-schedule {
+    background: linear-gradient(135deg, #F3E5F5, #E1BEE7);
+    color: #7B1FA2;
+}
+
+.type-activity {
+    background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    color: #F57C00;
+}
+
+.type-room-schedule {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    color: #388E3C;
+}
+
+.type-other {
+    background: linear-gradient(135deg, #F5F5F5, #EEEEEE);
+    color: #616161;
+}
+
+.recurrence-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.schedule-time {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #667EEA;
+}
+
+.schedule-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #E9ECEF;
+    background: white;
+    color: #6c757d;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.filter-tab:hover {
+    border-color: #667EEA;
+    color: #667EEA;
+}
+
+.filter-tab.active {
+    background: linear-gradient(135deg, #667EEA, #764BA2);
+    border-color: #667EEA;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state i {
+    font-size: 5rem;
+    opacity: 0.2;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="schedule-header animate-fade-in">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2 fw-bold">
+                    <i class="bi bi-calendar3 me-3"></i>
+                    Schedules
+                </h2>
+                <p class="mb-0 opacity-90">Manage shifts, activities, and schedules</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                {% if request.user.is_staff_member or request.user.is_admin %}
+                <a href="{% url 'attendance:schedule_create' %}" class="btn btn-light btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-plus-circle-fill me-2"></i>
+                    New Schedule
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-card">
+        <div class="filter-tabs">
+            <a href="?filter=today" class="filter-tab {% if filter_type == 'today' %}active{% endif %}">
+                <i class="bi bi-calendar-day me-2"></i>Today
+            </a>
+            <a href="?filter=week" class="filter-tab {% if filter_type == 'week' %}active{% endif %}">
+                <i class="bi bi-calendar-week me-2"></i>This Week
+            </a>
+            <a href="?filter=month" class="filter-tab {% if filter_type == 'month' %}active{% endif %}">
+                <i class="bi bi-calendar-month me-2"></i>This Month
+            </a>
+            <a href="?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">
+                <i class="bi bi-calendar3 me-2"></i>All Schedules
+            </a>
+        </div>
+    </div>
+
+    <!-- Schedules List -->
+    {% if schedules %}
+        {% for schedule in schedules %}
+        <div class="schedule-card animate-fade-in" style="animation-delay: {{ forloop.counter0|add:1|floatformat:1|add:'00' }}s;">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <h5 class="mb-0 fw-bold">{{ schedule.title }}</h5>
+                        <span class="schedule-type-badge type-{{ schedule.schedule_type|lower|cut:' '|cut:'_' }}">
+                            {{ schedule.get_schedule_type_display }}
+                        </span>
+                    </div>
+                    
+                    {% if schedule.description %}
+                    <p class="text-muted mb-3">{{ schedule.description }}</p>
+                    {% endif %}
+
+                    <div class="schedule-info">
+                        <div class="info-item">
+                            <i class="bi bi-calendar-event"></i>
+                            <span>
+                                {{ schedule.start_date|date:"M j, Y" }}
+                                {% if schedule.end_date %}
+                                    - {{ schedule.end_date|date:"M j, Y" }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="bi bi-clock"></i>
+                            <span class="schedule-time">
+                                {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span class="recurrence-badge bg-light">
+                                {{ schedule.get_recurrence_type_display }}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="bi bi-hourglass-split"></i>
+                            <span>{{ schedule.duration }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex flex-wrap gap-2">
+                        {% if schedule.assigned_room %}
+                        <span class="badge bg-info rounded-pill">
+                            <i class="bi bi-door-open me-1"></i>{{ schedule.assigned_room.name }}
+                        </span>
+                        {% endif %}
+                        
+                        {% if schedule.assigned_staff.count > 0 %}
+                        <span class="badge bg-primary rounded-pill">
+                            <i class="bi bi-people-fill me-1"></i>{{ schedule.assigned_staff.count }} Staff
+                        </span>
+                        {% endif %}
+                        
+                        {% if schedule.assigned_students.count > 0 %}
+                        <span class="badge bg-success rounded-pill">
+                            <i class="bi bi-person-fill me-1"></i>{{ schedule.assigned_students.count }} Students
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 align-items-start">
+                    <a href="{% url 'attendance:schedule_detail' schedule.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    {% if request.user.is_staff_member or request.user.is_admin %}
+                    <a href="{% url 'attendance:schedule_update' schedule.pk %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-calendar-x text-muted"></i>
+            <h4 class="mt-4 text-muted">No Schedules Found</h4>
+            <p class="text-muted">There are no schedules for the selected time period</p>
+            {% if request.user.is_staff_member or request.user.is_admin %}
+            <a href="{% url 'attendance:schedule_create' %}" class="btn btn-primary btn-lg rounded-pill px-5 mt-3">
+                <i class="bi bi-plus-circle-fill me-2"></i>
+                Create First Schedule
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.animate-fade-in {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}

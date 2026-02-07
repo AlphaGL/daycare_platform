@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if schedule %}Edit{% else %}Create{% endif %} Schedule - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.schedule-form-container {
+    background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.schedule-form-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.form-header {
+    background: linear-gradient(135deg, #5C6BC0 0%, #3F51B5 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: white;
+}
+
+.form-section {
+    padding: 2rem;
+    border-bottom: 2px solid #F5F5F5;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #E8EAF6, #C5CAE9);
+    color: #3F51B5;
+}
+
+.form-control, .form-select {
+    border-radius: 12px;
+    border: 2px solid #E0E0E0;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #5C6BC0;
+    box-shadow: 0 0 0 4px rgba(92, 107, 192, 0.1);
+}
+
+select[multiple] {
+    min-height: 150px;
+    border-radius: 12px;
+}
+
+.schedule-type-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.type-option {
+    background: #F5F5F5;
+    border: 2px solid #E0E0E0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-option:hover {
+    border-color: #5C6BC0;
+    background: rgba(92, 107, 192, 0.05);
+}
+
+.type-option.active {
+    background: linear-gradient(135deg, #E8EAF6, #C5CAE9);
+    border-color: #5C6BC0;
+}
+
+.type-option-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #5C6BC0, #3F51B5);
+    border: none;
+    padding: 1.25rem 3rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border-radius: 16px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(63, 81, 181, 0.3);
+}
+
+.help-text {
+    font-size: 0.875rem;
+    color: #757575;
+    margin-top: 0.5rem;
+}
+
+.recurrence-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.recurrence-option {
+    flex: 1;
+    min-width: 120px;
+    padding: 1rem;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.recurrence-option:hover {
+    border-color: #5C6BC0;
+}
+
+.recurrence-option.active {
+    background: #5C6BC0;
+    color: white;
+    border-color: #5C6BC0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="schedule-form-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Back Button -->
+                <div class="mb-4">
+                    <a href="{% url 'attendance:schedule_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Schedules
+                    </a>
+                </div>
+
+                <div class="schedule-form-card">
+                    <div class="form-header">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 p-3 mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-calendar-plus display-4"></i>
+                        </div>
+                        <h2 class="mb-2 fw-bold">
+                            {% if schedule %}Edit Schedule{% else %}Create New Schedule{% endif %}
+                        </h2>
+                        <p class="mb-0 opacity-90">Set up custom schedules for staff, students, and activities</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <div class="section-icon">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                </div>
+                                <span>Basic Information</span>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-tag-fill text-primary me-2"></i>
+                                        Schedule Title *
+                                    </label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <div class="text-danger small mt-2">{{ form.title.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-folder-fill text-success me-2"></i>
+                                        Schedule Type *
+                                    </label>
+                                    {{ form.schedule_type }}
+                                    {% if form.schedule_type.errors %}
+                                        <div class="text-danger small mt-2">{{ form.schedule_type.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-card-text text-warning me-2"></i>
+                                        Description
+                                    </label>
+                                    {{ form.description }}
+                                    <p class="help-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Provide additional details about this schedule
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date & Time Section -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <div class="section-icon">
+                                    <i class="bi bi-clock-fill"></i>
+                                </div>
+                                <span>Date & Time</span>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-calendar-check text-success me-2"></i>
+                                        Start Date *
+                                    </label>
+                                    {{ form.start_date }}
+                                    {% if form.start_date.errors %}
+                                        <div class="text-danger small mt-2">{{ form.start_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-calendar-x text-danger me-2"></i>
+                                        End Date
+                                    </label>
+                                    {{ form.end_date }}
+                                    <p class="help-text">Leave blank for ongoing schedules</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-clock text-primary me-2"></i>
+                                        Start Time *
+                                    </label>
+                                    {{ form.start_time }}
+                                    {% if form.start_time.errors %}
+                                        <div class="text-danger small mt-2">{{ form.start_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-clock text-primary me-2"></i>
+                                        End Time *
+                                    </label>
+                                    {{ form.end_time }}
+                                    {% if form.end_time.errors %}
+                                        <div class="text-danger small mt-2">{{ form.end_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold mb-3">
+                                        <i class="bi bi-arrow-repeat text-info me-2"></i>
+                                        Recurrence Type *
+                                    </label>
+                                    {{ form.recurrence_type }}
+                                    {% if form.recurrence_type.errors %}
+                                        <div class="text-danger small mt-2">{{ form.recurrence_type.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assignments Section -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <div class="section-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <span>Assignments (Optional)</span>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-person-badge text-primary me-2"></i>
+                                        Assigned Staff
+                                    </label>
+                                    {{ form.assigned_staff }}
+                                    <p class="help-text">Hold Ctrl (Cmd on Mac) to select multiple</p>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-person text-success me-2"></i>
+                                        Assigned Students
+                                    </label>
+                                    {{ form.assigned_students }}
+                                    <p class="help-text">Hold Ctrl (Cmd on Mac) to select multiple</p>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-door-open text-warning me-2"></i>
+                                        Assigned Room
+                                    </label>
+                                    {{ form.assigned_room }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Section -->
+                        <div class="form-section">
+                            <div class="form-check form-switch">
+                                {{ form.is_active }}
+                                <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">
+                                    <i class="bi bi-toggle-on text-success me-2"></i>
+                                    Schedule is Active
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="p-4 text-center border-top">
+                            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                                <button type="submit" class="submit-btn">
+                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                    {% if schedule %}Update{% else %}Create{% endif %} Schedule
+                                </button>
+                                <a href="{% url 'attendance:schedule_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Quick Tips -->
+                <div class="alert alert-info mt-4 rounded-4">
+                    <h6 class="mb-3"><i class="bi bi-lightbulb-fill me-2"></i>Quick Tips</h6>
+                    <ul class="mb-0">
+                        <li><strong>Staff Shifts:</strong> Use for daily work schedules and room assignments</li>
+                        <li><strong>Student Schedules:</strong> Track expected arrival and pickup times</li>
+                        <li><strong>Activities:</strong> Schedule recurring events like nap time, meal times, or circle time</li>
+                        <li><strong>Recurrence:</strong> Set to "Daily" or "Weekly" for repeating schedules</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form enhancement code
+    const form = document.querySelector('form');
+    
+    // Make form controls more responsive
+    document.querySelectorAll('.form-control, .form-select').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

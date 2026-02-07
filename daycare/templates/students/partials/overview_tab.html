@@ -1,0 +1,161 @@
+<!-- Overview Tab Content -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); color: #2E7D32;">
+            <i class="bi bi-house-fill"></i>
+        </div>
+        <div>
+            <h4>Student Overview</h4>
+            <p>General information and recent activity</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h6><i class="bi bi-calendar-check text-success me-2"></i>Enrollment Date</h6>
+                    <p class="mb-0">{{ student.enrollment_date|date:"F d, Y"|default:"Not set" }}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h6><i class="bi bi-door-open text-primary me-2"></i>Room Assignment</h6>
+                    <p class="mb-0">
+                        {% if student.room %}
+                            {{ student.room.name }}
+                        {% else %}
+                            <span class="text-muted">Not assigned</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% if user.is_admin or user.is_staff_member %}
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h6><i class="bi bi-piggy-bank text-warning me-2"></i>Meal Type</h6>
+                    <p class="mb-0">{{ student.get_meal_type_display|default:"Not specified" }}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h6><i class="bi bi-people text-info me-2"></i>Siblings</h6>
+                    <p class="mb-0">{{ student.sibling_attending|default:"None" }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Attendance -->
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); color: #1565C0;">
+            <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <div>
+            <h4>Recent Attendance</h4>
+            <p>Last 10 attendance records</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        {% if recent_attendance %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in recent_attendance %}
+                    <tr>
+                        <td>{{ record.date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge {% if record.status == 'PRESENT' %}bg-success{% elif record.status == 'ABSENT' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ record.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ record.check_in_time|time:"g:i A"|default:"—" }}</td>
+                        <td>{{ record.check_out_time|time:"g:i A"|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-calendar-x fs-1"></i>
+            <p class="mt-2">No attendance records yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Incident Reports (Admin/Staff Only) -->
+{% if user.is_admin or user.is_staff_member %}
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #FFF3E0, #FFE0B2); color: #E65100;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h4>Incident Reports</h4>
+            <p>Recent incidents and follow-ups</p>
+        </div>
+        <a href="{% url 'students:incident_report_create' student.pk %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Report
+        </a>
+    </div>
+    <div class="content-card-body">
+        {% if incident_reports %}
+        <div class="list-group">
+            {% for report in incident_reports %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">Incident Report #{{ report.report_number }}</h6>
+                        <p class="mb-1">{{ report.description|truncatewords:20 }}</p>
+                        <small class="text-muted">
+                            {{ report.report_date|date:"M d, Y" }} • 
+                            Reported by {{ report.reported_by.get_full_name }}
+                        </small>
+                    </div>
+                    {% if report.follow_up_required %}
+                    <span class="badge bg-warning">Follow-up Required</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-check-circle fs-1"></i>
+            <p class="mt-2">No incident reports</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+.info-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.info-box h6 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.info-box p {
+    color: #666;
+    font-size: 1rem;
+}
+</style>

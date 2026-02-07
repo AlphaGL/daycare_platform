@@ -1,4 +1,4 @@
-// Sugamama Sugababies - Main JavaScript
+// Sugamama Sugababies Daycare daycare - Main JavaScript
 // Modern, Clean, Interactive
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     // Console Art (Easter Egg)
     // ============================================
-    console.log('%c🎨 Sugamama Sugababies', 'color: #6366f1; font-size: 24px; font-weight: bold;');
+    console.log('%c🎨 Sugamama Sugababies Daycare daycare', 'color: #6366f1; font-size: 24px; font-weight: bold;');
     console.log('%cBuilt with ❤️ using Django', 'color: #10b981; font-size: 14px;');
     
 });

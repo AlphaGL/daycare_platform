@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Reminder - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-3">
+                <a href="{% url 'school:reminder_list' %}" class="btn btn-outline-secondary rounded-pill">
+                    <i class="bi bi-arrow-left"></i> Back to Reminders
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient-primary text-white py-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-bell-fill"></i> Create Reminder
+                    </h3>
+                    <p class="mb-0 opacity-75">Set up a reminder for important tasks</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="bi bi-text-left"></i> Title *
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">Brief description of what you need to remember</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="bi bi-card-text"></i> Description *
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">Detailed information about this reminder</small>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.priority.id_for_label }}" class="form-label">
+                                    <i class="bi bi-flag"></i> Priority *
+                                </label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                    <div class="text-danger small mt-1">{{ form.priority.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.remind_at.id_for_label }}" class="form-label">
+                                    <i class="bi bi-calendar-event"></i> Remind Me At *
+                                </label>
+                                {{ form.remind_at }}
+                                {% if form.remind_at.errors %}
+                                    <div class="text-danger small mt-1">{{ form.remind_at.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                {{ form.send_email }}
+                                <label class="form-check-label" for="{{ form.send_email.id_for_label }}">
+                                    <strong>Send Email Notification</strong>
+                                    <p class="small text-muted mb-0">Receive an email reminder at the scheduled time</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Priority Guide -->
+                        <div class="alert alert-info">
+                            <h6 class="mb-2"><i class="bi bi-info-circle"></i> Priority Guide</h6>
+                            <ul class="small mb-0">
+                                <li><strong>Low:</strong> General tasks with flexible deadlines</li>
+                                <li><strong>Medium:</strong> Important tasks requiring attention</li>
+                                <li><strong>High:</strong> Critical tasks with approaching deadlines</li>
+                                <li><strong>Urgent:</strong> Immediate action required</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex gap-2 pt-3">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+                                <i class="bi bi-check-circle"></i> Create Reminder
+                            </button>
+                            <a href="{% url 'school:reminder_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card-body p-4">
+                    <h6 class="mb-3"><i class="bi bi-lightbulb text-warning"></i> Tips for Effective Reminders</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Use clear, actionable titles (e.g., "Submit monthly report")</li>
+                        <li>Set reminders with enough advance time to take action</li>
+                        <li>Include all necessary details in the description</li>
+                        <li>Choose priority levels that reflect actual urgency</li>
+                        <li>Enable email notifications for critical reminders</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-check-input {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+}
+</style>
+{% endblock %}

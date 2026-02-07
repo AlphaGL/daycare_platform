@@ -57,7 +57,7 @@ class SchoolProfile(models.Model):
         instance, created = cls.objects.get_or_create(
             pk=1,
             defaults={
-                'school_name': 'Daycare Management System',
+                'school_name': 'Sugamama sugababies Daycare',
                 'phone': '+234 XXX XXX XXXX',
                 'email': 'info@daycare.com',
                 'address_line_1': 'Your Address',

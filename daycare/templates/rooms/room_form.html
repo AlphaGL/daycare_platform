@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if room %}Edit{% else %}Add{% endif %} Room - {{ school.school_name %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Main Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-on-scroll">
+                <!-- Header -->
+                <div class="card-header text-white py-5 position-relative" 
+                     style="background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);">
+                    <div class="position-relative" style="z-index: 2;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 p-3 mb-3">
+                            <i class="bi bi-door-{% if room %}pencil{% else %}plus{% endif %} fs-1"></i>
+                        </div>
+                        <h3 class="mb-1 fw-bold">
+                            {% if room %}Edit Room{% else %}Add New Room{% endif %}
+                        </h3>
+                        <p class="mb-0 opacity-90">Configure classroom details and assignments</p>
+                    </div>
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="opacity: 0.1; z-index: 1;">
+                        <i class="bi bi-building position-absolute" style="top: 15%; right: 10%; font-size: 4rem;"></i>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <!-- Room Name -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-door-open text-primary me-2"></i>Room Name *
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-door-open-fill text-muted"></i>
+                                    </span>
+                                    {{ form.name }}
+                                </div>
+                                {% if form.name.errors %}
+                                    <small class="text-danger">{{ form.name.errors }}</small>
+                                {% endif %}
+                            </div>
+
+                            <!-- Room Type -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-tag text-success me-2"></i>Room Type *
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-tag-fill text-muted"></i>
+                                    </span>
+                                    {{ form.room_type }}
+                                </div>
+                            </div>
+
+                            <!-- Capacity -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-people text-info me-2"></i>Capacity *
+                                </label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-people-fill text-muted"></i>
+                                    </span>
+                                    {{ form.capacity }}
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-file-text text-warning me-2"></i>Description
+                                </label>
+                                {{ form.description }}
+                                <small class="text-muted d-block mt-1">
+                                    <i class="bi bi-info-circle me-1"></i> Brief description of the room
+                                </small>
+                            </div>
+
+                            <!-- Age Range -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-arrow-down-circle text-primary me-2"></i>Min Age (months)
+                                </label>
+                                {{ form.min_age_months }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-arrow-up-circle text-success me-2"></i>Max Age (months)
+                                </label>
+                                {{ form.max_age_months }}
+                            </div>
+
+                            <!-- Assigned Staff -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold mb-2">
+                                    <i class="bi bi-person-badge text-danger me-2"></i>Assigned Staff
+                                </label>
+                                {{ form.assigned_staff }}
+                                <small class="text-muted d-block mt-1">
+                                    <i class="bi bi-info-circle me-1"></i> Hold Ctrl (Cmd on Mac) to select multiple staff members
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-5 pt-4 border-top d-flex gap-3 flex-wrap">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm hover-lift">
+                                <i class="bi bi-check-circle-fill me-2"></i> Save Room
+                            </button>
+                            <a href="{% url 'rooms:list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4 hover-lift">
+                                <i class="bi bi-x-circle me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.input-group {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.input-group-text {
+    border-right: none;
+}
+
+.form-control, .form-select {
+    border-left: none;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+textarea.form-control {
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: 120px;
+}
+
+select[multiple] {
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: 150px;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+
+    // Input group focus effects
+    document.querySelectorAll('.input-group').forEach(group => {
+        const input = group.querySelector('input, select, textarea');
+        if (input) {
+            input.addEventListener('focus', function() {
+                group.style.transform = 'scale(1.02)';
+                group.style.boxShadow = '0 4px 15px rgba(78, 205, 196, 0.15)';
+            });
+            
+            input.addEventListener('blur', function() {
+                group.style.transform = 'scale(1)';
+                group.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

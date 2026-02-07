@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rooms - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row align-items-center mb-5 animate-on-scroll">
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-2">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle me-3 p-3" 
+                     style="background: linear-gradient(135deg, #4ECDC4, #44A08D); width: 60px; height: 60px;">
+                    <i class="bi bi-door-open-fill text-white fs-4"></i>
+                </div>
+                Classrooms
+            </h2>
+            <p class="text-muted mb-0">Manage your daycare rooms and assignments</p>
+        </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            {% if user.is_admin %}
+            <a href="{% url 'rooms:create' %}" class="btn btn-primary rounded-pill px-4 py-3 shadow-sm hover-lift">
+                <i class="bi bi-plus-circle-fill me-2"></i> Add New Room
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if rooms %}
+        <!-- Rooms Grid -->
+        <div class="row g-4">
+            {% for room in rooms %}
+            <div class="col-md-6 col-lg-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden hover-lift transition-all">
+                    <!-- Room Header -->
+                    <div class="card-header text-white py-3 px-4 position-relative" 
+                         style="background: linear-gradient(135deg, 
+                         {% if room.room_type == 'INFANT' %}#FFB6C1, #FF69B4{% elif room.room_type == 'TODDLER' %}#FFB347, #FF8C00{% elif room.room_type == 'PRESCHOOL' %}#74C0FC, #4A90E2{% else %}#A78BFA, #7C3AED{% endif %});">
+                        <div class="position-relative" style="z-index: 2;">
+                            <h5 class="mb-1 fw-bold">
+                                <i class="bi bi-door-open me-2"></i>{{ room.name }}
+                            </h5>
+                            <small class="opacity-90">{{ room.get_room_type_display }}</small>
+                        </div>
+                        <!-- Decorative icon -->
+                        <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.2; z-index: 1;">
+                            <i class="bi bi-stars" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Statistics Row -->
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <div class="text-center p-3 rounded-3" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB);">
+                                    <div class="h3 mb-1 fw-bold text-primary">{{ room.current_enrollment }}</div>
+                                    <small class="text-muted">Students</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 rounded-3" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9);">
+                                    <div class="h3 mb-1 fw-bold text-success">{{ room.staff_count }}</div>
+                                    <small class="text-muted">Staff</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Capacity Progress -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small fw-semibold text-muted">Capacity</span>
+                                <span class="small fw-bold">{{ room.current_enrollment }}/{{ room.capacity }}</span>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 10px;">
+                                <div class="progress-bar" 
+                                     style="width: {% widthratio room.current_enrollment room.capacity 100 %}%; 
+                                            background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Badges -->
+                        <div class="d-flex gap-2 mb-4 flex-wrap">
+                            <span class="badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #74C0FC, #4A90E2);">
+                                <i class="bi bi-people me-1"></i>Ratio: {{ room.student_staff_ratio }}
+                            </span>
+                            {% if room.is_full %}
+                                <span class="badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #FF6B6B, #FF5252);">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Full
+                                </span>
+                            {% else %}
+                                <span class="badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #51CF66, #4CAF50);">
+                                    <i class="bi bi-check-circle me-1"></i>{{ room.available_spots }} spots
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Button -->
+                        <a href="{% url 'rooms:detail' room.pk %}" class="btn btn-outline-primary w-100 rounded-pill hover-lift">
+                            <i class="bi bi-eye-fill me-2"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="row g-4 mt-4">
+            <div class="col-12 animate-on-scroll">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h6 class="mb-4 fw-bold">
+                            <i class="bi bi-graph-up text-primary me-2"></i> Overview Statistics
+                        </h6>
+                        <div class="row text-center g-3">
+                            <div class="col-6 col-md-3">
+                                <div class="p-3">
+                                    <h3 class="mb-1 fw-bold" style="background: linear-gradient(135deg, #FF6B6B, #FF5252); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                        {{ rooms|length }}
+                                    </h3>
+                                    <small class="text-muted">Total Rooms</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3">
+                                    <h3 class="mb-1 fw-bold text-success">85%</h3>
+                                    <small class="text-muted">Occupancy</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3">
+                                    <h3 class="mb-1 fw-bold text-primary">12</h3>
+                                    <small class="text-muted">Available Spots</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3">
+                                    <h3 class="mb-1 fw-bold text-info">1:6</h3>
+                                    <small class="text-muted">Avg Ratio</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5 animate-on-scroll">
+            <div class="mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-5" 
+                     style="background: linear-gradient(135deg, #F5F5F5, #E0E0E0); width: 150px; height: 150px;">
+                    <i class="bi bi-door-closed display-1 text-muted opacity-50"></i>
+                </div>
+            </div>
+            <h3 class="mb-2 fw-bold">No Rooms Available</h3>
+            <p class="text-muted mb-4">Create your first classroom to get started</p>
+            {% if user.is_admin %}
+            <a href="{% url 'rooms:create' %}" class="btn btn-primary rounded-pill px-5 py-3 shadow-sm hover-lift">
+                <i class="bi bi-plus-circle-fill me-2"></i> Create First Room
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
+}
+
+.progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

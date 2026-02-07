@@ -1,324 +1,1433 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Admin Dashboard - {{ school.school_name }}{% endblock %}
+{% block title %}Admin Dashboard - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary-color: #8b5cf6;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #06b6d4;
+    --light-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --sidebar-width: 280px;
+    --header-height: 80px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--light-bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Sidebar Navigation */
+.dashboard-sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+}
+
+.sidebar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-brand:hover {
+    transform: translateX(4px);
+}
+
+.sidebar-brand i {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 0.5rem;
+    border-radius: 12px;
+    font-size: 1.25rem;
+}
+
+.sidebar-nav {
+    padding: 1.5rem 0;
+}
+
+.nav-section {
+    margin-bottom: 2rem;
+}
+
+.nav-section-title {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 3px solid transparent;
+    position: relative;
+    margin: 0.25rem 0;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    transform: translateX(4px);
+}
+
+.nav-link:hover::before {
+    width: 100%;
+}
+
+.nav-link.active {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
+    color: white;
+    border-left-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--primary-color);
+}
+
+.nav-link i {
+    width: 24px;
+    margin-right: 0.875rem;
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.nav-link:hover i {
+    transform: scale(1.1);
+}
+
+.nav-badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 0.25rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Main Content */
+.dashboard-main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-height: 100vh;
+    background: var(--light-bg);
+}
+
+/* Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.dashboard-title {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.header-date {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-scan-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-scan-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.quick-scan-btn:hover::before {
+    left: 100%;
+}
+
+.quick-scan-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* Content Padding */
+.dashboard-content {
+    padding: 0 2.5rem 2.5rem;
+}
+
+/* Alerts */
+.alert-card {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid var(--warning-color);
+    padding: 1.25rem 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+    animation: slideInRight 0.6s ease forwards;
+}
+
+.alert-card.danger {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-left-color: var(--danger-color);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.alert-card .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.alert-card i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.alert-card strong {
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.alert-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.alert-btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    border-color: var(--border-color);
+}
+
+.stat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    position: relative;
+}
+
+.stat-icon::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.stat-change {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 8px;
+    background: var(--light-bg);
+    width: fit-content;
+}
+
+.stat-change.positive {
+    color: var(--success-color);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.stat-change.negative {
+    color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.stat-change i {
+    font-size: 1rem;
+}
+
+/* Room Ratios Section */
+.section-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border-color);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--light-bg);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.section-time {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--light-bg);
+    border-radius: 10px;
+}
+
+.section-time i {
+    color: var(--primary-color);
+}
+
+/* Room Item */
+.room-item {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    background: var(--light-bg);
+}
+
+.room-item:hover {
+    background: white;
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-color: var(--border-color);
+}
+
+.room-item.all-rooms {
+    background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+    border: 2px solid #93c5fd;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+}
+
+.room-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.375rem;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.room-icon::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.6), transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.room-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.room-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+}
+
+.room-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.room-stats strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.room-ratio {
+    font-weight: 800;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    min-width: 60px;
+    text-align: right;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Badge Styles */
+.badge-status {
+    padding: 0.375rem 0.875rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+}
+
+.badge-info {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+}
+
+/* Activity Item */
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--border-color);
+    background: var(--light-bg);
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background: white;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.activity-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.activity-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.375rem;
+    font-size: 1rem;
+}
+
+.activity-meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.activity-time {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.375rem 0.75rem;
+    background: white;
+    border-radius: 8px;
+}
+
+/* Quick Actions */
+.quick-actions-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.quick-actions-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--text-primary);
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 0.875rem;
+    background: white;
+    font-weight: 600;
+}
+
+.quick-action-btn:hover {
+    background: var(--light-bg);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1);
+}
+
+.quick-action-btn i {
+    width: 28px;
+    margin-right: 1rem;
+    font-size: 1.375rem;
+}
+
+/* View All Button */
+.view-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--light-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state i {
+    font-size: 5rem;
+    opacity: 0.15;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 1.5rem 0;
+    font-size: 1.05rem;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1001;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    color: white;
+    font-size: 1.5rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .dashboard-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .dashboard-main {
+        margin-left: 0;
+    }
+    
+    .dashboard-header {
+        padding: 1.5rem 1.25rem;
+    }
+    
+    .dashboard-content {
+        padding: 0 1.25rem 1.25rem;
+    }
+    
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .room-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+}
+
+/* Loading Skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Focus Styles */
+a:focus,
+button:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .dashboard-sidebar,
+    .mobile-menu-toggle,
+    .quick-scan-btn {
+        display: none;
+    }
+    
+    .dashboard-main {
+        margin-left: 0;
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="bg-light py-4">
-    <div class="container">
-        <!-- Welcome Header -->
-        <div class="row align-items-center mb-4">
-            <div class="col-md-8">
-                <h2 class="mb-1">
-                    <i class="bi bi-speedometer2 text-primary"></i>
-                    Welcome Back, {{ user.get_full_name }}!
-                </h2>
-                <p class="text-muted mb-0">
-                    <i class="bi bi-calendar3"></i> {% now "l, F j, Y" %}
-                </p>
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'school:dashboard' %}" class="sidebar-brand">
+                <i class="bi bi-star-fill"></i>
+                <span>Sugamama Sugababies Daycare</span>
+            </a>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <!-- Main Menu -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main Menu</div>
+                <a href="{% url 'school:dashboard' %}" class="nav-link active">
+                    <i class="bi bi-house-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'students:list' %}" class="nav-link">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Students</span>
+                    {% if total_students %}
+                    <span class="nav-badge">{{ total_students }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'rooms:list' %}" class="nav-link">
+                    <i class="bi bi-door-open-fill"></i>
+                    <span>Rooms</span>
+                </a>
+                <a href="{% url 'staff:list' %}" class="nav-link">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>Staff & Payroll</span>
+                </a>
+                <a href="{% url 'attendance:attendance_list' %}" class="nav-link">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    <span>Attendance</span>
+                    {% if checked_in_today %}
+                    <span class="nav-badge">{{ checked_in_today }}</span>
+                    {% endif %}
+                </a>
             </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <div class="btn-group">
-                    <a href="{% url 'students:register' %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> New Registration
-                    </a>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-                        <span class="visually-hidden">Toggle Dropdown</span>
+            
+            <!-- Communication -->
+            <div class="nav-section">
+                <div class="nav-section-title">Communication</div>
+                <a href="{% url 'messages:inbox' %}" class="nav-link">
+                    <i class="bi bi-envelope-fill"></i>
+                    <span>Messaging</span>
+                    {% if unread_messages > 0 %}
+                    <span class="nav-badge">{{ unread_messages }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'messages:announcements' %}" class="nav-link">
+                    <i class="bi bi-megaphone-fill"></i>
+                    <span>Announcements</span>
+                </a>
+            </div>
+            
+            <!-- Management -->
+            <div class="nav-section">
+                <div class="nav-section-title">Management</div>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-credit-card-fill"></i>
+                    <span>Billing</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    <span>Expenses</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-book-fill"></i>
+                    <span>Learning</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-person-check-fill"></i>
+                    <span>Admissions</span>
+                    {% if pending_registrations > 0 %}
+                    <span class="nav-badge">{{ pending_registrations }}</span>
+                    {% endif %}
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Paperwork</span>
+                </a>
+            </div>
+            
+            <!-- Reporting -->
+            <div class="nav-section">
+                <div class="nav-section-title">Reporting</div>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Analytics</span>
+                </a>
+            </div>
+            
+            <!-- Settings -->
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <a href="{% url 'school:settings' %}" class="nav-link">
+                    <i class="bi bi-gear-fill"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="/admin/" class="nav-link">
+                    <i class="bi bi-shield-fill-check"></i>
+                    <span>Admin Panel</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-question-circle-fill"></i>
+                    <span>Help Center</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="dashboard-title">
+                        Good {% now "A" %}{% if "AM" in now|date:"A" %}Morning{% else %}Afternoon{% endif %}, {{ user.first_name }}! 👋
+                    </h1>
+                    <p class="header-date mb-0">
+                        <i class="bi bi-calendar3"></i>
+                        <span>{% now "l, F j, Y" %}</span>
+                    </p>
+                </div>
+                <div>
+                    <button class="quick-scan-btn">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Quick Scan
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'students:create' %}"><i class="bi bi-person-plus"></i> Add Student</a></li>
-                        <li><a class="dropdown-item" href="{% url 'rooms:create' %}"><i class="bi bi-door-open"></i> Add Room</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'school:reminder_create' %}"><i class="bi bi-bell"></i> New Reminder</a></li>
-                    </ul>
                 </div>
             </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="row g-4 mb-4">
-            <!-- Total Students -->
-            <div class="col-md-3">
-                <div class="card dashboard-card border-0 h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <p class="text-muted mb-1 small">Total Students</p>
-                                <h3 class="mb-0 fw-bold">{{ total_students|default:0 }}</h3>
-                            </div>
-                            <div class="stat-icon bg-primary bg-opacity-10">
-                                <i class="bi bi-people-fill text-primary"></i>
-                            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            <!-- Alerts -->
+            {% if pending_registrations > 0 %}
+            <div class="alert-card">
+                <div class="alert-content">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ pending_registrations }} pending registration{{ pending_registrations|pluralize }}</strong>
+                        <p class="mb-0 mt-1">New applications are waiting for your review</p>
+                    </div>
+                    <a href="/admin/students/studentregistration/?status__exact=PENDING" class="btn btn-warning alert-btn">Review Now</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if rooms_understaffed > 0 %}
+            <div class="alert-card danger">
+                <div class="alert-content">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ rooms_understaffed }} room{{ rooms_understaffed|pluralize }} understaffed</strong>
+                        <p class="mb-0 mt-1">Some rooms have students but no staff assigned</p>
+                    </div>
+                    <a href="{% url 'staff:list' %}" class="btn btn-danger alert-btn">Assign Staff</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card animate-in" style="animation-delay: 0s;">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Total Students</div>
+                            <div class="stat-value">{{ total_students }}</div>
                         </div>
-                        <div class="d-flex align-items-center text-success small">
-                            <i class="bi bi-arrow-up-circle me-1"></i>
-                            <span>{{ recent_students|default:0 }} this week</span>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <i class="bi bi-people-fill"></i>
                         </div>
                     </div>
+                    <div class="stat-change positive">
+                        <i class="bi bi-arrow-up-circle-fill"></i>
+                        <span>{{ recent_students }} this week</span>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Total Rooms -->
-            <div class="col-md-3">
-                <div class="card dashboard-card border-0 h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <p class="text-muted mb-1 small">Active Rooms</p>
-                                <h3 class="mb-0 fw-bold">{{ total_rooms|default:0 }}</h3>
-                            </div>
-                            <div class="stat-icon bg-success bg-opacity-10">
-                                <i class="bi bi-door-open-fill text-success"></i>
-                            </div>
+                
+                <div class="stat-card animate-in" style="animation-delay: 0.1s;">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Active Rooms</div>
+                            <div class="stat-value">{{ total_rooms }}</div>
                         </div>
-                        <a href="{% url 'rooms:list' %}" class="text-decoration-none small">
-                            View all rooms <i class="bi bi-arrow-right"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                            <i class="bi bi-door-open-fill"></i>
+                        </div>
+                    </div>
+                    <div class="stat-change">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>{{ rooms_at_capacity }} at capacity</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card animate-in" style="animation-delay: 0.2s;">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Staff Members</div>
+                            <div class="stat-value">{{ total_staff }}</div>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                    </div>
+                    <div class="stat-change">
+                        <i class="bi bi-circle-fill"></i>
+                        <span>{{ total_staff_in }} currently on duty</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card animate-in" style="animation-delay: 0.3s;">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Messages</div>
+                            <div class="stat-value">{{ unread_messages }}</div>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                    </div>
+                    <div class="stat-change">
+                        <a href="{% url 'messages:inbox' %}" style="text-decoration: none; color: var(--primary-color); font-weight: 600;">
+                            View inbox →
                         </a>
                     </div>
                 </div>
             </div>
-
-            <!-- Staff Members -->
-            <div class="col-md-3">
-                <div class="card dashboard-card border-0 h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <p class="text-muted mb-1 small">Staff Members</p>
-                                <h3 class="mb-0 fw-bold">{{ total_staff|default:0 }}</h3>
-                            </div>
-                            <div class="stat-icon bg-warning bg-opacity-10">
-                                <i class="bi bi-person-badge-fill text-warning"></i>
-                            </div>
-                        </div>
-                        <a href="{% url 'staff:list' %}" class="text-decoration-none small">
-                            Manage staff <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Messages -->
-            <div class="col-md-3">
-                <div class="card dashboard-card border-0 h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <p class="text-muted mb-1 small">Unread Messages</p>
-                                <h3 class="mb-0 fw-bold">{{ unread_messages|default:0 }}</h3>
-                            </div>
-                            <div class="stat-icon bg-info bg-opacity-10">
-                                <i class="bi bi-envelope-fill text-info"></i>
+            
+            <!-- Two Column Layout -->
+            <div class="row g-4">
+                <!-- Left Column -->
+                <div class="col-lg-8">
+                    <!-- Current Room Ratios -->
+                    <div class="section-card animate-in" style="animation-delay: 0.4s;">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                Current Room Ratios
+                            </h2>
+                            <div class="section-time">
+                                <i class="bi bi-clock-fill"></i>
+                                <span>{{ current_time|time:"g:i A" }}</span>
                             </div>
                         </div>
-                        <a href="{% url 'messages:inbox' %}" class="text-decoration-none small">
-                            View inbox <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <!-- Left Column -->
-            <div class="col-lg-8">
-                <!-- Pending Registrations -->
-                {% if pending_registrations > 0 %}
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">
-                                <i class="bi bi-bell text-warning"></i>
-                                Pending Registrations
-                            </h5>
-                            <span class="badge bg-warning rounded-pill">{{ pending_registrations }}</span>
+                        
+                        <!-- All Rooms Summary -->
+                        <div class="room-item all-rooms">
+                            <div class="room-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;">
+                                <i class="bi bi-grid-3x3-gap-fill"></i>
+                            </div>
+                            <div class="room-info">
+                                <div class="room-name">All Rooms Combined</div>
+                                <div class="room-stats">
+                                    <span><strong>{{ total_students_in }}</strong> Students</span>
+                                    <span><strong>{{ total_staff_in }}</strong> Staff</span>
+                                    <span class="badge-status badge-info">Overview</span>
+                                </div>
+                            </div>
+                            <div class="room-ratio">
+                                {% if total_staff_in > 0 %}
+                                    {{ total_students_in|floatformat:0 }}:{{ total_staff_in }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </div>
                         </div>
-                        <p class="text-muted mb-3">
-                            You have {{ pending_registrations }} registration{{ pending_registrations|pluralize }} waiting for approval.
-                        </p>
-                        <a href="/admin/students/studentregistration/?status__exact=PENDING" class="btn btn-warning btn-sm rounded-pill">
-                            <i class="bi bi-eye"></i> Review Now
-                        </a>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Room Ratios -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white border-0 pt-4 px-4">
-                        <h5 class="mb-0">
-                            <i class="bi bi-diagram-3 text-primary"></i>
-                            Room Check - Student/Staff Ratios
-                        </h5>
-                    </div>
-                    <div class="card-body p-4">
+                        
+                        <!-- Individual Rooms -->
                         {% if rooms_with_ratios %}
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Room Name</th>
-                                            <th class="text-center">Students</th>
-                                            <th class="text-center">Staff</th>
-                                            <th class="text-center">Ratio</th>
-                                            <th class="text-end">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for room in rooms_with_ratios %}
-                                        <tr>
-                                            <td>
-                                                <a href="{% url 'rooms:detail' room.pk %}" class="text-decoration-none">
-                                                    <i class="bi bi-door-open"></i> {{ room.name }}
-                                                </a>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-primary rounded-pill">{{ room.student_count }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-success rounded-pill">{{ room.staff_count }}</span>
-                                            </td>
-                                            <td class="text-center fw-bold">{{ room.student_staff_ratio }}</td>
-                                            <td class="text-end">
-                                                {% if room.is_full %}
-                                                    <span class="badge bg-danger">Full</span>
-                                                {% else %}
-                                                    <span class="badge bg-success">{{ room.available_spots }} spots</span>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="bi bi-inbox display-4 text-muted opacity-25"></i>
-                                <p class="text-muted mt-2">No active rooms found.</p>
-                                <a href="{% url 'rooms:create' %}" class="btn btn-primary btn-sm rounded-pill">
-                                    <i class="bi bi-plus-circle"></i> Create First Room
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Recent Messages -->
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white border-0 pt-4 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                <i class="bi bi-chat-dots text-primary"></i>
-                                Recent Messages
-                            </h5>
-                            <a href="{% url 'messages:inbox' %}" class="btn btn-sm btn-outline-primary rounded-pill">
-                                View All
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if recent_messages %}
-                            <div class="list-group list-group-flush">
-                                {% for message in recent_messages|slice:":5" %}
-                                <a href="{% url 'messages:detail' message.pk %}" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex align-items-center mb-1">
-                                                {% if message.sender == user %}
-                                                    <i class="bi bi-arrow-right-circle text-muted me-2"></i>
-                                                    <strong>To: {{ message.recipient.get_full_name }}</strong>
-                                                {% else %}
-                                                    <i class="bi bi-arrow-left-circle text-primary me-2"></i>
-                                                    <strong>From: {{ message.sender.get_full_name }}</strong>
-                                                {% endif %}
-                                            </div>
-                                            <p class="mb-1 text-truncate">{{ message.subject|default:"(No subject)" }}</p>
-                                            <small class="text-muted">{{ message.created_at|timesince }} ago</small>
-                                        </div>
-                                        {% if message.recipient == user and not message.is_read %}
-                                            <span class="badge bg-primary rounded-pill ms-2">New</span>
+                            {% for room_data in rooms_with_ratios %}
+                            <div class="room-item">
+                                <div class="room-icon" style="background: linear-gradient(135deg, 
+                                    {% cycle '#667eea' '#f093fb' '#4facfe' '#fa709a' '#a8edea' '#fed6e3' '#c471f5' '#12c2e9' %}, 
+                                    {% cycle '#764ba2' '#f5576c' '#00f2fe' '#fee140' '#fed6e3' '#ffa8b4' '#fa71cd' '#c471ed' %}); color: white;">
+                                    {{ room_data.room.name|first|upper }}
+                                </div>
+                                <div class="room-info">
+                                    <div class="room-name">{{ room_data.room.name }}</div>
+                                    <div class="room-stats">
+                                        <span><strong>{{ room_data.students_in }}</strong> Students</span>
+                                        <span><strong>{{ room_data.staff_in }}</strong> Staff</span>
+                                        {% if room_data.available_spots == 0 %}
+                                            <span class="badge-status badge-danger">At Capacity</span>
+                                        {% elif room_data.available_spots <= 3 %}
+                                            <span class="badge-status badge-warning">{{ room_data.available_spots }} spots left</span>
+                                        {% else %}
+                                            <span class="badge-status badge-success">{{ room_data.available_spots }} spots available</span>
                                         {% endif %}
                                     </div>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="text-center py-5">
-                                <i class="bi bi-inbox display-4 text-muted opacity-25"></i>
-                                <p class="text-muted mt-2">No messages yet</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div class="col-lg-4">
-                <!-- Quick Actions -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white border-0 pt-4 px-4">
-                        <h5 class="mb-0">
-                            <i class="bi bi-lightning text-warning"></i>
-                            Quick Actions
-                        </h5>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'school:profile' %}" class="btn btn-outline-primary text-start">
-                                <i class="bi bi-building me-2"></i> School Settings
-                            </a>
-                            <a href="{% url 'students:list' %}" class="btn btn-outline-primary text-start">
-                                <i class="bi bi-people me-2"></i> View Students
-                            </a>
-                            <a href="{% url 'messages:compose' %}" class="btn btn-outline-primary text-start">
-                                <i class="bi bi-envelope me-2"></i> Send Message
-                            </a>
-                            <a href="/admin/" class="btn btn-outline-primary text-start">
-                                <i class="bi bi-gear me-2"></i> Admin Panel
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Reminders -->
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white border-0 pt-4 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                <i class="bi bi-bell text-primary"></i>
-                                Reminders
-                            </h5>
-                            <a href="{% url 'school:reminder_create' %}" class="btn btn-sm btn-outline-primary rounded-pill">
-                                <i class="bi bi-plus"></i> Add
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if active_reminders %}
-                            <div class="list-group list-group-flush">
-                                {% for reminder in active_reminders %}
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="mb-0">{{ reminder.title }}</h6>
-                                        <span class="badge bg-{{ reminder.priority|lower }}">{{ reminder.get_priority_display }}</span>
-                                    </div>
-                                    <p class="mb-1 small text-muted">{{ reminder.description|truncatewords:10 }}</p>
-                                    <small class="text-muted">
-                                        <i class="bi bi-calendar"></i> {{ reminder.remind_at|date:"M d, Y g:i A" }}
-                                    </small>
                                 </div>
-                                {% endfor %}
+                                <div class="room-ratio">{{ room_data.ratio }}</div>
                             </div>
+                            {% endfor %}
                         {% else %}
-                            <div class="text-center py-4">
-                                <i class="bi bi-bell-slash display-4 text-muted opacity-25"></i>
-                                <p class="text-muted mt-2 small">No active reminders</p>
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <p>No active rooms found</p>
+                                <a href="{% url 'rooms:create' %}" class="view-all-btn">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Create First Room
+                                </a>
                             </div>
                         {% endif %}
+                        
+                        <div class="text-center mt-4">
+                            <a href="{% url 'rooms:list' %}" class="view-all-btn">
+                                View All Rooms
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
+                    
+                    <!-- Today's Activities -->
+                    <div class="section-card animate-in mt-4" style="animation-delay: 0.5s;">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="bi bi-clock-history"></i>
+                                Today's Activities
+                            </h2>
+                            <div class="section-time">
+                                <i class="bi bi-calendar-check"></i>
+                                <span>{% now "M j, Y" %}</span>
+                            </div>
+                        </div>
+                        
+                        {% if today_activities %}
+                            {% for attendance in today_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon" style="
+                                    background: {% if attendance.status == 'PRESENT' %}linear-gradient(135deg, #d1fae5, #a7f3d0){% else %}linear-gradient(135deg, #fee2e2, #fecaca){% endif %}; 
+                                    color: {% if attendance.status == 'PRESENT' %}#065f46{% else %}#991b1b{% endif %};">
+                                    <i class="bi bi-{% if attendance.status == 'PRESENT' %}check-circle-fill{% else %}x-circle-fill{% endif %}"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-title">{{ attendance.student.get_full_name }}</div>
+                                    <div class="activity-meta">
+                                        {% if attendance.student.room %}
+                                            <i class="bi bi-door-open me-1"></i>{{ attendance.student.room.name }}
+                                        {% else %}
+                                            <i class="bi bi-exclamation-circle me-1"></i>No room assigned
+                                        {% endif %}
+                                        <span class="mx-2">•</span>
+                                        {{ attendance.get_status_display }}
+                                    </div>
+                                </div>
+                                <div class="activity-time">
+                                    {% if attendance.check_in_time %}
+                                        {{ attendance.check_in_time|time:"g:i A" }}
+                                    {% else %}
+                                        --:--
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-calendar-x"></i>
+                                <p>No activities logged today</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="text-center mt-4">
+                            <a href="{% url 'attendance:attendance_list' %}" class="view-all-btn">
+                                View All Activities
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="col-lg-4">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions-card animate-in" style="animation-delay: 0.6s;">
+                        <h3 class="quick-actions-title">
+                            <i class="bi bi-lightning-fill" style="color: var(--warning-color);"></i>
+                            Quick Actions
+                        </h3>
+                        <a href="{% url 'students:create' %}" class="quick-action-btn">
+                            <i class="bi bi-person-plus-fill" style="color: var(--primary-color);"></i>
+                            <span>Add Student</span>
+                        </a>
+                        <a href="{% url 'rooms:create' %}" class="quick-action-btn">
+                            <i class="bi bi-door-open-fill" style="color: var(--success-color);"></i>
+                            <span>Create Room</span>
+                        </a>
+                        <a href="{% url 'attendance:checkin' %}" class="quick-action-btn">
+                            <i class="bi bi-box-arrow-in-right" style="color: var(--info-color);"></i>
+                            <span>Check-In Student</span>
+                        </a>
+                        <a href="{% url 'messages:compose' %}" class="quick-action-btn">
+                            <i class="bi bi-envelope-fill" style="color: var(--secondary-color);"></i>
+                            <span>Send Message</span>
+                        </a>
+                        <a href="{% url 'school:reminder_create' %}" class="quick-action-btn">
+                            <i class="bi bi-bell-fill" style="color: var(--warning-color);"></i>
+                            <span>Add Reminder</span>
+                        </a>
+                        <a href="{% url 'school:profile' %}" class="quick-action-btn">
+                            <i class="bi bi-gear-fill" style="color: var(--text-secondary);"></i>
+                            <span>School Settings</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Active Reminders -->
+                    {% if active_reminders %}
+                    <div class="quick-actions-card animate-in mt-4" style="animation-delay: 0.7s;">
+                        <h3 class="quick-actions-title">
+                            <i class="bi bi-bell-fill" style="color: var(--danger-color);"></i>
+                            Active Reminders
+                        </h3>
+                        {% for reminder in active_reminders %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="
+                                background: {% if reminder.priority == 'URGENT' %}linear-gradient(135deg, #fee2e2, #fecaca){% elif reminder.priority == 'HIGH' %}linear-gradient(135deg, #fef3c7, #fde68a){% else %}linear-gradient(135deg, #dbeafe, #bfdbfe){% endif %}; 
+                                color: {% if reminder.priority == 'URGENT' %}#991b1b{% elif reminder.priority == 'HIGH' %}#92400e{% else %}#1e40af{% endif %};">
+                                <i class="bi bi-bell-fill"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">{{ reminder.title|truncatewords:4 }}</div>
+                                <div class="activity-meta">
+                                    <i class="bi bi-calendar3"></i>
+                                    {{ reminder.remind_at|date:"M d, g:i A" }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'school:reminder_list' %}" class="view-all-btn">View All</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Recent Announcements -->
+                    {% if recent_announcements %}
+                    <div class="quick-actions-card animate-in mt-4" style="animation-delay: 0.8s;">
+                        <h3 class="quick-actions-title">
+                            <i class="bi bi-megaphone-fill" style="color: var(--primary-color);"></i>
+                            Recent Announcements
+                        </h3>
+                        {% for announcement in recent_announcements %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af;">
+                                <i class="bi bi-megaphone-fill"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">{{ announcement.title|truncatewords:5 }}</div>
+                                <div class="activity-meta">
+                                    <i class="bi bi-calendar3"></i>
+                                    {{ announcement.publish_date|date:"M d" }}
+                                    <span class="mx-2">•</span>
+                                    {{ announcement.get_target_audience_display }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'messages:announcements' %}" class="view-all-btn">View All</a>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
+
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" onclick="document.querySelector('.dashboard-sidebar').classList.toggle('show')" aria-label="Toggle Menu">
+    <i class="bi bi-list"></i>
+</button>
+
+<script>
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('.dashboard-sidebar');
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (sidebar.classList.contains('show') && 
+        !sidebar.contains(event.target) && 
+        !toggle.contains(event.target)) {
+        sidebar.classList.remove('show');
+    }
+});
+
+// Add stagger animation to stats cards
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.animate-in');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+        }, index * 100);
+    });
+});
+</script>
 {% endblock %}

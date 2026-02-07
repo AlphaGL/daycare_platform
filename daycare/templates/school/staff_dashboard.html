@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Dashboard - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.staff-dashboard {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.welcome-header {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4ECDC4, #44A08D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.room-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: #4ECDC4;
+}
+
+.schedule-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #4ECDC4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items-center;
+    gap: 0.5rem;
+}
+
+.stat-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 1px solid #dee2e6;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    border-color: #4ECDC4;
+    color: #4ECDC4;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 1.25rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.animate-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="staff-dashboard">
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="welcome-header animate-in">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="welcome-title">Welcome, {{ user.get_full_name }}! 👋</h1>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-calendar3 me-2"></i>{% now "l, F j, Y" %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="stats-grid animate-in" style="animation-delay: 0.1s;">
+            <div class="stat-item">
+                <div class="stat-value text-primary">{{ total_students|default:0 }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value text-success">{{ assigned_rooms.count|default:0 }}</div>
+                <div class="stat-label">Rooms Assigned</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value text-warning">{{ unread_messages|default:0 }}</div>
+                <div class="stat-label">Unread Messages</div>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- My Rooms Section -->
+                <div class="card-section animate-in" style="animation-delay: 0.2s;">
+                    <h2 class="section-title">
+                        <i class="bi bi-door-open-fill text-primary"></i>
+                        My Assigned Rooms
+                    </h2>
+                    
+                    {% if assigned_rooms %}
+                        <div class="row g-3">
+                            {% for room in assigned_rooms %}
+                            <div class="col-md-6">
+                                <div class="room-card">
+                                    <h5 class="fw-bold mb-2">
+                                        <i class="bi bi-door-open text-primary me-1"></i>
+                                        {{ room.name }}
+                                    </h5>
+                                    <p class="small text-muted mb-3">{{ room.get_room_type_display }}</p>
+                                    
+                                    <div class="d-flex gap-2 mb-3">
+                                        <span class="stat-badge" style="background: #E3F2FD; color: #1976D2;">
+                                            <i class="bi bi-people-fill me-1"></i>
+                                            {{ room.current_enrollment }} Students
+                                        </span>
+                                        <span class="stat-badge" style="background: #E8F5E9; color: #388E3C;">
+                                            <i class="bi bi-person-badge me-1"></i>
+                                            {{ room.staff_count }} Staff
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'rooms:detail' room.pk %}" class="btn btn-sm btn-outline-primary rounded-pill flex-fill">
+                                            <i class="bi bi-eye-fill me-1"></i>
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-door-closed display-4 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3 mb-0">No rooms assigned yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Today's Schedule -->
+                <div class="card-section animate-in" style="animation-delay: 0.3s;">
+                    <h2 class="section-title">
+                        <i class="bi bi-calendar-week text-warning"></i>
+                        Today's Schedule
+                    </h2>
+                    
+                    {% if today_schedule %}
+                        {% for schedule in today_schedule %}
+                        <div class="schedule-item">
+                            <div class="d-flex align-items-start">
+                                <div class="rounded-circle p-2 me-3" style="background: #E3F2FD;">
+                                    <i class="bi bi-clock-fill text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-1">
+                                        {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                                    </h6>
+                                    <p class="small text-muted mb-0">
+                                        {% if schedule.room %}
+                                            {{ schedule.room.name }}
+                                        {% else %}
+                                            General Duty
+                                        {% endif %}
+                                    </p>
+                                    {% if schedule.notes %}
+                                        <p class="small text-muted mb-0 mt-1">
+                                            <i class="bi bi-info-circle me-1"></i>{{ schedule.notes }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x display-4 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3 mb-0">No schedule for today</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Recent Announcements -->
+                {% if recent_announcements %}
+                <div class="card-section animate-in" style="animation-delay: 0.4s;">
+                    <h2 class="section-title">
+                        <i class="bi bi-megaphone-fill text-info"></i>
+                        Announcements
+                    </h2>
+                    
+                    {% for announcement in recent_announcements %}
+                    <div class="schedule-item" style="border-left-color: #17a2b8;">
+                        <div class="d-flex align-items-start">
+                            <div class="rounded-circle p-2 me-3" style="background: #D1ECF1;">
+                                <i class="bi bi-megaphone text-info"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1">{{ announcement.title }}</h6>
+                                <p class="small text-muted mb-2">{{ announcement.content|truncatewords:20 }}</p>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    {{ announcement.publish_date|date:"M d, Y" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="card-section animate-in" style="animation-delay: 0.5s;">
+                    <h3 class="h6 fw-bold mb-3">
+                        <i class="bi bi-lightning-fill text-warning me-2"></i>
+                        Quick Actions
+                    </h3>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'students:list' %}" class="action-button">
+                            <i class="bi bi-people text-primary"></i>
+                            <span>View Students</span>
+                        </a>
+                        <a href="{% url 'staff:schedules' %}" class="action-button">
+                            <i class="bi bi-calendar-check text-success"></i>
+                            <span>My Schedule</span>
+                        </a>
+                        <a href="{% url 'messages:inbox' %}" class="action-button position-relative">
+                            <i class="bi bi-envelope text-info"></i>
+                            <span>Messages</span>
+                            {% if unread_messages > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.625rem;">
+                                    {{ unread_messages }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'staff:timecards' %}" class="action-button">
+                            <i class="bi bi-clock-history text-secondary"></i>
+                            <span>Timecards</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Personal Info -->
+                <div class="card-section animate-in" style="animation-delay: 0.6s;">
+                    <h3 class="h6 fw-bold mb-3">
+                        <i class="bi bi-person-fill text-primary me-2"></i>
+                        My Information
+                    </h3>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Position</small>
+                        <strong>{{ user.staff_profile.position|default:"Staff Member" }}</strong>
+                    </div>
+                    {% if user.staff_profile.employee_id %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Employee ID</small>
+                        <strong>{{ user.staff_profile.employee_id }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Email</small>
+                        <strong>{{ user.email }}</strong>
+                    </div>
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary w-100 rounded-pill">
+                        <i class="bi bi-pencil-fill me-1"></i>
+                        Edit Profile
+                    </a>
+                </div>
+                
+                <!-- Help Section -->
+                <div class="card-section animate-in" style="animation-delay: 0.7s; background: linear-gradient(135deg, #FFF3E0, #FFE0B2);">
+                    <div class="text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-3 mb-3" style="background: linear-gradient(135deg, #FF9800, #F57C00); width: 70px; height: 70px;">
+                            <i class="bi bi-question-circle-fill text-white fs-1"></i>
+                        </div>
+                        <h6 class="fw-bold mb-2">Need Assistance?</h6>
+                        <p class="small text-muted mb-3">Contact administration for help</p>
+                        <div class="d-grid gap-2">
+                            <a href="tel:{{ school.phone }}" class="btn btn-warning btn-sm rounded-pill shadow-sm">
+                                <i class="bi bi-telephone-fill me-1"></i>
+                                Call Admin
+                            </a>
+                            <a href="mailto:{{ school.email }}" class="btn btn-outline-warning btn-sm rounded-pill">
+                                <i class="bi bi-envelope-fill me-1"></i>
+                                Email Admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate elements
+    const elements = document.querySelectorAll('.animate-in');
+    elements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
+{% endblock %}

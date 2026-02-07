@@ -1,0 +1,637 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Members - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle-large me-3">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div>
+                    <h2 class="gradient-text mb-1">Our Amazing Team</h2>
+                    <p class="text-muted mb-0">{{ staff_members|length }} dedicated staff member{{ staff_members|length|pluralize}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="#" class="btn btn-primary btn-lg shadow-lg">
+                <i class="bi bi-plus-circle-fill"></i> Add Staff Member
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card border-0 shadow-sm mb-4 animate-on-scroll" style="border-radius: 25px; overflow: hidden;">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="form-control form-control-lg ps-5" placeholder="Search staff by name or position..." id="staffSearch">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-lg" id="positionFilter">
+                        <option value="">All Positions</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="assistant">Assistant</option>
+                        <option value="administrator">Administrator</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-lg" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if staff_members %}
+        <div class="row g-4">
+            {% for staff in staff_members %}
+            <div class="col-md-6 col-lg-4 staff-card animate-on-scroll">
+                <div class="staff-profile-card">
+                    <div class="card-decorative-top"></div>
+                    <div class="card-body p-4">
+                        <div class="text-center mb-3">
+                            {% if staff.profile_photo %}
+                                <div class="staff-photo-wrapper">
+                                    <img src="{{ staff.profile_photo.url }}" class="staff-photo" alt="{{ staff.get_full_name }}">
+                                    <div class="photo-ring"></div>
+                                </div>
+                            {% else %}
+                                <div class="staff-avatar-wrapper">
+                                    <div class="staff-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div class="avatar-ring"></div>
+                                </div>
+                            {% endif %}
+                            <h5 class="staff-name mt-3 mb-1">{{ staff.get_full_name }}</h5>
+                            <p class="staff-position mb-2">{{ staff.staff_profile.position }}</p>
+                            {% if staff.staff_profile.employee_id %}
+                                <span class="badge-custom badge-id">ID: {{ staff.staff_profile.employee_id }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="staff-info mb-3">
+                            <div class="info-row">
+                                <i class="bi bi-envelope-fill text-primary"></i>
+                                <span>{{ staff.email|truncatechars:25 }}</span>
+                            </div>
+                            {% if staff.phone %}
+                            <div class="info-row">
+                                <i class="bi bi-telephone-fill text-success"></i>
+                                <span>{{ staff.phone }}</span>
+                            </div>
+                            {% endif %}
+                            {% if staff.staff_profile.hire_date %}
+                            <div class="info-row">
+                                <i class="bi bi-calendar-check-fill text-info"></i>
+                                <span>Hired: {{ staff.staff_profile.hire_date|date:"M Y" }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="staff-rooms mb-3">
+                            <label class="rooms-label">Assigned Rooms</label>
+                            {% with assigned_rooms=staff.assigned_rooms.all %}
+                                {% if assigned_rooms %}
+                                    <div class="rooms-list">
+                                        {% for room in assigned_rooms %}
+                                            <span class="badge-custom badge-room">{{ room.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="no-rooms">No rooms assigned</p>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        <div class="staff-badges mb-3">
+                            <span class="status-badge {% if staff.staff_profile.is_active_staff %}status-active{% else %}status-inactive{% endif %}">
+                                <i class="bi bi-{% if staff.staff_profile.is_active_staff %}check-circle-fill{% else %}x-circle-fill{% endif %}"></i>
+                                {% if staff.staff_profile.is_active_staff %}Active{% else %}Inactive{% endif %}
+                            </span>
+                            <span class="access-badge">
+                                <i class="bi bi-shield-fill-check"></i>
+                                {{ staff.staff_profile.access_level }}
+                            </span>
+                        </div>
+
+                        <div class="staff-actions">
+                            <a href="#" class="btn btn-view">
+                                <i class="bi bi-eye-fill"></i> View Profile
+                            </a>
+                            <div class="btn-group-compact">
+                                <a href="#" class="btn btn-action">
+                                    <i class="bi bi-pencil-fill"></i> Edit
+                                </a>
+                                <a href="{% url 'messages:compose' %}?recipient={{ staff.id }}" class="btn btn-action">
+                                    <i class="bi bi-envelope-fill"></i> Message
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Statistics -->
+        <div class="row g-4 mt-5">
+            <div class="col-12">
+                <h4 class="mb-4 text-center gradient-text">
+                    <i class="bi bi-graph-up-arrow"></i> Team Statistics
+                </h4>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ staff_members|length }}</h3>
+                        <p>Total Staff</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ active_count|default:staff_members|length }}</h3>
+                        <p>Active</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon">
+                        <i class="bi bi-door-open-fill"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ rooms_assigned|default:"5" }}</h3>
+                        <p>Rooms Covered</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card stat-card-info">
+                    <div class="stat-icon">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ avg_experience|default:"3.5" }}</h3>
+                        <p>Avg. Years</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state animate-on-scroll">
+            <div class="empty-state-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <h3 class="empty-state-title">No Staff Members Yet</h3>
+            <p class="empty-state-text">Build your dream team by adding your first staff member!</p>
+            <a href="#" class="btn btn-primary btn-lg mt-3">
+                <i class="bi bi-plus-circle-fill"></i> Add First Staff Member
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+/* Reuse similar styles from student_list with staff-specific adjustments */
+.icon-circle-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.icon-circle-large i {
+    font-size: 2rem;
+    color: white;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    z-index: 2;
+}
+
+.search-box .form-control {
+    border-radius: 20px;
+    border: 2px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.search-box .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.staff-profile-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border: 3px solid transparent;
+    height: 100%;
+}
+
+.staff-profile-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    border-color: #ffd93d;
+}
+
+.card-decorative-top {
+    height: 8px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #ffd93d, #6bcf7f);
+}
+
+.staff-photo-wrapper,
+.staff-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.staff-photo,
+.staff-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 2;
+}
+
+.staff-photo {
+    object-fit: cover;
+}
+
+.staff-avatar {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.staff-avatar i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.photo-ring,
+.avatar-ring {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    z-index: 1;
+    animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+    100% { transform: rotate(360deg); }
+}
+
+.staff-name {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 1.2rem;
+}
+
+.staff-position {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.badge-custom {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-id {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    color: #667eea;
+}
+
+.staff-info {
+    background: var(--bg-cream);
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.staff-rooms {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.rooms-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.rooms-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.badge-room {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 0.75rem;
+}
+
+.no-rooms {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.staff-badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.status-badge,
+.access-badge {
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-active {
+    background: linear-gradient(135deg, var(--success-color), #38d9a9);
+    color: white;
+}
+
+.status-inactive {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+}
+
+.access-badge {
+    background: linear-gradient(135deg, rgba(116, 192, 252, 0.2), rgba(116, 192, 252, 0.3));
+    color: var(--info-color);
+}
+
+.staff-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.btn-group-compact {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.btn-action {
+    background: white;
+    color: var(--text-dark);
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+    border: 2px solid #e9ecef;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+    background: var(--bg-cream);
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Stat Cards */
+.stat-card {
+    background: white;
+    padding: 30px 25px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.stat-card-primary .stat-icon {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(102, 126, 234, 0.3));
+    color: #667eea;
+}
+
+.stat-card-success .stat-icon {
+    background: linear-gradient(135deg, rgba(81, 207, 102, 0.2), rgba(81, 207, 102, 0.3));
+    color: var(--success-color);
+}
+
+.stat-card-warning .stat-icon {
+    background: linear-gradient(135deg, rgba(255, 211, 61, 0.2), rgba(255, 211, 61, 0.3));
+    color: #ffa94d;
+}
+
+.stat-card-info .stat-icon {
+    background: linear-gradient(135deg, rgba(255, 169, 77, 0.2), rgba(255, 169, 77, 0.3));
+    color: #ffa94d;
+}
+
+.stat-content h3 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-content p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state-icon {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+}
+
+.empty-state-icon i {
+    font-size: 5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.empty-state-title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.empty-state-text {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* Animations */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.animate-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('animate-fade-in');
+                }, index * 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+    const searchInput = document.getElementById('staffSearch');
+    searchInput?.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.staff-card');
+        
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+});
+</script>
+{% endblock %}

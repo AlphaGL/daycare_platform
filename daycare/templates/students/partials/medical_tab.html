@@ -1,0 +1,161 @@
+<!-- Medical Tab -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="header-icon medical-icon">
+            <i class="bi bi-heart-pulse-fill"></i>
+        </div>
+        <div>
+            <h4>Medical Information</h4>
+            <p>Health details and medical history</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        <div class="row g-4">
+            <!-- Allergies -->
+            <div class="col-md-6">
+                <div class="medical-section">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="medical-icon-wrapper me-3">
+                            <i class="bi bi-capsule"></i>
+                        </div>
+                        <h6 class="mb-0">Allergies</h6>
+                    </div>
+                    {% if student.allergies %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {{ student.allergies|linebreaks }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No known allergies</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Medical Conditions -->
+            <div class="col-md-6">
+                <div class="medical-section">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="medical-icon-wrapper me-3">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </div>
+                        <h6 class="mb-0">Medical Conditions</h6>
+                    </div>
+                    {% if student.medical_conditions %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        {{ student.medical_conditions|linebreaks }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No medical conditions reported</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Medications -->
+            <div class="col-md-6">
+                <div class="medical-section">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="medical-icon-wrapper me-3">
+                            <i class="bi bi-prescription2"></i>
+                        </div>
+                        <h6 class="mb-0">Current Medications</h6>
+                    </div>
+                    {% if student.medications %}
+                    <div class="alert alert-primary">
+                        <i class="bi bi-prescription2 me-2"></i>
+                        {{ student.medications|linebreaks }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No current medications</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Doctor Information -->
+            <div class="col-md-6">
+                <div class="medical-section">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="medical-icon-wrapper me-3">
+                            <i class="bi bi-hospital"></i>
+                        </div>
+                        <h6 class="mb-0">Primary Care Doctor</h6>
+                    </div>
+                    {% if student.doctor_name %}
+                    <div class="doctor-info">
+                        <p class="mb-1"><strong>{{ student.doctor_name }}</strong></p>
+                        {% if student.doctor_phone %}
+                        <p class="mb-1">
+                            <i class="bi bi-telephone me-2"></i>
+                            {{ student.doctor_phone }}
+                        </p>
+                        {% endif %}
+                        {% if student.doctor_address %}
+                        <p class="mb-0 text-muted small">
+                            <i class="bi bi-geo-alt me-2"></i>
+                            {{ student.doctor_address }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No doctor information on file</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Address (if provided) -->
+{% if student.address_line_1 or user.is_admin or user.is_staff_member %}
+<div class="content-card mt-4">
+    <div class="content-card-header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); color: #1565C0;">
+            <i class="bi bi-house-fill"></i>
+        </div>
+        <div>
+            <h4>Home Address</h4>
+            <p>Residential information</p>
+        </div>
+    </div>
+    <div class="content-card-body">
+        {% if student.address_line_1 %}
+        <div class="address-block">
+            <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+            <div class="d-inline-block">
+                {{ student.address_line_1 }}<br>
+                {% if student.address_line_2 %}
+                {{ student.address_line_2 }}<br>
+                {% endif %}
+                {% if student.city or student.state or student.postal_code %}
+                {{ student.city }}{% if student.city and student.state %}, {% endif %}{{ student.state }} {{ student.postal_code }}
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">No address on file</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+.medical-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.doctor-info {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.address-block {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+</style>

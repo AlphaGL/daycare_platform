@@ -1,0 +1,699 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ student.get_full_name }} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Tab Navigation */
+.nav-tabs-custom {
+    border-bottom: 3px solid #f0f0f0;
+    margin-bottom: 2rem;
+}
+
+.nav-tabs-custom .nav-link {
+    border: none;
+    color: #666;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    margin-right: 0.5rem;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs-custom .nav-link:hover {
+    background: #f8f9fa;
+    color: var(--primary-color);
+}
+
+.nav-tabs-custom .nav-link.active {
+    background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+    color: white;
+    border: none;
+}
+
+.nav-tabs-custom .nav-link i {
+    margin-right: 0.5rem;
+}
+
+/* Profile Card */
+.profile-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+}
+
+.profile-card-header {
+    height: 120px;
+    background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+}
+
+.profile-photo-section {
+    text-align: center;
+    margin-top: -60px;
+}
+
+.profile-photo-wrapper, .profile-avatar-wrapper {
+    display: inline-block;
+    position: relative;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 5px solid white;
+    object-fit: cover;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 5px solid white;
+    background: linear-gradient(135deg, #FFE66D, #FFA94D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.profile-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-age {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.status-active {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.status-inactive {
+    background: #FFF3E0;
+    color: #E65100;
+}
+
+.profile-actions {
+    padding: 1.5rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+/* Info Cards */
+.info-card, .contact-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.info-card-header, .contact-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.info-card-header i, .contact-card-header i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.info-card-header h5, .contact-card-header h5 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.info-label i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.info-value {
+    font-weight: 600;
+    text-align: right;
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-item i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    margin-top: 0.25rem;
+}
+
+.contact-label {
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.contact-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Content Cards */
+.content-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+}
+
+.content-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.header-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.medical-icon {
+    background: linear-gradient(135deg, #FFE5E5, #FFB3BA);
+    color: #E53E3E;
+}
+
+.content-card-header h4 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.content-card-header p {
+    margin: 0;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.content-card-body {
+    padding: 1.5rem;
+}
+
+/* Medical Items */
+.medical-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.medical-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #2E7D32;
+    flex-shrink: 0;
+}
+
+.medical-label {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.medical-value {
+    color: #666;
+    margin: 0;
+}
+
+/* Admin-Only Section */
+.admin-only-section {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-only-badge {
+    display: inline-block;
+    background: #FF9800;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Immunization Styles */
+.immunization-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.overview-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.overview-card h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.overview-card.overdue h3 {
+    color: #E53E3E;
+}
+
+.overview-card.complete h3 {
+    color: #38A169;
+}
+
+.overview-card p {
+    color: #666;
+    margin: 0;
+}
+
+.vaccine-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.vaccine-row {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.vaccine-row td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.vaccine-name {
+    font-weight: 700;
+    color: #333;
+}
+
+.vaccine-full-name {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.dose-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0.25rem;
+}
+
+.dose-completed {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.dose-overdue {
+    background: #FFEBEE;
+    color: #C62828;
+}
+
+.dose-pending {
+    background: #F5F5F5;
+    color: #666;
+}
+
+/* Contact List */
+.contact-list-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contact-info h6 {
+    margin: 0 0 0.25rem 0;
+    font-weight: 700;
+}
+
+.contact-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.permission-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.permission-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.permission-badge.can-pickup {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.permission-badge.emergency {
+    background: #FFEBEE;
+    color: #C62828;
+}
+
+.permission-badge.billing {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .immunization-overview {
+        grid-template-columns: 1fr;
+    }
+    
+    .vaccine-table {
+        font-size: 0.875rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'students:list' %}" class="btn btn-back">
+            <i class="bi bi-arrow-left-circle-fill"></i> Back to Students
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Sidebar -->
+        <div class="col-lg-4">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-card-header"></div>
+                <div class="profile-card-body">
+                    <div class="profile-photo-section">
+                        {% if student.photo %}
+                            <div class="profile-photo-wrapper">
+                                <img src="{{ student.photo.url }}" class="profile-photo" alt="{{ student.get_full_name }}">
+                            </div>
+                        {% else %}
+                            <div class="profile-avatar-wrapper">
+                                <div class="profile-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="profile-name text-center">{{ student.get_full_name }}</h3>
+                    <div class="profile-age text-center">
+                        <i class="bi bi-cake2-fill"></i> {{ student.age_display }}
+                    </div>
+                    <div class="profile-status text-center mb-3">
+                        <span class="status-badge status-{{ student.status|lower }}">
+                            <i class="bi bi-{% if student.status == 'ACTIVE' %}check-circle-fill{% else %}x-circle-fill{% endif %}"></i>
+                            {{ student.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    {% if user.is_admin or user.is_staff_member %}
+                    <div class="profile-actions">
+                        <a href="{% url 'students:update' student.pk %}" class="btn btn-edit">
+                            <i class="bi bi-pencil-fill"></i> Edit Profile
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Info Card -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <h5>Quick Information</h5>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-calendar-event"></i>
+                            Date of Birth
+                        </div>
+                        <div class="info-value">{{ student.date_of_birth|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-gender-ambiguous"></i>
+                            Gender
+                        </div>
+                        <div class="info-value">{{ student.get_gender_display }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-door-open-fill"></i>
+                            Room
+                        </div>
+                        <div class="info-value">
+                            {% if student.room %}
+                                {{ student.room.name }}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-person-heart"></i>
+                            Parent/Guardian
+                        </div>
+                        <div class="info-value">{{ student.parent.get_full_name }}</div>
+                    </div>
+                    
+                    {% if user.is_admin or user.is_staff_member %}
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-fingerprint"></i>
+                            Student ID
+                        </div>
+                        <div class="info-value">{{ student.custom_student_id|default:"—" }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Emergency Contact Card -->
+            <div class="contact-card">
+                <div class="contact-card-header">
+                    <i class="bi bi-telephone-fill"></i>
+                    <h5>Emergency Contact</h5>
+                </div>
+                <div class="contact-card-body">
+                    <div class="contact-item">
+                        <i class="bi bi-person-fill"></i>
+                        <div>
+                            <div class="contact-label">Name</div>
+                            <div class="contact-value">{{ student.emergency_contact_name|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="bi bi-telephone-fill"></i>
+                        <div>
+                            <div class="contact-label">Phone</div>
+                            <div class="contact-value">{{ student.emergency_contact_phone|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="bi bi-heart-fill"></i>
+                        <div>
+                            <div class="contact-label">Relationship</div>
+                            <div class="contact-value">{{ student.emergency_contact_relationship|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content with Tabs -->
+        <div class="col-lg-8">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#overview">
+                        <i class="bi bi-house-fill"></i> Overview
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#medical">
+                        <i class="bi bi-heart-pulse-fill"></i> Medical
+                    </a>
+                </li>
+                {% if show_immunizations %}
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#immunizations">
+                        <i class="bi bi-shield-fill-check"></i> Immunizations
+                        {% if overdue_vaccines %}
+                        <span class="badge bg-danger ms-1">{{ overdue_vaccines|length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#contacts">
+                        <i class="bi bi-people-fill"></i> Contacts
+                    </a>
+                </li>
+                {% if user.is_admin or user.is_staff_member %}
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#details">
+                        <i class="bi bi-file-text-fill"></i> Details
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content mt-4">
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview">
+                    {% include 'students/partials/overview_tab.html' %}
+                </div>
+
+                <!-- Medical Tab -->
+                <div class="tab-pane fade" id="medical">
+                    {% include 'students/partials/medical_tab.html' %}
+                </div>
+
+                <!-- Immunizations Tab (Admin/Staff Only) -->
+                {% if show_immunizations %}
+                <div class="tab-pane fade" id="immunizations">
+                    {% include 'students/partials/immunizations_tab.html' %}
+                </div>
+                {% endif %}
+
+                <!-- Contacts Tab -->
+                <div class="tab-pane fade" id="contacts">
+                    {% include 'students/partials/contacts_tab.html' %}
+                </div>
+
+                <!-- Details Tab (Admin/Staff Only) -->
+                {% if user.is_admin or user.is_staff_member %}
+                <div class="tab-pane fade" id="details">
+                    {% include 'students/partials/details_tab.html' %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-back {
+    background: white;
+    color: var(--text-dark);
+    border: 2px solid #f0f0f0;
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-back:hover {
+    background: var(--bg-cream);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateX(-5px);
+}
+</style>
+{% endblock %}

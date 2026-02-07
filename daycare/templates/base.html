@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ school.school_name|default:"Daycare Management" }}{% endblock %}</title>
+    <title>{% block title %}Sugamama Sugababies Daycare{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,129 +12,487 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Playful & Child-Friendly -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* ===============================================
+        Sugamama Sugababies Daycare - Playful Design
+        Inspired by Brightwheel - Child-Friendly & Colorful
+        =============================================== */
+
+        /* === Root Variables - Bright & Playful === */
+        :root {
+            --primary-color: #FF6B6B;
+            --primary-dark: #FF5252;
+            --primary-light: #FF8E8E;
+            --secondary-color: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #A8E6CF;
+            --accent-orange: #FFB347;
+            --accent-blue: #95E1D3;
+            
+            --success-color: #51CF66;
+            --warning-color: #FFA94D;
+            --info-color: #74C0FC;
+            --danger-color: #FF6B6B;
+            
+            --bg-light: #FFF9F0;
+            --bg-white: #ffffff;
+            --bg-cream: #FFF8E7;
+            --text-dark: #2C3E50;
+            --text-muted: #7C8A97;
+            
+            --shadow-sm: 0 2px 8px rgba(255, 107, 107, 0.1);
+            --shadow: 0 4px 16px rgba(255, 107, 107, 0.15);
+            --shadow-lg: 0 8px 32px rgba(255, 107, 107, 0.2);
+            
+            --border-radius: 20px;
+            --border-radius-sm: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* === Global Styles === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', 'Nunito', -apple-system, sans-serif;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: var(--bg-light);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--text-dark);
+        }
+
+        h1 { font-size: 2rem; }
+        h2 { font-size: 1.75rem; }
+        h3 { font-size: 1.5rem; }
+        h4 { font-size: 1.25rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; }
+
+        a {
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        /* === Navbar - Colorful & Fun === */
+        .navbar {
+            background: linear-gradient(135deg, #ffffff 0%, #FFF9F0 100%) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+            padding: 0.75rem 0;
+            border-bottom: 3px solid var(--accent-yellow);
+        }
+
+        .navbar-brand {
+            font-size: 1.35rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: var(--transition);
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .navbar-brand i {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            padding: 0.4rem 1rem !important;
+            transition: var(--transition);
+            color: var(--text-dark) !important;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+            background: rgba(255, 107, 107, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white !important;
+            box-shadow: var(--shadow);
+        }
+
+        /* === Buttons - Playful & Rounded === */
+        .btn {
+            border-radius: 50px;
+            padding: 0.65rem 1.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            border: none;
+            text-transform: none;
+        }
+
+        .btn-lg {
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.45rem 1.25rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-blue));
+            color: white;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* === Cards - Rounded & Elevated === */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        /* === Animations === */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .animate-fade-in-delay {
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .animate-fade-in-delay-2 {
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+
+        /* === Avatar Circle === */
+        .avatar-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* === Dropdown Improvements === */
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--shadow);
+        }
+
+        .dropdown-item {
+            padding: 0.6rem 1.25rem;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+        }
+
+        .dropdown-item i {
+            margin-right: 0.5rem;
+        }
+
+        /* === Footer === */
+        .footer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .footer h5, .footer h6 {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .footer p, .footer li {
+            font-size: 0.9rem;
+        }
+
+        .footer-link {
+            color: rgba(255,255,255,0.8);
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-link:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        /* === Alerts === */
+        .alert {
+            border-radius: var(--border-radius-sm);
+            border: none;
+            padding: 0.9rem 1.25rem;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* === Text Gradient === */
+        .text-primary-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* === Responsive Display === */
+        @media (max-width: 991px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .nav-link {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.75rem !important;
+            }
+
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.3rem; }
+            h4 { font-size: 1.15rem; }
+            
+            .btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.85rem;
+            }
+
+            .btn-lg {
+                padding: 0.7rem 1.75rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 767px) {
+            body {
+                font-size: 0.9rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.35rem; }
+            h3 { font-size: 1.2rem; }
+            h4 { font-size: 1.1rem; }
+
+            .footer {
+                padding: 2rem 0 1rem;
+                margin-top: 2rem;
+            }
+
+            .footer h5, .footer h6 {
+                font-size: 1rem;
+            }
+
+            .footer p, .footer li {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .avatar-circle {
+                width: 32px;
+                height: 32px;
+                font-size: 0.75rem;
+            }
+
+            .btn {
+                padding: 0.55rem 1.25rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                {% if school.logo %}
-                    <img src="{{ school.logo.url }}" alt="{{ school.school_name }}" height="40" class="me-2">
-                {% else %}
-                    <i class="bi bi-mortarboard-fill text-primary me-2" style="font-size: 2rem;"></i>
-                {% endif %}
-                <span class="fw-bold text-primary">{{ school.school_name|default:"Sugamama Sugababies" }}</span>
+                <i class="bi bi-emoji-smile-fill me-2"></i>
+                Sugamama Sugababies Daycare
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
                     {% if user.is_authenticated %}
-                        <!-- Dashboard Link -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'school:dashboard' %}">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'school:dashboard' %}">
                                 <i class="bi bi-speedometer2"></i> Dashboard
                             </a>
                         </li>
                         
-                        {% if user.is_parent %}
-                            <!-- Parent Navigation -->
+                        {% if user.is_admin or user.is_teacher %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'students:list' %}">
-                                    <i class="bi bi-people"></i> My Children
+                                <a class="nav-link {% if 'children' in request.path %}active{% endif %}" href="{% url 'students:list' %}">
+                                    <i class="bi bi-people-fill"></i> Children
                                 </a>
                             </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-calendar-check"></i> Attendance
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'attendance:checkin' %}">
+                                        <i class="bi bi-box-arrow-in-right"></i> Check-In Student
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'attendance:attendance_list' %}">
+                                        <i class="bi bi-list-check"></i> View Attendance
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'attendance:schedule_list' %}">
+                                        <i class="bi bi-calendar3"></i> Schedules
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'attendance:timecard_list' %}">
+                                        <i class="bi bi-clock"></i> Timecards
+                                    </a></li>
+                                </ul>
+                            </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'messages:inbox' %}">
-                                    <i class="bi bi-envelope"></i> Messages
-                                    {% if unread_messages %}
-                                        <span class="badge bg-danger rounded-pill">{{ unread_messages }}</span>
-                                    {% endif %}
+                                <a class="nav-link {% if 'rooms' in request.path %}active{% endif %}" href="{% url 'rooms:list' %}">
+                                    <i class="bi bi-door-open-fill"></i> Rooms
                                 </a>
                             </li>
-                        {% elif user.is_staff_member or user.is_admin %}
-                            <!-- Staff/Admin Navigation -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'students:list' %}">
-                                    <i class="bi bi-people"></i> Students
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'rooms:list' %}">
-                                    <i class="bi bi-door-open"></i> Rooms
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'messages:inbox' %}">
-                                    <i class="bi bi-envelope"></i> Messages
-                                </a>
-                            </li>
-                            {% if user.is_admin %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'staff:list' %}">
-                                        <i class="bi bi-person-badge"></i> Staff
-                                    </a>
-                                </li>
-                            {% endif %}
                         {% endif %}
                         
-                        <!-- User Dropdown -->
-                        <li class="nav-item dropdown">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="{% url 'messages:inbox' %}">
+                                <i class="bi bi-chat-heart-fill"></i> Messages
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger unread-count-badge d-none">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item dropdown ms-lg-2 mt-2 mt-lg-0">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 {% if user.profile_photo %}
-                                    <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="rounded-circle me-2" width="32" height="32">
+                                    <img src="{{ user.profile_photo.url }}" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover; border: 2px solid var(--primary-color);">
                                 {% else %}
-                                    <div class="avatar-circle me-2">
-                                        <i class="bi bi-person-circle"></i>
+                                    <div class="avatar-circle">
+                                        {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
                                     </div>
                                 {% endif %}
-                                <span>{{ user.get_full_name|default:user.username }}</span>
+                                <span class="ms-2 d-none d-lg-inline">{{ user.get_full_name }}</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                        <i class="bi bi-person"></i> My Profile
-                                    </a>
-                                </li>
+                            <ul class="dropdown-menu dropdown-menu-end rounded-4 shadow border-0 mt-2">
+                                <li><a class="dropdown-item rounded-3" href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle"></i> Profile</a></li>
                                 {% if user.is_admin %}
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'school:profile' %}">
-                                            <i class="bi bi-building"></i> School Settings
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="/admin/">
-                                            <i class="bi bi-gear"></i> Admin Panel
-                                        </a>
-                                    </li>
+                                    <li><a class="dropdown-item rounded-3" href="{% url 'school:settings' %}"><i class="bi bi-gear-fill"></i> Settings</a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
-                                        <i class="bi bi-box-arrow-right"></i> Logout
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item rounded-3 text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
-                        <!-- Guest Navigation -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'accounts:login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="btn btn-primary rounded-pill px-4 ms-2" href="{% url 'accounts:register' %}">
-                                Register Now
+                        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                            <a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">
+                                <i class="bi bi-star-fill"></i> Get a Demo
                             </a>
                         </li>
                     {% endif %}
@@ -148,7 +506,7 @@
         <div class="container mt-3">
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'warning' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}-fill me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -162,84 +520,113 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-5 mt-5">
+    <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5 class="mb-3">
-                        {% if school.logo %}
-                            <img src="{{ school.logo.url }}" alt="{{ school.school_name }}" height="30" class="me-2">
-                        {% endif %}
-                        {{ school.school_name|default:"Sugamama Sugababies" }}
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="mb-3 text-white">
+                        <i class="bi bi-stars text-warning"></i>
+                        Sugamama Sugababies Daycare
                     </h5>
-                    <p class="text-light opacity-75">
-                        {{ school.tagline|default:"Nurturing young minds with love and care." }}
+                    <p class="text-white-50">
+                        {{ school.tagline|default:"Where little minds grow big dreams. Providing a safe, nurturing environment for your child's early learning journey." }}
                     </p>
                 </div>
                 
-                <div class="col-md-4 mb-4">
-                    <h5 class="mb-3">Contact Us</h5>
-                    <ul class="list-unstyled text-light opacity-75">
-                        <li class="mb-2">
-                            <i class="bi bi-geo-alt"></i> 
-                            {{ school.address_line_1|default:"123 Main Street" }}, {{ school.city|default:"Your City" }}
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-telephone"></i> 
-                            {{ school.phone|default:"+234 XXX XXX XXXX" }}
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-envelope"></i> 
-                            {{ school.email|default:"info@daycare.com" }}
-                        </li>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="mb-3 text-white">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'home' %}" class="footer-link"><i class="bi bi-arrow-right-short"></i> Home</a></li>
+                        <li class="mb-2"><a href="{% url 'school:dashboard' %}" class="footer-link"><i class="bi bi-arrow-right-short"></i> Dashboard</a></li>
+                        <li class="mb-2"><a href="{% url 'accounts:register' %}" class="footer-link"><i class="bi bi-arrow-right-short"></i> Register</a></li>
                     </ul>
                 </div>
                 
-                <div class="col-md-4 mb-4">
-                    <h5 class="mb-3">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <a href="{% url 'home' %}" class="text-light opacity-75 text-decoration-none">
-                                <i class="bi bi-chevron-right"></i> Home
-                            </a>
-                        </li>
-                        {% if user.is_authenticated %}
-                            <li class="mb-2">
-                                <a href="{% url 'school:dashboard' %}" class="text-light opacity-75 text-decoration-none">
-                                    <i class="bi bi-chevron-right"></i> Dashboard
-                                </a>
-                            </li>
-                        {% else %}
-                            <li class="mb-2">
-                                <a href="{% url 'accounts:register' %}" class="text-light opacity-75 text-decoration-none">
-                                    <i class="bi bi-chevron-right"></i> Register
-                                </a>
-                            </li>
-                        {% endif %}
-                        <li class="mb-2">
-                            <a href="{% url 'messages:announcements' %}" class="text-light opacity-75 text-decoration-none">
-                                <i class="bi bi-chevron-right"></i> Announcements
-                            </a>
-                        </li>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="mb-3 text-white">Contact Us</h6>
+                    <ul class="list-unstyled text-white-50">
+                        <li class="mb-2"><i class="bi bi-geo-alt-fill text-warning"></i> {{ school.address_line_1|default:"Port Harcourt, Nigeria" }}</li>
+                        <li class="mb-2"><i class="bi bi-telephone-fill text-warning"></i> {{ school.phone|default:"+234 XXX XXX XXXX" }}</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill text-warning"></i> {{ school.email|default:"info@sugamama.com" }}</li>
                     </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="mb-3 text-white">Follow Us</h6>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle" style="width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle" style="width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle" style="width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
             
-            <hr class="my-4 bg-light opacity-25">
+            <hr class="my-4 border-white opacity-25">
             
-            <div class="text-center text-light opacity-75">
-                <p class="mb-0">
-                    &copy; {% now "Y" %} {{ school.school_name|default:"Sugamama Sugababies" }}. All rights reserved.
-                </p>
+            <div class="text-center text-white-50">
+                <p class="mb-0 small">&copy; {{ current_year|default:"2026" }} {{ school.school_name|default:"Sugamama Sugababies Daycare Daycare" }}. All rights reserved. Made with <i class="bi bi-heart-fill text-danger"></i></p>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS Bundle -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JS -->
-    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        // Update unread message count
+        function updateUnreadCount() {
+            const badge = document.querySelector('.unread-count-badge');
+            if (badge) {
+                fetch('/messages/unread-count/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.classList.remove('d-none');
+                        } else {
+                            badge.classList.add('d-none');
+                        }
+                    })
+                    .catch(err => console.log('Error:', err));
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update unread count if badge exists
+            if (document.querySelector('.unread-count-badge')) {
+                updateUnreadCount();
+                setInterval(updateUnreadCount, 30000);
+            }
+
+            // Add animation to elements on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+            // Console message
+            console.log('%c🎨 Sugamama Sugababies Daycare Daycare', 'color: #FF6B6B; font-size: 16px; font-weight: bold;');
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

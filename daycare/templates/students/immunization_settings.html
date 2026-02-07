@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Immunization Settings - {{ student.get_full_name }} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <a href="{% url 'students:immunization_detail' student.pk %}" class="btn btn-outline-secondary mb-3">
+                    <i class="bi bi-arrow-left"></i> Back to Immunizations
+                </a>
+                <h2 class="fw-bold">
+                    <i class="bi bi-gear-fill text-primary me-2"></i>
+                    Immunization Settings
+                </h2>
+                <p class="text-muted">For {{ student.get_full_name }}</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Exemption Section -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-shield-exclamation me-2"></i>
+                                Exemption Status
+                            </h5>
+                            <div class="mb-3">
+                                <div class="form-check form-switch p-3 bg-light rounded">
+                                    {{ form.is_exempt }}
+                                    <label class="form-check-label ms-2" for="{{ form.is_exempt.id_for_label }}">
+                                        <strong>Student is Exempt from Immunizations</strong>
+                                        <p class="mb-0 text-muted small">Check if the student has a valid exemption</p>
+                                    </label>
+                                </div>
+                                {% if form.is_exempt.errors %}
+                                <div class="text-danger mt-2">{{ form.is_exempt.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div id="exemption-reason-field" style="display: {% if immunization.is_exempt %}block{% else %}none{% endif %};">
+                                <label class="form-label fw-bold">{{ form.exemption_reason.label }}</label>
+                                {{ form.exemption_reason }}
+                                {% if form.exemption_reason.errors %}
+                                <div class="text-danger mt-1">{{ form.exemption_reason.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Provide details about the exemption (medical, religious, philosophical, etc.)
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Catch-up Schedule Section -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-calendar-week me-2"></i>
+                                Catch-up Schedule
+                            </h5>
+                            <div class="mb-3">
+                                <div class="form-check form-switch p-3 bg-light rounded">
+                                    {{ form.on_catch_up_schedule }}
+                                    <label class="form-check-label ms-2" for="{{ form.on_catch_up_schedule.id_for_label }}">
+                                        <strong>Student is on a Catch-up Schedule</strong>
+                                        <p class="mb-0 text-muted small">For students who are behind on vaccinations</p>
+                                    </label>
+                                </div>
+                                {% if form.on_catch_up_schedule.errors %}
+                                <div class="text-danger mt-2">{{ form.on_catch_up_schedule.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div id="catch-up-notes-field" style="display: {% if immunization.on_catch_up_schedule %}block{% else %}none{% endif %};">
+                                <label class="form-label fw-bold">{{ form.catch_up_notes.label }}</label>
+                                {{ form.catch_up_notes }}
+                                {% if form.catch_up_notes.errors %}
+                                <div class="text-danger mt-1">{{ form.catch_up_notes.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Describe the catch-up plan, timeline, and any special considerations
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- General Notes Section -->
+                        <div class="form-section mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-journal-text me-2"></i>
+                                General Notes
+                            </h5>
+                            <div>
+                                <label class="form-label fw-bold">{{ form.notes.label }}</label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                <div class="text-danger mt-1">{{ form.notes.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Any additional notes or information about the student's immunization status
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Save Settings
+                            </button>
+                            <a href="{% url 'students:immunization_detail' student.pk %}" class="btn btn-outline-secondary btn-lg px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Information Box -->
+            <div class="alert alert-info mt-4">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Note:</strong> Changes to exemption or catch-up status will affect vaccination compliance calculations and reporting. Ensure all information is accurate and up-to-date.
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.section-title {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.form-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+</style>
+
+<script>
+// Toggle exemption reason field
+document.getElementById('{{ form.is_exempt.id_for_label }}').addEventListener('change', function() {
+    const field = document.getElementById('exemption-reason-field');
+    field.style.display = this.checked ? 'block' : 'none';
+});
+
+// Toggle catch-up notes field
+document.getElementById('{{ form.on_catch_up_schedule.id_for_label }}').addEventListener('change', function() {
+    const field = document.getElementById('catch-up-notes-field');
+    field.style.display = this.checked ? 'block' : 'none';
+});
+</script>
+{% endblock %}

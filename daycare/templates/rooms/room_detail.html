@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ room.name }} - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Room Info Card -->
+            <div class="card border-0 shadow-lg rounded-4 mb-4 overflow-hidden animate-on-scroll">
+                <div class="card-header text-white py-4 position-relative" 
+                     style="background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);">
+                    <div class="position-relative" style="z-index: 2;">
+                        <h4 class="mb-1 fw-bold">
+                            <i class="bi bi-door-open me-2"></i>{{ room.name }}
+                        </h4>
+                        <p class="mb-0 opacity-90">{{ room.get_room_type_display }}</p>
+                    </div>
+                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.15; z-index: 1;">
+                        <i class="bi bi-stars" style="font-size: 4rem;"></i>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Capacity Progress -->
+                    <div class="mb-4">
+                        <label class="small fw-semibold text-muted mb-2">Room Capacity</label>
+                        <div class="progress mb-2" style="height: 25px; border-radius: 15px;">
+                            <div class="progress-bar fw-bold" 
+                                 style="width: {% widthratio room.current_enrollment room.capacity 100 %}%; 
+                                        background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+                                {{ room.current_enrollment }}/{{ room.capacity }}
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            {% widthratio room.current_enrollment room.capacity 100 %}% Full
+                        </small>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="row g-2 mb-4">
+                        <div class="col-4">
+                            <div class="text-center p-3 rounded-3" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB);">
+                                <div class="h4 mb-1 fw-bold text-primary">{{ room.current_enrollment }}</div>
+                                <small class="text-muted d-block">Students</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-3 rounded-3" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9);">
+                                <div class="h4 mb-1 fw-bold text-success">{{ room.staff_count }}</div>
+                                <small class="text-muted d-block">Staff</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-3 rounded-3" style="background: linear-gradient(135deg, #FFF3E0, #FFE0B2);">
+                                <div class="h4 mb-1 fw-bold text-warning">{{ ratio }}</div>
+                                <small class="text-muted d-block">Ratio</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    {% if user.is_admin %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'rooms:update' room.pk %}" class="btn btn-primary rounded-pill hover-lift">
+                            <i class="bi bi-pencil-fill me-2"></i> Edit Room
+                        </a>
+                        <button class="btn btn-outline-danger rounded-pill">
+                            <i class="bi bi-trash me-2"></i> Delete Room
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description Card -->
+            {% if room.description %}
+            <div class="card border-0 shadow-sm rounded-4 animate-on-scroll">
+                <div class="card-body p-4" style="background: linear-gradient(135deg, #FFF9E6, #FFE8B3);">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle-fill text-warning me-2"></i> About This Room
+                    </h6>
+                    <p class="mb-0" style="line-height: 1.8;">{{ room.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Students Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 animate-on-scroll">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-people-fill text-primary me-2"></i> 
+                        Students ({{ students.count }})
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if students %}
+                    <div class="row g-3">
+                        {% for student in students %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 border rounded-4 hover-bg-light transition-all">
+                                <!-- Student Avatar -->
+                                <div class="me-3 flex-shrink-0">
+                                    {% if student.photo %}
+                                        <img src="{{ student.photo.url }}" 
+                                             class="rounded-circle border border-2 border-white shadow-sm" 
+                                             width="50" height="50" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle border border-2 border-white shadow-sm d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #FFE66D, #FFA94D);">
+                                            <i class="bi bi-person text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Student Info -->
+                                <div class="flex-grow-1">
+                                    <a href="{% url 'students:detail' student.pk %}" class="text-decoration-none">
+                                        <h6 class="mb-1 fw-bold text-dark">{{ student.get_full_name }}</h6>
+                                    </a>
+                                    <p class="small text-muted mb-0">
+                                        <i class="bi bi-cake2 me-1"></i>{{ student.age }} years old
+                                    </p>
+                                </div>
+
+                                <!-- Status Badge -->
+                                <div>
+                                    <span class="badge bg-success rounded-pill">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <i class="bi bi-person-plus display-4 text-muted opacity-25"></i>
+                        </div>
+                        <p class="text-muted mb-0">No students assigned to this room yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Staff Card -->
+            <div class="card border-0 shadow-sm rounded-4 animate-on-scroll">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-person-badge-fill text-success me-2"></i> 
+                        Assigned Staff
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if room.assigned_staff.all %}
+                    <div class="row g-3">
+                        {% for staff in room.assigned_staff.all %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 border rounded-4 hover-bg-light transition-all">
+                                <!-- Staff Avatar -->
+                                <div class="me-3 flex-shrink-0">
+                                    {% if staff.profile_photo %}
+                                        <img src="{{ staff.profile_photo.url }}" 
+                                             class="rounded-circle border border-2 border-white shadow-sm" 
+                                             width="50" height="50" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle border border-2 border-white shadow-sm d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+                                            <i class="bi bi-person-fill text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Staff Info -->
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 fw-bold">{{ staff.get_full_name }}</h6>
+                                    <span class="badge px-3 py-1 rounded-pill" style="background: linear-gradient(135deg, #51CF66, #4CAF50);">
+                                        {{ staff.staff_profile.position }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <i class="bi bi-person-badge display-4 text-muted opacity-25"></i>
+                        </div>
+                        <p class="text-muted mb-0">No staff assigned to this room yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-bg-light:hover {
+    background-color: rgba(78, 205, 196, 0.05);
+}
+
+.progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

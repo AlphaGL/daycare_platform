@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Clock Out - Sugamama Sugababies Daycare{% endblock %}
+
+{% block extra_css %}
+<style>
+.clock-out-container {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.clock-out-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.clock-out-header {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: white;
+}
+
+.clock-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.staff-info-card {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.shift-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.summary-box {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.summary-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1976D2;
+}
+
+.time-value-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #FF9800;
+}
+
+.clock-out-btn {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    border: none;
+    padding: 1.25rem 3rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border-radius: 16px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.clock-out-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(245, 124, 0, 0.3);
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="clock-out-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Back Button -->
+                <div class="mb-4 animate-in">
+                    <a href="{% url 'attendance:timecard_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Timecards
+                    </a>
+                </div>
+
+                <div class="clock-out-card animate-in" style="animation-delay: 0.1s;">
+                    <div class="clock-out-header">
+                        <div class="clock-icon">
+                            <i class="bi bi-stop-circle-fill display-3"></i>
+                        </div>
+                        <h2 class="mb-2 fw-bold">Clock Out</h2>
+                        <p class="mb-0 opacity-90">End your shift</p>
+                    </div>
+
+                    <div class="p-4 p-md-5">
+                        <!-- Staff Information -->
+                        <div class="staff-info-card">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">{{ timecard.staff.get_full_name }}</h5>
+                                    <small class="text-muted">{{ timecard.staff.email }}</small>
+                                </div>
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                    Active
+                                </span>
+                            </div>
+
+                            <div class="shift-summary">
+                                <div class="summary-box">
+                                    <div class="summary-label">Date</div>
+                                    <div class="summary-value" style="font-size: 1.25rem;">
+                                        {{ timecard.date|date:"M j, Y" }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-box">
+                                    <div class="summary-label">Clock In</div>
+                                    <div class="summary-value">
+                                        {{ timecard.clock_in_time|time:"g:i A" }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-box">
+                                    <div class="summary-label">Current Time</div>
+                                    <div class="summary-value time-value-large" id="currentTime">
+                                        --:--:--
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if timecard.assigned_room %}
+                            <div class="mt-3 text-center">
+                                <span class="badge bg-info px-3 py-2">
+                                    <i class="bi bi-door-open me-2"></i>
+                                    {{ timecard.assigned_room.name }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Estimated Hours -->
+                        <div class="alert alert-warning rounded-4 mb-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-hourglass-split fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="mb-2 fw-bold">Estimated Hours Worked</h6>
+                                    <p class="mb-0">
+                                        You will be clocking out after approximately 
+                                        <strong id="estimatedHours">calculating...</strong> hours of work.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clock Out Form -->
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <!-- Notes -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-journal-text me-2"></i>
+                                    Clock-Out Notes (Optional)
+                                </label>
+                                <textarea 
+                                    name="notes" 
+                                    class="form-control form-control-lg" 
+                                    rows="3" 
+                                    placeholder="Any notes about your shift, handoff information, or important updates..."
+                                ></textarea>
+                                <small class="text-muted d-block mt-2">
+                                    Add any shift notes, handoff information, or incidents
+                                </small>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 pt-4 border-top flex-wrap justify-content-center">
+                                <button type="submit" class="clock-out-btn">
+                                    <i class="bi bi-stop-circle-fill me-2"></i>
+                                    Clock Out Now
+                                </button>
+                                <a href="{% url 'attendance:timecard_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="alert alert-success mt-4 rounded-4 animate-in" style="animation-delay: 0.2s;">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-2 fw-bold">Thank You!</h6>
+                            <p class="mb-0">
+                                Your shift hours will be recorded and saved for payroll processing.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Clock in time from Django template
+const clockInTime = new Date('{{ timecard.clock_in_time|date:"c" }}');
+
+// Update current time and calculate hours
+function updateTime() {
+    const now = new Date();
+    
+    // Format current time
+    const timeOptions = { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+    };
+    const timeString = now.toLocaleTimeString('en-US', timeOptions);
+    document.getElementById('currentTime').textContent = timeString;
+    
+    // Calculate hours worked
+    const diffMs = now - clockInTime;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    
+    const hours = Math.floor(diffHours);
+    const minutes = Math.floor((diffHours - hours) * 60);
+    
+    document.getElementById('estimatedHours').textContent = 
+        `${hours} hour${hours !== 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+}
+
+// Update immediately and then every second
+updateTime();
+setInterval(updateTime, 1000);
+</script>
+{% endblock %}

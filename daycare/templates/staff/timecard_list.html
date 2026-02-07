@@ -1,0 +1,715 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Timecards - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle-large me-3">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <h2 class="gradient-text mb-1">Timecards</h2>
+                    <p class="text-muted mb-0">Track staff hours and attendance</p>
+                </div>
+            </div>
+        </div>
+        {% if user.is_admin %}
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="#" class="btn btn-outline-primary btn-lg me-2">
+                <i class="bi bi-download"></i> Export
+            </a>
+            <a href="#" class="btn btn-primary btn-lg shadow-lg">
+                <i class="bi bi-plus-circle-fill"></i> Add Entry
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card animate-on-scroll">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="filter-label">Date Range</label>
+                <select class="form-select form-select-lg">
+                    <option>This Week</option>
+                    <option>Last Week</option>
+                    <option>This Month</option>
+                    <option>Last Month</option>
+                    <option>Custom Range</option>
+                </select>
+            </div>
+            {% if user.is_admin %}
+            <div class="col-md-3">
+                <label class="filter-label">Staff Member</label>
+                <select class="form-select form-select-lg">
+                    <option value="">All Staff</option>
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-3">
+                <label class="filter-label">Status</label>
+                <select class="form-select form-select-lg">
+                    <option value="">All Status</option>
+                    <option>Approved</option>
+                    <option>Pending</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="filter-label">&nbsp;</label>
+                <button class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-funnel-fill"></i> Apply Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if timecards %}
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="summary-card hours-card animate-on-scroll">
+                    <div class="summary-icon">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>{{ total_hours|default:0 }}</h3>
+                        <p>Total Hours</p>
+                    </div>
+                    <div class="summary-decoration"></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="summary-card approved-card animate-on-scroll">
+                    <div class="summary-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>{{ approved_count|default:0 }}</h3>
+                        <p>Approved</p>
+                    </div>
+                    <div class="summary-decoration"></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="summary-card pending-card animate-on-scroll">
+                    <div class="summary-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>{{ pending_count|default:0 }}</h3>
+                        <p>Pending</p>
+                    </div>
+                    <div class="summary-decoration"></div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="summary-card days-card animate-on-scroll">
+                    <div class="summary-icon">
+                        <i class="bi bi-calendar-week-fill"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3>{{ days_worked|default:0 }}</h3>
+                        <p>Days Worked</p>
+                    </div>
+                    <div class="summary-decoration"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timecards Table -->
+        <div class="timecards-table-card animate-on-scroll">
+            <div class="card-header-custom">
+                <i class="bi bi-list-check"></i>
+                <h4>Time Entries</h4>
+            </div>
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="timecard-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                {% if user.is_admin %}
+                                <th>Staff Member</th>
+                                {% endif %}
+                                <th>Clock In</th>
+                                <th>Clock Out</th>
+                                <th>Break</th>
+                                <th>Total Hours</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for timecard in timecards %}
+                            <tr class="timecard-row">
+                                <td>
+                                    <div class="date-cell">
+                                        <strong>{{ timecard.date|date:"M d, Y" }}</strong>
+                                        <small>{{ timecard.date|date:"l" }}</small>
+                                    </div>
+                                </td>
+                                {% if user.is_admin %}
+                                <td>
+                                    <div class="staff-cell">
+                                        {% if timecard.staff.profile_photo %}
+                                            <img src="{{ timecard.staff.profile_photo.url }}" class="staff-mini-photo">
+                                        {% else %}
+                                            <div class="staff-mini-avatar">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ timecard.staff.get_full_name }}</strong>
+                                            <small>{{ timecard.staff.staff_profile.position }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% endif %}
+                                <td>
+                                    <div class="time-cell clock-in">
+                                        <i class="bi bi-arrow-right-circle-fill"></i>
+                                        {{ timecard.clock_in|time:"g:i A" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if timecard.clock_out %}
+                                        <div class="time-cell clock-out">
+                                            <i class="bi bi-arrow-left-circle-fill"></i>
+                                            {{ timecard.clock_out|time:"g:i A" }}
+                                        </div>
+                                    {% else %}
+                                        <span class="badge-active">
+                                            <i class="bi bi-circle-fill"></i> Still Clocked In
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if timecard.break_start and timecard.break_end %}
+                                        <small class="break-time">
+                                            {{ timecard.break_start|time:"g:i A" }} - {{ timecard.break_end|time:"g:i A" }}
+                                        </small>
+                                    {% else %}
+                                        <small class="text-muted">No break</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="hours-badge">
+                                        {{ timecard.total_hours|floatformat:2 }} hrs
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if timecard.is_approved %}
+                                        <span class="status-badge status-approved">
+                                            <i class="bi bi-check-circle-fill"></i> Approved
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge status-pending">
+                                            <i class="bi bi-hourglass-split"></i> Pending
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn-actions" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#"><i class="bi bi-eye"></i> View Details</a></li>
+                                            {% if user.is_admin %}
+                                                {% if not timecard.is_approved %}
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-check"></i> Approve</a></li>
+                                                {% endif %}
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i> Delete</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% if timecard.notes %}
+                            <tr class="notes-row">
+                                <td colspan="{% if user.is_admin %}8{% else %}7{% endif %}">
+                                    <div class="timecard-note">
+                                        <i class="bi bi-sticky-fill"></i> <strong>Note:</strong> {{ timecard.notes }}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="{% if user.is_admin %}5{% else %}4{% endif %}" class="text-end">
+                                    <strong>Total Hours:</strong>
+                                </td>
+                                <td>
+                                    <div class="total-hours-badge">
+                                        {{ total_hours|default:0|floatformat:2 }} hrs
+                                    </div>
+                                </td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state animate-on-scroll">
+            <div class="empty-state-icon">
+                <i class="bi bi-clock"></i>
+            </div>
+            <h3 class="empty-state-title">No Timecard Entries</h3>
+            <p class="empty-state-text">
+                {% if user.is_admin %}
+                    No time entries have been recorded yet
+                {% else %}
+                    You haven't clocked in yet
+                {% endif %}
+            </p>
+            {% if user.is_admin %}
+            <a href="#" class="btn btn-primary btn-lg mt-3">
+                <i class="bi bi-plus-circle-fill"></i> Add Entry
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.icon-circle-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
+}
+
+.icon-circle-large i {
+    font-size: 2rem;
+    color: white;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+.filters-card {
+    background: white;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-select-lg {
+    border-radius: 15px;
+    border: 2px solid #e9ecef;
+    padding: 12px 16px;
+}
+
+.form-select-lg:focus {
+    border-color: #f093fb;
+    box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.1);
+}
+
+.summary-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.summary-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.hours-card .summary-icon {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+    color: #f093fb;
+}
+
+.approved-card .summary-icon {
+    background: linear-gradient(135deg, rgba(81, 207, 102, 0.2), rgba(56, 217, 169, 0.2));
+    color: var(--success-color);
+}
+
+.pending-card .summary-icon {
+    background: linear-gradient(135deg, rgba(255, 169, 77, 0.2), rgba(255, 169, 77, 0.3));
+    color: #ffa94d;
+}
+
+.days-card .summary-icon {
+    background: linear-gradient(135deg, rgba(116, 192, 252, 0.2), rgba(116, 192, 252, 0.3));
+    color: #74c0fc;
+}
+
+.summary-content h3 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.summary-content p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.summary-decoration {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240, 147, 251, 0.1), transparent);
+}
+
+.timecards-table-card {
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.05), rgba(245, 87, 108, 0.05));
+    padding: 25px 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-header-custom i {
+    font-size: 1.5rem;
+    color: #f093fb;
+}
+
+.card-header-custom h4 {
+    margin: 0;
+    font-weight: 800;
+}
+
+.table-container {
+    padding: 20px;
+}
+
+.timecard-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.timecard-table thead th {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    padding: 15px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.timecard-table thead th:first-child {
+    border-radius: 12px 0 0 12px;
+}
+
+.timecard-table thead th:last-child {
+    border-radius: 0 12px 12px 0;
+}
+
+.timecard-row {
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.timecard-row:hover {
+    background: white;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.timecard-row td {
+    padding: 15px;
+}
+
+.date-cell strong {
+    display: block;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.date-cell small {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.staff-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.staff-mini-photo,
+.staff-mini-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.staff-mini-photo {
+    object-fit: cover;
+    border: 2px solid #f093fb;
+}
+
+.staff-mini-avatar {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.staff-cell strong {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.staff-cell small {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.time-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.clock-in {
+    color: var(--success-color);
+}
+
+.clock-out {
+    color: var(--danger-color);
+}
+
+.badge-active {
+    background: linear-gradient(135deg, rgba(255, 169, 77, 0.2), rgba(255, 169, 77, 0.3));
+    color: #ffa94d;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-active i {
+    font-size: 0.6rem;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.break-time {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.hours-badge {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
+    color: #f093fb;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.status-badge {
+    padding: 8px 14px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-approved {
+    background: linear-gradient(135deg, rgba(81, 207, 102, 0.2), rgba(56, 217, 169, 0.2));
+    color: var(--success-color);
+}
+
+.status-pending {
+    background: linear-gradient(135deg, rgba(255, 169, 77, 0.2), rgba(255, 169, 77, 0.3));
+    color: #ffa94d;
+}
+
+.btn-actions {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-actions:hover {
+    background: #f093fb;
+    color: white;
+    border-color: transparent;
+}
+
+.notes-row td {
+    background: white;
+    padding: 0 !important;
+}
+
+.timecard-note {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.05), rgba(245, 87, 108, 0.05));
+    padding: 12px 20px;
+    margin: 0 15px 10px;
+    border-radius: 10px;
+    border-left: 3px solid #f093fb;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.total-row {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.05), rgba(245, 87, 108, 0.05));
+    font-weight: 700;
+}
+
+.total-row td {
+    padding: 20px 15px;
+}
+
+.total-hours-badge {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    display: inline-block;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state-icon {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+}
+
+.empty-state-icon i {
+    font-size: 5rem;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.empty-state-title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.empty-state-text {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.animate-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('animate-fade-in');
+                }, index * 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+});
+</script>
+{% endblock %}
