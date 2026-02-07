@@ -1,0 +1,34 @@
+# Core Django Framework
+Django>=4.2,<5.0
+
+# Database
+dj-database-url==2.1.0
+psycopg2-binary==2.9.9  # PostgreSQL adapter for Supabase
+
+# Environment Variables
+python-decouple==3.8
+
+# Static Files
+whitenoise==6.6.0
+
+# Media Storage (Cloudinary)
+django-cloudinary-storage==0.3.0
+cloudinary==1.36.0
+
+# Forms
+django-crispy-forms==2.3
+crispy-bootstrap5==2025.6
+
+# Additional utilities (commonly needed)
+Pillow==10.1.0  # Image processing
+python-dateutil==2.8.2  # Date utilities
+
+# Production Server (optional, but recommended)
+gunicorn==21.2.0
+
+# Security (recommended for production)
+django-cors-headers==4.3.1  # If you need CORS support
+
+# Development dependencies (optional - uncomment if needed)
+# django-debug-toolbar==4.2.0
+# django-extensions==3.2.3

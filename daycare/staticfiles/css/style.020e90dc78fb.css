@@ -1,0 +1,544 @@
+/* ===============================================
+   Sugamama Sugababies Daycare daycare - Modern CSS Styles
+   Beautiful, Playful, Professional
+   =============================================== */
+
+/* === Root Variables === */
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary-color: #ec4899;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+    --danger-color: #ef4444;
+    
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    
+    --border-radius: 0.75rem;
+    --transition: all 0.3s ease;
+}
+
+/* === Global Styles === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+a {
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+/* === Navbar Enhancements === */
+.navbar {
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    transition: var(--transition);
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.nav-link {
+    font-weight: 500;
+    position: relative;
+    padding: 0.5rem 1rem !important;
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: var(--transition);
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 70%;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+/* === Hero Section === */
+.hero-section {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 4rem 0;
+    overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.03;
+    z-index: -1;
+}
+
+.hero-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    background: var(--primary-color);
+    top: -100px;
+    right: -100px;
+    animation: float 20s infinite ease-in-out;
+}
+
+.shape-2 {
+    width: 200px;
+    height: 200px;
+    background: var(--secondary-color);
+    bottom: -50px;
+    left: -50px;
+    animation: float 15s infinite ease-in-out reverse;
+}
+
+.shape-3 {
+    width: 150px;
+    height: 150px;
+    background: var(--success-color);
+    top: 50%;
+    right: 20%;
+    animation: float 25s infinite ease-in-out;
+}
+
+/* === Animations === */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(180deg);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.animate-fade-in-delay {
+    animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.animate-fade-in-delay-2 {
+    animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+.animate-float {
+    animation: float 6s infinite ease-in-out;
+}
+
+/* === Button Enhancements === */
+.btn {
+    font-weight: 500;
+    transition: var(--transition);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    box-shadow: var(--shadow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* === Cards === */
+.card {
+    border: none;
+    transition: var(--transition);
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.feature-card {
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.feature-card:hover {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05)) !important;
+}
+
+.feature-icon {
+    transition: var(--transition);
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* === Steps === */
+.step-card {
+    transition: var(--transition);
+}
+
+.step-number {
+    font-weight: 700;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.step-card:hover .step-number {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* === Stats === */
+.stat-card {
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+/* === Badges === */
+.badge {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+/* === Backgrounds === */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.bg-light {
+    background-color: var(--bg-light) !important;
+}
+
+/* === Form Enhancements === */
+.form-control, .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+/* === Alerts === */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+}
+
+/* === Tables === */
+.table {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+}
+
+.table tbody tr {
+    transition: var(--transition);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+    transform: scale(1.01);
+}
+
+/* === Dashboard Cards === */
+.dashboard-card {
+    border-radius: 1.5rem;
+    padding: 2rem;
+    transition: var(--transition);
+    border: none;
+    background: white;
+    box-shadow: var(--shadow);
+}
+
+.dashboard-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* === Footer === */
+footer {
+    margin-top: auto;
+}
+
+footer a:hover {
+    color: white !important;
+    transform: translateX(5px);
+}
+
+/* === Utility Classes === */
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+.rounded-4 {
+    border-radius: 1.5rem !important;
+}
+
+.shadow-soft {
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* === Loading Spinner === */
+.spinner-custom {
+    border: 4px solid rgba(99, 102, 241, 0.1);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: auto;
+        padding: 3rem 0;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .btn-lg {
+        padding: 0.6rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* === Print Styles === */
+@media print {
+    .navbar, footer, .btn {
+        display: none !important;
+    }
+}
+
+/* === Scrollbar Styling === */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* === Additional Playful Elements === */
+.emoji-bg {
+    font-size: 8rem;
+    opacity: 0.05;
+    position: absolute;
+    animation: float 8s infinite ease-in-out;
+}
+
+/* === Success Messages with Icons === */
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+.success-checkmark .check-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: content-box;
+    border: 4px solid var(--success-color);
+}
+
+.success-checkmark .check-icon::before {
+    top: 3px;
+    left: -2px;
+    width: 30px;
+    transform-origin: 100% 50%;
+    border-radius: 100px 0 0 100px;
+}
+
+.success-checkmark .check-icon::after {
+    top: 0;
+    left: 30px;
+    width: 60px;
+    transform-origin: 0 50%;
+    border-radius: 0 100px 100px 0;
+    animation: rotate-circle 4.25s ease-in;
+}
+
+/* === Glass Morphism Effect === */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* === Gradient Text === */
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* === Smooth Transitions === */
+* {
+    scroll-behavior: smooth;
+}
