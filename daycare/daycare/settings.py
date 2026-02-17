@@ -115,7 +115,7 @@ else:
     STATICFILES_DIRS = []
 
 # WhiteNoise compressed storage - serves admin CSS + your static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
 # WhiteNoise extra configuration
 WHITENOISE_USE_FINDERS = True
