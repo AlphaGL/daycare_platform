@@ -11,7 +11,6 @@ from django.shortcuts import redirect
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
-    path('', lambda request: redirect('accounts:login')),
 
     # Core apps
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
@@ -23,6 +22,9 @@ urlpatterns = [
     path('messages/', include('notifications.urls')),
     path('attendance/', include('attendance.urls')),
 ]
+
+
+
 
 # Customize admin site
 admin.site.site_header = f"{settings.SITE_NAME} - Administration"
