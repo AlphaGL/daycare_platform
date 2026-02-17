@@ -211,6 +211,7 @@
                                             </span>
                                         {% endif %}
                                         
+                                        
                                         {# Check if child has attendance today #}
                                         {% for attendance_record in child.attendance_records.all %}
                                             {% if attendance_record.date == today_date and attendance_record.check_in_time %}
