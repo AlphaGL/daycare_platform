@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 
 urlpatterns = [
     # Admin
-    path('admin/', admin.site.urls),
+    path('custom-admin/', admin.site.urls),
 
     # Core apps
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
