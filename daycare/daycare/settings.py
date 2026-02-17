@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Must be directly after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,7 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'school.context_processors.school_context',  # ✅ Correct  # Global school settings
+                'school.context_processors.school_context',  # Global school settings
             ],
         },
     },
@@ -100,13 +100,30 @@ TIME_ZONE = 'Africa/Lagos'  # Nigerian timezone
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# ==========================================
+# STATIC FILES - Fixed for Vercel + WhiteNoise
+# ==========================================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Only include STATICFILES_DIRS if the 'static' folder actually exists
+# to avoid collectstatic errors on Vercel
+_STATIC_DIR = BASE_DIR / 'static'
+if _STATIC_DIR.exists():
+    STATICFILES_DIRS = [_STATIC_DIR]
+else:
+    STATICFILES_DIRS = []
+
+# WhiteNoise compressed storage - serves admin CSS + your static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (handled by Cloudinary)
+# WhiteNoise extra configuration
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in dev, cached in prod
+
+# ==========================================
+# MEDIA FILES - Cloudinary
+# ==========================================
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
@@ -131,12 +148,9 @@ DEFAULT_FROM_NAME = config('DEFAULT_FROM_NAME', default='Daycare Management')
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Login/Logout redirects - FIXED TO PREVENT INFINITE LOOPS
+# Login/Logout redirects
 LOGIN_URL = 'accounts:login'
-# Changed: Instead of redirecting to dashboard (which might need permissions),
-# redirect to profile which is accessible to all authenticated users
 LOGIN_REDIRECT_URL = 'accounts:profile'
-# Changed: Redirect to login instead of non-existent 'home' URL
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
 # WhatsApp Settings
@@ -150,7 +164,7 @@ WHATSAPP_MESSAGE_TEMPLATE = config(
 SITE_NAME = config('SITE_NAME', default='Sugamama sugababies Daycare')
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
 
-# Security Settings (Production)
+# Security Settings (Production only)
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -170,7 +184,7 @@ PAGINATION_PER_PAGE = 20
 # Activity Tracking
 TRACK_USER_ACTIVITY = True
 
-# Session settings - ADDED TO FIX LOGIN ISSUES
+# Session settings
 SESSION_COOKIE_AGE = 1209600  # 2 weeks
 SESSION_SAVE_EVERY_REQUEST = False
 SESSION_COOKIE_HTTPONLY = True
