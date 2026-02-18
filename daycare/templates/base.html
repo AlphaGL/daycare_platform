@@ -15,6 +15,10 @@
     <!-- Google Fonts - Playful & Child-Friendly -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Favicon -->
+    <link rel="icon" href="https://blogger.googleusercontent.com/img/a/AVvXsEjuvegMOihMmuf8q0z0U1NM5OZLjTP6fxlsPAaI-JF4yKi0XdWYVg98vh3FGn_WQoIx-wAK_sqGqIN5yQ7kbTpEqmoo3J1u6w8S5IDzf5A-CF-UmUu3g4RnX88FRUm-OiRt9YkzmwNTB4qsDMftlMZKoHT0xFie5jAd5o2aVTiVUrGEIy1Aj4xtMbxpaCk" type="image/x-icon">
+    <link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/a/AVvXsEjuvegMOihMmuf8q0z0U1NM5OZLjTP6fxlsPAaI-JF4yKi0XdWYVg98vh3FGn_WQoIx-wAK_sqGqIN5yQ7kbTpEqmoo3J1u6w8S5IDzf5A-CF-UmUu3g4RnX88FRUm-OiRt9YkzmwNTB4qsDMftlMZKoHT0xFie5jAd5o2aVTiVUrGEIy1Aj4xtMbxpaCk" type="image/x-icon">
+
     <!-- Custom CSS -->
     <style>
         /* ===============================================
@@ -405,10 +409,14 @@
     <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <i class="bi bi-emoji-smile-fill me-2"></i>
-                Sugamama Sugababies Daycare
+                <img 
+                    src="https://blogger.googleusercontent.com/img/a/AVvXsEjuvegMOihMmuf8q0z0U1NM5OZLjTP6fxlsPAaI-JF4yKi0XdWYVg98vh3FGn_WQoIx-wAK_sqGqIN5yQ7kbTpEqmoo3J1u6w8S5IDzf5A-CF-UmUu3g4RnX88FRUm-OiRt9YkzmwNTB4qsDMftlMZKoHT0xFie5jAd5o2aVTiVUrGEIy1Aj4xtMbxpaCk"
+                    alt="Sugamama Logo"
+                    class="img-fluid me-2"
+                    style="height: 40px; width: auto;"
+                >
+                <span class="fw-bold">Sugamama Sugababies Daycare</span>
             </a>
-            
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -546,7 +554,7 @@
                     <h6 class="mb-3 text-white">Contact Us</h6>
                     <ul class="list-unstyled text-white-50">
                         <li class="mb-2"><i class="bi bi-geo-alt-fill text-warning"></i> {{ school.address_line_1|default:"Port Harcourt, Nigeria" }}</li>
-                        <li class="mb-2"><i class="bi bi-telephone-fill text-warning"></i> {{ school.phone|default:"+234 XXX XXX XXXX" }}</li>
+                        <li class="mb-2"><i class="bi bi-telephone-fill text-warning"></i> {{ school.phone|default:"+1 (618) 550-9687" }}</li>
                         <li class="mb-2"><i class="bi bi-envelope-fill text-warning"></i> {{ school.email|default:"info@sugamama.com" }}</li>
                     </ul>
                 </div>

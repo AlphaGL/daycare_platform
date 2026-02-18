@@ -58,8 +58,8 @@ class SchoolProfile(models.Model):
             pk=1,
             defaults={
                 'school_name': 'Sugamama sugababies Daycare',
-                'phone': '+234 XXX XXX XXXX',
-                'email': 'info@daycare.com',
+                'phone': '+1 (618) 550-9687',
+                'email': 'info@sugamamasugababiesdaycare.org',
                 'address_line_1': 'Your Address',
                 'city': 'Port Harcourt',
                 'state': 'Rivers',
