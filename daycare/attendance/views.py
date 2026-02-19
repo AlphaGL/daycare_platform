@@ -1,5 +1,5 @@
 """
-Attendance and Schedule Views
+Attendance and Schedule Views – WITH EMAIL NOTIFICATIONS
 Check-In/Check-Out and Scheduling System
 """
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,12 +10,25 @@ from django.db.models import Q
 from datetime import date, timedelta
 from .models import AttendanceCheckIn, Schedule, StaffTimecard
 from .forms import (
-    CheckInForm, CheckOutForm, ScheduleForm, 
+    CheckInForm, CheckOutForm, ScheduleForm,
     QuickCheckInForm, StaffTimecardForm
 )
 from students.models import Student
 from rooms.models import Room
 from accounts.models import User, UserActivity
+from notifications_service.email_service import (
+    send_checkin_notification,
+    send_checkout_notification,
+    send_staff_clockin_notification,
+    send_staff_clockout_notification,
+)
+import threading
+
+
+def _send_async(fn, *args, **kwargs):
+    """Run email sending in a background thread so it never blocks the request."""
+    t = threading.Thread(target=fn, args=args, kwargs=kwargs, daemon=True)
+    t.start()
 
 
 def is_staff_or_admin(user):
@@ -26,57 +39,51 @@ def is_staff_or_admin(user):
 
 @login_required
 def student_checkin(request):
-    """
-    Student Check-In View
-    Parents check in their own children using their check-in code
-    """
+    """Student Check-In View"""
     if request.method == 'POST':
         form = CheckInForm(request.POST, user=request.user)
         if form.is_valid():
-            # Create check-in record
             checkin = form.save(commit=False)
             checkin.check_in_time = timezone.now()
             checkin.check_in_by = request.user
             checkin.check_in_code_verified = True
             checkin.status = AttendanceCheckIn.Status.CHECKED_IN
             checkin.save()
-            
-            # Log activity
+
             try:
                 UserActivity.objects.create(
                     user=request.user,
                     action_type=UserActivity.ActionType.CREATE,
                     description=f"Checked in {checkin.student.get_full_name()}",
                 )
-            except:
+            except Exception:
                 pass
-            
+
+            # ── EMAIL: notify parent of check-in ──────────────────────────
+            _send_async(send_checkin_notification, checkin)
+
             messages.success(
-                request, 
+                request,
                 f"✅ {checkin.student.get_full_name()} has been checked in successfully!"
             )
             return redirect('attendance:checkin')
     else:
         form = CheckInForm(user=request.user)
-    
-    # Get today's check-ins
+
     today = date.today()
-    
-    # Filter check-ins based on user role
+
     if request.user.is_parent:
-        # Parents see only their children's check-ins
         todays_checkins = AttendanceCheckIn.objects.filter(
             date=today,
             student__parent=request.user,
             status=AttendanceCheckIn.Status.CHECKED_IN
         ).select_related('student', 'room', 'check_in_by').order_by('-check_in_time')
     else:
-        # Staff/Admin see all check-ins
         todays_checkins = AttendanceCheckIn.objects.filter(
             date=today,
             status=AttendanceCheckIn.Status.CHECKED_IN
         ).select_related('student', 'room', 'check_in_by').order_by('-check_in_time')[:10]
-    
+
     context = {
         'form': form,
         'todays_checkins': todays_checkins,
@@ -90,45 +97,38 @@ def student_checkin(request):
 
 @login_required
 def student_checkout(request, pk):
-    """
-    Student Check-Out View
-    Parents check out their own children using their check-in code
-    """
+    """Student Check-Out View"""
     checkin = get_object_or_404(
-        AttendanceCheckIn, 
-        pk=pk, 
+        AttendanceCheckIn,
+        pk=pk,
         status=AttendanceCheckIn.Status.CHECKED_IN
     )
-    
-    # Parents can only check out their own children
+
     if request.user.is_parent and checkin.student.parent != request.user:
         messages.error(request, "You can only check out your own children.")
         return redirect('attendance:attendance_list')
-    
+
     if request.method == 'POST':
         form = CheckOutForm(student=checkin.student, data=request.POST)
         if form.is_valid():
-            # Perform checkout
-            checkin.perform_checkout(
-                user=request.user,
-                code_verified=True
-            )
-            
-            # Add notes if provided
+            checkin.perform_checkout(user=request.user, code_verified=True)
+
             if form.cleaned_data.get('notes'):
                 checkin.notes += f"\nCheck-out: {form.cleaned_data['notes']}"
                 checkin.save()
-            
-            # Log activity
+
             try:
                 UserActivity.objects.create(
                     user=request.user,
                     action_type=UserActivity.ActionType.UPDATE,
                     description=f"Checked out {checkin.student.get_full_name()}",
                 )
-            except:
+            except Exception:
                 pass
-            
+
+            # ── EMAIL: notify parent of check-out ─────────────────────────
+            _send_async(send_checkout_notification, checkin)
+
             messages.success(
                 request,
                 f"✅ {checkin.student.get_full_name()} has been checked out successfully!"
@@ -136,7 +136,7 @@ def student_checkout(request, pk):
             return redirect('attendance:attendance_list')
     else:
         form = CheckOutForm(student=checkin.student)
-    
+
     context = {
         'form': form,
         'checkin': checkin,
@@ -147,37 +147,29 @@ def student_checkout(request, pk):
 
 @login_required
 def attendance_list(request):
-    """
-    Attendance List View
-    View all attendance records (filtered by role)
-    """
+    """Attendance List View"""
     today = date.today()
-    
-    # Filter by date
+
     selected_date = request.GET.get('date', today.isoformat())
     try:
         filter_date = date.fromisoformat(selected_date)
-    except:
+    except Exception:
         filter_date = today
-    
-    # Get attendance records based on user role
+
     if request.user.is_parent:
-        # Parents see only their children's attendance
         attendance_records = AttendanceCheckIn.objects.filter(
             date=filter_date,
             student__parent=request.user
         ).select_related('student', 'room', 'check_in_by', 'check_out_by').order_by('-check_in_time')
     else:
-        # Staff/Admin see all attendance
         attendance_records = AttendanceCheckIn.objects.filter(
             date=filter_date
         ).select_related('student', 'room', 'check_in_by', 'check_out_by').order_by('-check_in_time')
-    
-    # Statistics
+
     total_checkins = attendance_records.count()
     currently_in = attendance_records.filter(status=AttendanceCheckIn.Status.CHECKED_IN).count()
     checked_out = attendance_records.filter(status=AttendanceCheckIn.Status.CHECKED_OUT).count()
-    
+
     context = {
         'attendance_records': attendance_records,
         'selected_date': filter_date,
@@ -192,12 +184,11 @@ def attendance_list(request):
 def attendance_detail(request, pk):
     """Attendance record detail"""
     record = get_object_or_404(AttendanceCheckIn, pk=pk)
-    
-    # Parents can only view their own children's records
+
     if request.user.is_parent and record.student.parent != request.user:
         messages.error(request, "You can only view your own children's attendance.")
         return redirect('attendance:attendance_list')
-    
+
     context = {
         'record': record,
         'student': record.student
@@ -209,30 +200,21 @@ def attendance_detail(request, pk):
 
 @login_required
 def schedule_list(request):
-    """
-    Schedule List View
-    View all schedules (filtered by user role)
-    """
+    """Schedule List View"""
     today = date.today()
-    
-    # Base queryset
     schedules = Schedule.objects.filter(is_active=True)
-    
-    # Filter by user role
+
     if request.user.is_parent:
-        # Parents see schedules for their children
         schedules = schedules.filter(
             Q(assigned_students__parent=request.user) |
             Q(assigned_students__isnull=True, schedule_type=Schedule.ScheduleType.ACTIVITY)
         ).distinct()
     elif request.user.is_staff_member:
-        # Staff see their own schedules and room schedules
         schedules = schedules.filter(
             Q(assigned_staff=request.user) |
             Q(assigned_room__assigned_staff=request.user)
         ).distinct()
-    
-    # Filter by date range
+
     filter_type = request.GET.get('filter', 'today')
     if filter_type == 'today':
         schedules = schedules.filter(
@@ -251,11 +233,11 @@ def schedule_list(request):
             Q(end_date__gte=today) | Q(end_date__isnull=True),
             start_date__lte=month_end
         )
-    
+
     schedules = schedules.select_related('assigned_room', 'created_by').prefetch_related(
         'assigned_staff', 'assigned_students'
     ).order_by('start_date', 'start_time')
-    
+
     context = {
         'schedules': schedules,
         'filter_type': filter_type,
@@ -274,13 +256,12 @@ def schedule_create(request):
             schedule = form.save(commit=False)
             schedule.created_by = request.user
             schedule.save()
-            form.save_m2m()  # Save many-to-many relationships
-            
+            form.save_m2m()
             messages.success(request, f"✅ Schedule '{schedule.title}' created successfully!")
             return redirect('attendance:schedule_list')
     else:
         form = ScheduleForm()
-    
+
     return render(request, 'attendance/schedule_form.html', {'form': form})
 
 
@@ -289,7 +270,7 @@ def schedule_create(request):
 def schedule_update(request, pk):
     """Update schedule"""
     schedule = get_object_or_404(Schedule, pk=pk)
-    
+
     if request.method == 'POST':
         form = ScheduleForm(request.POST, instance=schedule)
         if form.is_valid():
@@ -298,11 +279,8 @@ def schedule_update(request, pk):
             return redirect('attendance:schedule_list')
     else:
         form = ScheduleForm(instance=schedule)
-    
-    context = {
-        'form': form,
-        'schedule': schedule
-    }
+
+    context = {'form': form, 'schedule': schedule}
     return render(request, 'attendance/schedule_form.html', context)
 
 
@@ -310,17 +288,13 @@ def schedule_update(request, pk):
 def schedule_detail(request, pk):
     """Schedule detail view"""
     schedule = get_object_or_404(Schedule, pk=pk)
-    
-    # Check permission
+
     if request.user.is_parent:
-        # Parents can only view schedules for their children
         if not schedule.assigned_students.filter(parent=request.user).exists():
             messages.error(request, "You don't have permission to view this schedule.")
             return redirect('attendance:schedule_list')
-    
-    context = {
-        'schedule': schedule
-    }
+
+    context = {'schedule': schedule}
     return render(request, 'attendance/schedule_detail.html', context)
 
 
@@ -329,13 +303,13 @@ def schedule_detail(request, pk):
 def schedule_delete(request, pk):
     """Delete schedule"""
     schedule = get_object_or_404(Schedule, pk=pk)
-    
+
     if request.method == 'POST':
         title = schedule.title
         schedule.delete()
         messages.success(request, f"Schedule '{title}' deleted successfully!")
         return redirect('attendance:schedule_list')
-    
+
     context = {'schedule': schedule}
     return render(request, 'attendance/schedule_confirm_delete.html', context)
 
@@ -347,21 +321,19 @@ def schedule_delete(request, pk):
 def timecard_list(request):
     """Staff timecard list"""
     today = date.today()
-    
-    # Filter timecards
+
     if request.user.is_staff_member:
         timecards = StaffTimecard.objects.filter(staff=request.user)
     else:
         timecards = StaffTimecard.objects.all()
-    
+
     timecards = timecards.select_related('staff', 'assigned_room').order_by('-date', '-clock_in_time')[:50]
-    
-    # Today's active timecards
+
     active_timecards = StaffTimecard.objects.filter(
         date=today,
         clock_out_time__isnull=True
     ).select_related('staff', 'assigned_room')
-    
+
     context = {
         'timecards': timecards,
         'active_timecards': active_timecards,
@@ -380,16 +352,18 @@ def staff_clock_in(request):
             timecard.clock_in_time = timezone.now()
             timecard.date = date.today()
             timecard.save()
-            
+
+            # ── EMAIL: notify admins of clock-in ──────────────────────────
+            _send_async(send_staff_clockin_notification, timecard)
+
             messages.success(request, f"✅ {timecard.staff.get_full_name()} clocked in successfully!")
             return redirect('attendance:timecard_list')
     else:
-        # Pre-fill with current user if staff
         initial = {}
         if request.user.is_staff_member:
             initial['staff'] = request.user
         form = StaffTimecardForm(initial=initial)
-    
+
     return render(request, 'attendance/staff_clock_in.html', {'form': form})
 
 
@@ -398,16 +372,19 @@ def staff_clock_in(request):
 def staff_clock_out(request, pk):
     """Staff clock-out"""
     timecard = get_object_or_404(StaffTimecard, pk=pk, clock_out_time__isnull=True)
-    
+
     if request.method == 'POST':
         timecard.clock_out_time = timezone.now()
         notes = request.POST.get('notes', '')
         if notes:
             timecard.notes += f"\nClock-out: {notes}"
         timecard.save()
-        
+
+        # ── EMAIL: notify admins of clock-out ─────────────────────────────
+        _send_async(send_staff_clockout_notification, timecard)
+
         messages.success(request, f"✅ {timecard.staff.get_full_name()} clocked out successfully!")
         return redirect('attendance:timecard_list')
-    
+
     context = {'timecard': timecard}
     return render(request, 'attendance/staff_clock_out.html', context)

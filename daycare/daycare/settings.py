@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 DEBUG = config('DEBUG', default=False, cast=bool)
 # DEBUG = True
-ALLOWED_HOSTS = [".org"]
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'staff',
     'notifications',
     'attendance',
+    'notifications_service',
 ]
 
 MIDDLEWARE = [
@@ -106,20 +107,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Only include STATICFILES_DIRS if the 'static' folder actually exists
-# to avoid collectstatic errors on Vercel
 _STATIC_DIR = BASE_DIR / 'static'
 if _STATIC_DIR.exists():
     STATICFILES_DIRS = [_STATIC_DIR]
 else:
     STATICFILES_DIRS = []
 
-# WhiteNoise compressed storage - serves admin CSS + your static files
 STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
-
-# WhiteNoise extra configuration
 WHITENOISE_USE_FINDERS = True
-WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in dev, cached in prod
+WHITENOISE_AUTOREFRESH = DEBUG
 
 # ==========================================
 # MEDIA FILES - Cloudinary
@@ -127,22 +123,28 @@ WHITENOISE_AUTOREFRESH = DEBUG  # Auto-refresh in dev, cached in prod
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Cloudinary Settings
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
-# Email Settings (Brevo/Sendinblue)
+# ==========================================
+# EMAIL SETTINGS - Brevo SMTP  ✅ FIXED
+# ==========================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('BREVO_API_KEY', default='')
-EMAIL_HOST_PASSWORD = config('BREVO_API_KEY', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@daycare.com')
-DEFAULT_FROM_NAME = config('DEFAULT_FROM_NAME', default='Daycare Management')
+
+# FIX: HOST_USER must be the Brevo SMTP login (not the API key)
+EMAIL_HOST_USER = config('BREVO_SMTP_LOGIN', default='a2da3c001@smtp-brevo.com')
+
+# FIX: HOST_PASSWORD must be the SMTP key (not the API key)
+EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY', default='')
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='sugamamaadaycare@gmail.com')
+DEFAULT_FROM_NAME  = config('DEFAULT_FROM_NAME',  default='Sugamama Sugababies Daycare')
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -161,7 +163,7 @@ WHATSAPP_MESSAGE_TEMPLATE = config(
 )
 
 # Site Settings
-SITE_NAME = config('SITE_NAME', default='Sugamama sugababies Daycare')
+SITE_NAME = config('SITE_NAME', default='Sugamama Sugababies Daycare')
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
 
 # Security Settings (Production only)
