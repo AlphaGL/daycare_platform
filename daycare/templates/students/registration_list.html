@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Registrations - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-person-plus-fill text-primary me-2"></i>Student Registrations
+            </h2>
+            <p class="text-muted mb-0">Review and action incoming enrolment requests</p>
+        </div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-0">
+            <nav class="nav nav-pills p-3 gap-2 flex-wrap">
+                {% for label, key in status_choices %}
+                <a class="nav-link {% if status_filter == key %}active{% endif %} rounded-pill px-4"
+                   href="?status={{ key }}">
+                    {{ label }}
+                    <span class="badge rounded-pill ms-1
+                        {% if key == 'PENDING' %}bg-warning text-dark
+                        {% elif key == 'APPROVED' %}bg-success
+                        {% elif key == 'REJECTED' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ counts|default_if_none:0 }}
+                    </span>
+                </a>
+                {% endfor %}
+                <a class="nav-link {% if status_filter == 'ALL' %}active{% endif %} rounded-pill px-4"
+                   href="?status=ALL">All</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Count badges (simple fallback without template tags for dict access) -->
+    <div class="d-flex gap-3 mb-4 flex-wrap">
+        <a href="?status=PENDING" class="text-decoration-none">
+            <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill">
+                <i class="bi bi-hourglass-split me-1"></i>Pending: {{ counts.PENDING }}
+            </span>
+        </a>
+        <a href="?status=APPROVED" class="text-decoration-none">
+            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">
+                <i class="bi bi-check-circle me-1"></i>Approved: {{ counts.APPROVED }}
+            </span>
+        </a>
+        <a href="?status=REJECTED" class="text-decoration-none">
+            <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill">
+                <i class="bi bi-x-circle me-1"></i>Rejected: {{ counts.REJECTED }}
+            </span>
+        </a>
+        <a href="?status=PAYMENT_PENDING" class="text-decoration-none">
+            <span class="badge bg-secondary fs-6 px-3 py-2 rounded-pill">
+                <i class="bi bi-credit-card me-1"></i>Payment Pending: {{ counts.PAYMENT_PENDING }}
+            </span>
+        </a>
+    </div>
+
+    <!-- Registrations Table -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            {% if registrations %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-4 py-3">Child</th>
+                            <th class="py-3">DOB</th>
+                            <th class="py-3">Gender</th>
+                            <th class="py-3">Parent / Guardian</th>
+                            <th class="py-3">Submitted</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3 text-end px-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                        <tr>
+                            <td class="px-4">
+                                <div class="fw-semibold">
+                                    {{ reg.child_first_name }} {{ reg.child_last_name }}
+                                </div>
+                                <small class="text-muted font-monospace">{{ reg.registration_id|truncatechars:12 }}</small>
+                            </td>
+                            <td>{{ reg.child_dob|date:"d M Y" }}</td>
+                            <td>{{ reg.get_child_gender_display }}</td>
+                            <td>
+                                <div>{{ reg.parent.get_full_name }}</div>
+                                <small class="text-muted">{{ reg.parent.email }}</small>
+                            </td>
+                            <td>
+                                <div>{{ reg.created_at|date:"d M Y" }}</div>
+                                <small class="text-muted">{{ reg.created_at|timesince }} ago</small>
+                            </td>
+                            <td>
+                                {% if reg.status == 'PENDING' %}
+                                    <span class="badge bg-warning text-dark rounded-pill px-3">
+                                        <i class="bi bi-hourglass-split me-1"></i>Pending
+                                    </span>
+                                {% elif reg.status == 'APPROVED' %}
+                                    <span class="badge bg-success rounded-pill px-3">
+                                        <i class="bi bi-check-circle me-1"></i>Approved
+                                    </span>
+                                {% elif reg.status == 'REJECTED' %}
+                                    <span class="badge bg-danger rounded-pill px-3">
+                                        <i class="bi bi-x-circle me-1"></i>Rejected
+                                    </span>
+                                {% elif reg.status == 'PAYMENT_PENDING' %}
+                                    <span class="badge bg-secondary rounded-pill px-3">
+                                        <i class="bi bi-credit-card me-1"></i>Payment Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end px-4">
+                                <a href="{% url 'students:registration_detail' pk=reg.pk %}"
+                                   class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-eye me-1"></i>Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+                <h5 class="text-muted">No registrations found</h5>
+                <p class="text-muted mb-0">
+                    {% if status_filter == 'PENDING' %}
+                        There are no pending registrations right now. 🎉
+                    {% else %}
+                        No registrations match the selected filter.
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

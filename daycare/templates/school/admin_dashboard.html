@@ -1051,7 +1051,7 @@ button:focus {
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <h1 class="dashboard-title">
-                        Good {% if "AM" in now|date:"A" %}Morning{% else %}Afternoon{% endif %}, {{ user.first_name }}!
+                        Welcome , {{ user.first_name }}!
                     </h1>
                     <p class="header-date mb-0">
                         <i class="bi bi-calendar3"></i>
@@ -1077,7 +1077,7 @@ button:focus {
                         <strong>{{ pending_registrations }} pending registration{{ pending_registrations|pluralize }}</strong>
                         <p class="mb-0 mt-1">New applications are waiting for your review</p>
                     </div>
-                    <a href="/admin/students/studentregistration/?status__exact=PENDING" class="btn btn-warning alert-btn">Review Now</a>
+                    <a href="{% url 'students:registration_list' %}?status=PENDING" class="btn btn-warning alert-btn">Review Now</a>
                 </div>
             </div>
             {% endif %}

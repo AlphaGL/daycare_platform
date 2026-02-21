@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Review Registration - Sugamama Sugababies Daycare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Back button -->
+            <a href="{% url 'students:registration_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill mb-4">
+                <i class="bi bi-arrow-left me-1"></i>Back to Registrations
+            </a>
+
+            <!-- Status Banner -->
+            <div class="alert rounded-4 mb-4
+                {% if registration.status == 'PENDING' %}alert-warning
+                {% elif registration.status == 'APPROVED' %}alert-success
+                {% elif registration.status == 'REJECTED' %}alert-danger
+                {% else %}alert-secondary{% endif %}">
+                <div class="d-flex align-items-center gap-2">
+                    {% if registration.status == 'PENDING' %}
+                        <i class="bi bi-hourglass-split fs-4"></i>
+                        <div>
+                            <strong>Pending Review</strong> — This registration is awaiting your decision.
+                        </div>
+                    {% elif registration.status == 'APPROVED' %}
+                        <i class="bi bi-check-circle fs-4"></i>
+                        <div>
+                            <strong>Approved</strong> by {{ registration.reviewed_by.get_full_name }}
+                            on {{ registration.reviewed_at|date:"d M Y, g:i A" }}.
+                        </div>
+                    {% elif registration.status == 'REJECTED' %}
+                        <i class="bi bi-x-circle fs-4"></i>
+                        <div>
+                            <strong>Rejected</strong> by {{ registration.reviewed_by.get_full_name }}
+                            on {{ registration.reviewed_at|date:"d M Y, g:i A" }}.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Registration Info Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-person-circle text-primary me-2"></i>Child Information
+                    </h5>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Full Name</label>
+                            <p class="fw-semibold mb-0">
+                                {{ registration.child_first_name }}
+                                {% if registration.child_middle_name %}{{ registration.child_middle_name }}{% endif %}
+                                {{ registration.child_last_name }}
+                            </p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Date of Birth</label>
+                            <p class="fw-semibold mb-0">{{ registration.child_dob|date:"d M Y" }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small">Gender</label>
+                            <p class="fw-semibold mb-0">{{ registration.get_child_gender_display }}</p>
+                        </div>
+                        {% if registration.medical_info %}
+                        <div class="col-12">
+                            <label class="text-muted small">Medical Information</label>
+                            <p class="mb-0">{{ registration.medical_info }}</p>
+                        </div>
+                        {% endif %}
+                        {% if registration.special_needs %}
+                        <div class="col-12">
+                            <label class="text-muted small">Special Needs / Notes</label>
+                            <p class="mb-0">{{ registration.special_needs }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Info Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-people-fill text-success me-2"></i>Parent / Guardian
+                    </h5>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Name</label>
+                            <p class="fw-semibold mb-0">{{ registration.parent.get_full_name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Email</label>
+                            <p class="fw-semibold mb-0">
+                                <a href="mailto:{{ registration.parent.email }}">{{ registration.parent.email }}</a>
+                            </p>
+                        </div>
+                        {% if registration.parent.phone %}
+                        <div class="col-md-6">
+                            <label class="text-muted small">Phone</label>
+                            <p class="fw-semibold mb-0">{{ registration.parent.phone }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submission Meta -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body px-4 py-3">
+                    <div class="row g-2 text-center">
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Registration ID</small>
+                            <code class="small">{{ registration.registration_id }}</code>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Submitted</small>
+                            <span class="fw-semibold small">{{ registration.created_at|date:"d M Y, g:i A" }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted d-block">Payment</small>
+                            {% if registration.registration_fee_paid %}
+                                <span class="badge bg-success rounded-pill">Paid</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if registration.admin_notes %}
+            <!-- Admin Notes -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-sticky-fill text-warning me-2"></i>Admin Notes
+                    </h5>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <p class="mb-0">{{ registration.admin_notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- If student was created on approval -->
+            {% if registration.student %}
+            <div class="alert alert-success rounded-4 mb-4">
+                <i class="bi bi-person-check-fill me-2"></i>
+                Student record created:
+                <a href="{% url 'students:detail' pk=registration.student.pk %}" class="alert-link fw-bold">
+                    {{ registration.student.get_full_name }} →
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons (only show for admins on PENDING registrations) -->
+            {% if registration.status == 'PENDING' and user.is_admin %}
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-shield-check text-primary me-2"></i>Decision
+                    </h5>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Admin Notes <span class="text-muted fw-normal">(optional)</span></label>
+                        <textarea class="form-control rounded-3" id="admin-notes-input" rows="3"
+                            placeholder="Add any notes for your records or to send to the parent..."></textarea>
+                    </div>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <!-- Approve Form -->
+                        <form method="post" action="{% url 'students:registration_approve' pk=registration.pk %}"
+                              id="approve-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="admin_notes" id="approve-notes">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 shadow-sm"
+                                    onclick="document.getElementById('approve-notes').value = document.getElementById('admin-notes-input').value;">
+                                <i class="bi bi-check-circle-fill me-2"></i>Approve & Enrol
+                            </button>
+                        </form>
+
+                        <!-- Reject Form -->
+                        <form method="post" action="{% url 'students:registration_reject' pk=registration.pk %}"
+                              id="reject-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="admin_notes" id="reject-notes">
+                            <button type="submit" class="btn btn-outline-danger btn-lg rounded-pill px-5"
+                                    onclick="document.getElementById('reject-notes').value = document.getElementById('admin-notes-input').value;"
+                                    onclick="return confirm('Are you sure you want to reject this registration?');">
+                                <i class="bi bi-x-circle me-2"></i>Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Confirm before rejecting
+document.getElementById('reject-form')?.addEventListener('submit', function(e) {
+    const notes = document.getElementById('admin-notes-input').value.trim();
+    document.getElementById('reject-notes').value = notes;
+    if (!confirm('Are you sure you want to reject this registration? The parent will be notified.')) {
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

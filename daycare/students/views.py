@@ -2,6 +2,7 @@
 Enhanced Student Views - FIXED
 - Added email notification to admin when a student registration is submitted
 - Added email to parent confirming their registration submission
+- FIXED: Added admin views for listing, reviewing, approving, rejecting registrations
 - All other logic preserved from original
 """
 from django.shortcuts import render, redirect, get_object_or_404
@@ -111,6 +112,7 @@ def student_register(request):
         if form.is_valid():
             registration = form.save(commit=False)
             registration.parent = request.user
+            registration.status = StudentRegistration.Status.PENDING
             registration.save()
 
             # ── EMAIL: confirm registration to parent ──────────────────────
@@ -140,6 +142,171 @@ def student_register(request):
 
     return render(request, 'students/register.html', {'form': form})
 
+
+# ========== ADMIN REGISTRATION REVIEW VIEWS ==========
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def registration_list(request):
+    """
+    List all pending (and optionally all) student registrations.
+    This is what the admin dashboard 'Pending Reviews' links to.
+    """
+    status_filter = request.GET.get('status', 'PENDING')
+
+    registrations = StudentRegistration.objects.select_related(
+        'parent', 'student', 'reviewed_by'
+    ).order_by('-created_at')
+
+    if status_filter and status_filter != 'ALL':
+        registrations = registrations.filter(status=status_filter)
+
+    # Counts for the filter tabs
+    counts = {
+        'PENDING': StudentRegistration.objects.filter(status='PENDING').count(),
+        'APPROVED': StudentRegistration.objects.filter(status='APPROVED').count(),
+        'REJECTED': StudentRegistration.objects.filter(status='REJECTED').count(),
+        'PAYMENT_PENDING': StudentRegistration.objects.filter(status='PAYMENT_PENDING').count(),
+    }
+
+    context = {
+        'registrations': registrations,
+        'status_filter': status_filter,
+        'counts': counts,
+    }
+    return render(request, 'students/registration_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def registration_detail(request, pk):
+    """
+    View a single registration request in full detail.
+    Admins can approve or reject from here.
+    """
+    registration = get_object_or_404(
+        StudentRegistration.objects.select_related('parent', 'student', 'reviewed_by'),
+        pk=pk
+    )
+    context = {
+        'registration': registration,
+    }
+    return render(request, 'students/registration_detail.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def registration_approve(request, pk):
+    """
+    Approve a student registration and create the actual Student record.
+    POST only — triggered by a button on the registration_detail page.
+    """
+    registration = get_object_or_404(StudentRegistration, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('students:registration_detail', pk=pk)
+
+    if registration.status == StudentRegistration.Status.APPROVED:
+        messages.warning(request, "This registration has already been approved.")
+        return redirect('students:registration_detail', pk=pk)
+
+    # Create the Student object from registration data
+    student = Student.objects.create(
+        first_name=registration.child_first_name,
+        last_name=registration.child_last_name,
+        date_of_birth=registration.child_dob,
+        gender=registration.child_gender,
+        parent=registration.parent,
+        medical_info=registration.medical_info,
+        special_needs=registration.special_needs,
+        status='ACTIVE',
+    )
+
+    # Initialize immunization record
+    immunization = Immunization.objects.create(student=student)
+    initialize_vaccine_doses(immunization)
+
+    # Update the registration
+    registration.status = StudentRegistration.Status.APPROVED
+    registration.student = student
+    registration.reviewed_by = request.user
+    registration.reviewed_at = timezone.now()
+    admin_notes = request.POST.get('admin_notes', '').strip()
+    if admin_notes:
+        registration.admin_notes = admin_notes
+    registration.save()
+
+    # Log activity
+    try:
+        UserActivity.objects.create(
+            user=request.user,
+            action_type=UserActivity.ActionType.UPDATE,
+            description=f"Approved registration for {student.get_full_name()} "
+                        f"(Registration ID: {registration.registration_id})"
+        )
+    except Exception:
+        pass
+
+    # Email parent with approval
+    try:
+        _send_async(_email_registration_approved, registration)
+    except Exception:
+        pass
+
+    messages.success(
+        request,
+        f"✅ Registration approved! Student '{student.get_full_name()}' has been enrolled."
+    )
+    return redirect('students:registration_list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def registration_reject(request, pk):
+    """
+    Reject a student registration.
+    POST only — triggered by a button on the registration_detail page.
+    """
+    registration = get_object_or_404(StudentRegistration, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('students:registration_detail', pk=pk)
+
+    if registration.status == StudentRegistration.Status.REJECTED:
+        messages.warning(request, "This registration has already been rejected.")
+        return redirect('students:registration_detail', pk=pk)
+
+    registration.status = StudentRegistration.Status.REJECTED
+    registration.reviewed_by = request.user
+    registration.reviewed_at = timezone.now()
+    admin_notes = request.POST.get('admin_notes', '').strip()
+    if admin_notes:
+        registration.admin_notes = admin_notes
+    registration.save()
+
+    # Log activity
+    try:
+        UserActivity.objects.create(
+            user=request.user,
+            action_type=UserActivity.ActionType.UPDATE,
+            description=f"Rejected registration for {registration.child_first_name} "
+                        f"{registration.child_last_name} "
+                        f"(Registration ID: {registration.registration_id})"
+        )
+    except Exception:
+        pass
+
+    # Email parent with rejection
+    try:
+        _send_async(_email_registration_rejected, registration)
+    except Exception:
+        pass
+
+    messages.success(request, "Registration has been rejected and the parent has been notified.")
+    return redirect('students:registration_list')
+
+
+# ========== EMAIL HELPERS ==========
 
 def _email_registration_submitted_parent(registration):
     """Email the parent confirming their child's registration was received."""
@@ -180,11 +347,54 @@ def _email_registration_submitted_admin(admin, registration):
         f"Parent: {registration.parent.get_full_name()} ({registration.parent.email})\n"
         f"Registration ID: {registration.registration_id}\n"
         f"Submitted: {registration.created_at.strftime('%d %b %Y, %I:%M %p')}\n\n"
-        f"Review in admin panel: {settings.SITE_URL}/custom-admin/students/studentregistration/\n\n"
+        f"Review it here: {settings.SITE_URL}/students/registrations/\n\n"
         f"Regards,\n{settings.SITE_NAME} System"
     )
     send_notification_email(admin.email, subject, text_body)
 
+
+def _email_registration_approved(registration):
+    """Email the parent that their child's registration has been approved."""
+    from notifications_service.email_service import send_notification_email
+    from django.conf import settings
+
+    parent = registration.parent
+    subject = f"🎉 Registration Approved – {registration.child_first_name} {registration.child_last_name}"
+    text_body = (
+        f"Hi {parent.get_full_name()},\n\n"
+        f"Great news! Your registration for "
+        f"{registration.child_first_name} {registration.child_last_name} has been approved.\n\n"
+        f"Registration ID: {registration.registration_id}\n\n"
+        f"Your child is now enrolled. Please log in to the portal to view their profile "
+        f"and complete any remaining steps.\n\n"
+        f"Portal: {settings.SITE_URL}\n\n"
+        f"Welcome to our daycare family! 🌟\n\n"
+        f"Warm regards,\n{settings.SITE_NAME}"
+    )
+    send_notification_email(parent.email, subject, text_body)
+
+
+def _email_registration_rejected(registration):
+    """Email the parent that their child's registration has been rejected."""
+    from notifications_service.email_service import send_notification_email
+    from django.conf import settings
+
+    parent = registration.parent
+    subject = f"Registration Update – {registration.child_first_name} {registration.child_last_name}"
+    text_body = (
+        f"Hi {parent.get_full_name()},\n\n"
+        f"We regret to inform you that the registration for "
+        f"{registration.child_first_name} {registration.child_last_name} "
+        f"could not be approved at this time.\n\n"
+        f"Registration ID: {registration.registration_id}\n"
+        + (f"Notes: {registration.admin_notes}\n\n" if registration.admin_notes else "\n")
+        + f"Please contact us if you have any questions or would like to discuss next steps.\n\n"
+        f"Regards,\n{settings.SITE_NAME}"
+    )
+    send_notification_email(parent.email, subject, text_body)
+
+
+# ========== STUDENT CRUD (Admin/Staff) ==========
 
 @login_required
 @user_passes_test(is_admin_or_staff)
@@ -356,7 +566,6 @@ def incident_report_create(request, student_pk):
             report.reported_by = request.user
             report.save()
 
-            # ── EMAIL: notify parent of incident report ────────────────────
             try:
                 _send_async(_email_incident_report, report)
             except Exception:
