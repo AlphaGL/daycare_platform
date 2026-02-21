@@ -217,8 +217,6 @@ def registration_approve(request, pk):
         date_of_birth=registration.child_dob,
         gender=registration.child_gender,
         parent=registration.parent,
-        medical_info=registration.medical_info,
-        special_needs=registration.special_needs,
         status='ACTIVE',
     )
 
