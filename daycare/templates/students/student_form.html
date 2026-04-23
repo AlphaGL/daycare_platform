@@ -113,7 +113,7 @@
                     <form method="post" enctype="multipart/form-data" id="studentForm" novalidate>
                         {% csrf_token %}
                         
-                        <!-- Parent/Guardian Section -->
+                        <!-- ── 01 Parent/Guardian ── -->
                         <div class="form-section">
                             <div class="section-header">
                                 <div class="section-number">01</div>
@@ -125,7 +125,6 @@
                                     <i class="bi bi-people-fill"></i>
                                 </div>
                             </div>
-                            
                             <div class="fields-grid single">
                                 <div class="field-group {% if form.parent.errors %}has-error{% endif %}">
                                     <div class="floating-input">
@@ -135,11 +134,7 @@
                                         <span class="required-mark">*</span>
                                     </div>
                                     {% if form.parent.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.parent.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
+                                        <div class="field-error">{% for e in form.parent.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>
                                     {% endif %}
                                     {% if form.parent.help_text %}
                                         <div class="field-help">{{ form.parent.help_text }}</div>
@@ -148,7 +143,7 @@
                             </div>
                         </div>
 
-                        <!-- Personal Information Section -->
+                        <!-- ── 02 Personal Information ── -->
                         <div class="form-section">
                             <div class="section-header">
                                 <div class="section-number">02</div>
@@ -160,7 +155,6 @@
                                     <i class="bi bi-person-badge-fill"></i>
                                 </div>
                             </div>
-                            
                             <div class="fields-grid">
                                 <div class="field-group {% if form.first_name.errors %}has-error{% endif %}">
                                     <div class="floating-input">
@@ -169,30 +163,16 @@
                                         <span class="field-icon"><i class="bi bi-person"></i></span>
                                         <span class="required-mark">*</span>
                                     </div>
-                                    {% if form.first_name.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.first_name.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.first_name.errors %}<div class="field-error">{% for e in form.first_name.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
                                 <div class="field-group {% if form.middle_name.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.middle_name }}
                                         <label>Middle Name</label>
                                         <span class="field-icon"><i class="bi bi-person"></i></span>
                                     </div>
-                                    {% if form.middle_name.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.middle_name.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.middle_name.errors %}<div class="field-error">{% for e in form.middle_name.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
                                 <div class="field-group {% if form.last_name.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.last_name }}
@@ -200,15 +180,8 @@
                                         <span class="field-icon"><i class="bi bi-person"></i></span>
                                         <span class="required-mark">*</span>
                                     </div>
-                                    {% if form.last_name.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.last_name.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.last_name.errors %}<div class="field-error">{% for e in form.last_name.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
                                 <div class="field-group {% if form.date_of_birth.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.date_of_birth }}
@@ -216,15 +189,8 @@
                                         <span class="field-icon"><i class="bi bi-calendar-event"></i></span>
                                         <span class="required-mark">*</span>
                                     </div>
-                                    {% if form.date_of_birth.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.date_of_birth.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.date_of_birth.errors %}<div class="field-error">{% for e in form.date_of_birth.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
                                 <div class="field-group {% if form.gender.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.gender }}
@@ -232,18 +198,12 @@
                                         <span class="field-icon"><i class="bi bi-gender-ambiguous"></i></span>
                                         <span class="required-mark">*</span>
                                     </div>
-                                    {% if form.gender.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.gender.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.gender.errors %}<div class="field-error">{% for e in form.gender.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Photo Upload Section -->
+                        <!-- ── 03 Profile Photo ── -->
                         <div class="form-section">
                             <div class="section-header">
                                 <div class="section-number">03</div>
@@ -255,7 +215,6 @@
                                     <i class="bi bi-camera-fill"></i>
                                 </div>
                             </div>
-                            
                             <div class="photo-upload-zone">
                                 <div class="upload-preview" id="photoPreview">
                                     {% if student.photo %}
@@ -274,18 +233,12 @@
                                         <span>Choose Photo</span>
                                     </label>
                                     <p class="upload-hint">JPG, PNG or GIF (MAX. 5MB)</p>
-                                    {% if form.photo.errors %}
-                                        <div class="field-error mt-2">
-                                            {% for error in form.photo.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.photo.errors %}<div class="field-error mt-2">{% for e in form.photo.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Room Assignment Section -->
+                        <!-- ── 04 Room Assignment ── -->
                         <div class="form-section">
                             <div class="section-header">
                                 <div class="section-number">04</div>
@@ -297,7 +250,6 @@
                                     <i class="bi bi-door-open-fill"></i>
                                 </div>
                             </div>
-                            
                             <div class="fields-grid single">
                                 <div class="field-group {% if form.room.errors %}has-error{% endif %}">
                                     <div class="floating-input">
@@ -305,21 +257,56 @@
                                         <label>Assign to Room</label>
                                         <span class="field-icon"><i class="bi bi-building"></i></span>
                                     </div>
-                                    {% if form.room.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.room.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.room.errors %}<div class="field-error">{% for e in form.room.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Medical Information Section -->
+                        <!-- ── 05 School Details (STATUS FIELD — was missing) ── -->
                         <div class="form-section">
                             <div class="section-header">
                                 <div class="section-number">05</div>
+                                <div class="section-info">
+                                    <h3>School Details</h3>
+                                    <p>Enrollment status and school-specific information</p>
+                                </div>
+                                <div class="section-icon school">
+                                    <i class="bi bi-mortarboard-fill"></i>
+                                </div>
+                            </div>
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.status.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.status }}
+                                        <label>Enrollment Status</label>
+                                        <span class="field-icon"><i class="bi bi-toggle-on"></i></span>
+                                        <span class="required-mark">*</span>
+                                    </div>
+                                    {% if form.status.errors %}<div class="field-error">{% for e in form.status.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.meal_type.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.meal_type }}
+                                        <label>Meal Type</label>
+                                        <span class="field-icon"><i class="bi bi-cup-hot-fill"></i></span>
+                                    </div>
+                                    {% if form.meal_type.errors %}<div class="field-error">{% for e in form.meal_type.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.custom_student_id.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.custom_student_id }}
+                                        <label>Custom Student ID</label>
+                                        <span class="field-icon"><i class="bi bi-hash"></i></span>
+                                    </div>
+                                    {% if form.custom_student_id.errors %}<div class="field-error">{% for e in form.custom_student_id.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── 06 Medical Information ── -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">06</div>
                                 <div class="section-info">
                                     <h3>Medical Information</h3>
                                     <p>Important health details and allergies</p>
@@ -328,7 +315,6 @@
                                     <i class="bi bi-heart-pulse-fill"></i>
                                 </div>
                             </div>
-                            
                             <div class="fields-grid">
                                 <div class="field-group {% if form.allergies.errors %}has-error{% endif %}">
                                     <div class="floating-input">
@@ -336,36 +322,55 @@
                                         <label>Allergies</label>
                                         <span class="field-icon"><i class="bi bi-exclamation-triangle"></i></span>
                                     </div>
-                                    {% if form.allergies.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.allergies.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.allergies.errors %}<div class="field-error">{% for e in form.allergies.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
                                 <div class="field-group {% if form.medical_conditions.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.medical_conditions }}
                                         <label>Medical Conditions</label>
                                         <span class="field-icon"><i class="bi bi-capsule"></i></span>
                                     </div>
-                                    {% if form.medical_conditions.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.medical_conditions.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.medical_conditions.errors %}<div class="field-error">{% for e in form.medical_conditions.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.medications.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.medications }}
+                                        <label>Current Medications</label>
+                                        <span class="field-icon"><i class="bi bi-prescription2"></i></span>
+                                    </div>
+                                    {% if form.medications.errors %}<div class="field-error">{% for e in form.medications.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.doctor_name.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.doctor_name }}
+                                        <label>Doctor's Name</label>
+                                        <span class="field-icon"><i class="bi bi-person-badge"></i></span>
+                                    </div>
+                                    {% if form.doctor_name.errors %}<div class="field-error">{% for e in form.doctor_name.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.doctor_phone.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.doctor_phone }}
+                                        <label>Doctor's Phone</label>
+                                        <span class="field-icon"><i class="bi bi-telephone"></i></span>
+                                    </div>
+                                    {% if form.doctor_phone.errors %}<div class="field-error">{% for e in form.doctor_phone.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.doctor_address.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.doctor_address }}
+                                        <label>Doctor's Address</label>
+                                        <span class="field-icon"><i class="bi bi-geo-alt"></i></span>
+                                    </div>
+                                    {% if form.doctor_address.errors %}<div class="field-error">{% for e in form.doctor_address.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Emergency Contact Section -->
+                        <!-- ── 07 Emergency Contact ── -->
                         <div class="form-section">
                             <div class="section-header">
-                                <div class="section-number">06</div>
+                                <div class="section-number">07</div>
                                 <div class="section-info">
                                     <h3>Emergency Contact</h3>
                                     <p>Alternative contact in case of emergency</p>
@@ -374,7 +379,6 @@
                                     <i class="bi bi-telephone-fill"></i>
                                 </div>
                             </div>
-                            
                             <div class="fields-grid">
                                 <div class="field-group {% if form.emergency_contact_name.errors %}has-error{% endif %}">
                                     <div class="floating-input">
@@ -382,52 +386,306 @@
                                         <label>Emergency Contact Name</label>
                                         <span class="field-icon"><i class="bi bi-person-badge"></i></span>
                                     </div>
-                                    {% if form.emergency_contact_name.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.emergency_contact_name.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.emergency_contact_name.errors %}<div class="field-error">{% for e in form.emergency_contact_name.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
                                 <div class="field-group {% if form.emergency_contact_phone.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.emergency_contact_phone }}
                                         <label>Emergency Contact Phone</label>
                                         <span class="field-icon"><i class="bi bi-phone"></i></span>
                                     </div>
-                                    {% if form.emergency_contact_phone.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.emergency_contact_phone.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.emergency_contact_phone.errors %}<div class="field-error">{% for e in form.emergency_contact_phone.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                
-                                {% if form.emergency_contact_relationship %}
                                 <div class="field-group {% if form.emergency_contact_relationship.errors %}has-error{% endif %}">
                                     <div class="floating-input">
                                         {{ form.emergency_contact_relationship }}
                                         <label>Relationship to Child</label>
                                         <span class="field-icon"><i class="bi bi-hearts"></i></span>
                                     </div>
-                                    {% if form.emergency_contact_relationship.errors %}
-                                        <div class="field-error">
-                                            {% for error in form.emergency_contact_relationship.errors %}
-                                                <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    {% if form.emergency_contact_relationship.errors %}<div class="field-error">{% for e in form.emergency_contact_relationship.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
                                 </div>
-                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- ── 08 Home Address ── -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">08</div>
+                                <div class="section-info">
+                                    <h3>Home Address</h3>
+                                    <p>Student's residential address</p>
+                                </div>
+                                <div class="section-icon address">
+                                    <i class="bi bi-house-fill"></i>
+                                </div>
+                            </div>
+                            <div class="fields-grid">
+                                <div class="field-group full-width {% if form.address_line_1.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.address_line_1 }}
+                                        <label>Street Address</label>
+                                        <span class="field-icon"><i class="bi bi-geo-alt"></i></span>
+                                    </div>
+                                    {% if form.address_line_1.errors %}<div class="field-error">{% for e in form.address_line_1.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group full-width {% if form.address_line_2.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.address_line_2 }}
+                                        <label>Apt, Suite, etc. (optional)</label>
+                                        <span class="field-icon"><i class="bi bi-building"></i></span>
+                                    </div>
+                                    {% if form.address_line_2.errors %}<div class="field-error">{% for e in form.address_line_2.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.city.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.city }}
+                                        <label>City</label>
+                                        <span class="field-icon"><i class="bi bi-map"></i></span>
+                                    </div>
+                                    {% if form.city.errors %}<div class="field-error">{% for e in form.city.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.state.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.state }}
+                                        <label>State</label>
+                                        <span class="field-icon"><i class="bi bi-flag"></i></span>
+                                    </div>
+                                    {% if form.state.errors %}<div class="field-error">{% for e in form.state.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.postal_code.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.postal_code }}
+                                        <label>Postal Code</label>
+                                        <span class="field-icon"><i class="bi bi-mailbox"></i></span>
+                                    </div>
+                                    {% if form.postal_code.errors %}<div class="field-error">{% for e in form.postal_code.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── 09 Demographics (Admin only) ── -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">09</div>
+                                <div class="section-info">
+                                    <h3>Demographics</h3>
+                                    <p>Not visible to parents — for administrative records only</p>
+                                </div>
+                                <div class="section-icon demographics">
+                                    <i class="bi bi-bar-chart-fill"></i>
+                                </div>
+                            </div>
+                            <div class="admin-notice">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                <span>This information is confidential and will not be shared with parents or guardians.</span>
+                            </div>
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.race.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.race }}
+                                        <label>Race</label>
+                                        <span class="field-icon"><i class="bi bi-people"></i></span>
+                                    </div>
+                                    {% if form.race.errors %}<div class="field-error">{% for e in form.race.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.ethnicity.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.ethnicity }}
+                                        <label>Ethnicity</label>
+                                        <span class="field-icon"><i class="bi bi-globe"></i></span>
+                                    </div>
+                                    {% if form.ethnicity.errors %}<div class="field-error">{% for e in form.ethnicity.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── 10 Financial Details (Admin only) ── -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">10</div>
+                                <div class="section-info">
+                                    <h3>Financial Details</h3>
+                                    <p>Not visible to parents — for administrative records only</p>
+                                </div>
+                                <div class="section-icon financial">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+                            </div>
+                            <div class="admin-notice">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                <span>This information is confidential and will not be shared with parents or guardians.</span>
+                            </div>
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.parent_employer.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.parent_employer }}
+                                        <label>Parent's Employer</label>
+                                        <span class="field-icon"><i class="bi bi-briefcase"></i></span>
+                                    </div>
+                                    {% if form.parent_employer.errors %}<div class="field-error">{% for e in form.parent_employer.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.family_income.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.family_income }}
+                                        <label>Annual Family Income</label>
+                                        <span class="field-icon"><i class="bi bi-currency-dollar"></i></span>
+                                    </div>
+                                    {% if form.family_income.errors %}<div class="field-error">{% for e in form.family_income.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group full-width {% if form.subsidy_details.errors %}has-error{% endif %}">
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            {{ form.has_subsidy }}
+                                            <span class="checkbox-text">
+                                                <i class="bi bi-ticket-perforated"></i>
+                                                Student receives subsidy / financial assistance
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="floating-input mt-3">
+                                        {{ form.subsidy_details }}
+                                        <label>Subsidy Program Details</label>
+                                        <span class="field-icon"><i class="bi bi-file-text"></i></span>
+                                    </div>
+                                    {% if form.subsidy_details.errors %}<div class="field-error">{% for e in form.subsidy_details.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── 11 Enrollment Details ── -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">11</div>
+                                <div class="section-info">
+                                    <h3>Enrollment Details</h3>
+                                    <p>Dates and information about the enrollment process</p>
+                                </div>
+                                <div class="section-icon enrollment">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                </div>
+                            </div>
+                            <div class="fields-grid">
+                                <div class="field-group {% if form.first_contact_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.first_contact_date }}
+                                        <label>First Contact Date</label>
+                                        <span class="field-icon"><i class="bi bi-calendar"></i></span>
+                                    </div>
+                                    {% if form.first_contact_date.errors %}<div class="field-error">{% for e in form.first_contact_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.toured_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.toured_date }}
+                                        <label>Tour Date</label>
+                                        <span class="field-icon"><i class="bi bi-calendar"></i></span>
+                                    </div>
+                                    {% if form.toured_date.errors %}<div class="field-error">{% for e in form.toured_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.paperwork_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.paperwork_date }}
+                                        <label>Paperwork Completed Date</label>
+                                        <span class="field-icon"><i class="bi bi-calendar"></i></span>
+                                    </div>
+                                    {% if form.paperwork_date.errors %}<div class="field-error">{% for e in form.paperwork_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.desired_start_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.desired_start_date }}
+                                        <label>Desired Start Date</label>
+                                        <span class="field-icon"><i class="bi bi-calendar-plus"></i></span>
+                                    </div>
+                                    {% if form.desired_start_date.errors %}<div class="field-error">{% for e in form.desired_start_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.enrollment_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.enrollment_date }}
+                                        <label>Enrollment Date</label>
+                                        <span class="field-icon"><i class="bi bi-calendar-check"></i></span>
+                                    </div>
+                                    {% if form.enrollment_date.errors %}<div class="field-error">{% for e in form.enrollment_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.graduation_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.graduation_date }}
+                                        <label>Graduation Date</label>
+                                        <span class="field-icon"><i class="bi bi-calendar-event"></i></span>
+                                    </div>
+                                    {% if form.graduation_date.errors %}<div class="field-error">{% for e in form.graduation_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.expected_birth_date.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.expected_birth_date }}
+                                        <label>Expected Birth Date (if not yet born)</label>
+                                        <span class="field-icon"><i class="bi bi-calendar-heart"></i></span>
+                                    </div>
+                                    {% if form.expected_birth_date.errors %}<div class="field-error">{% for e in form.expected_birth_date.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group {% if form.sibling_attending.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.sibling_attending }}
+                                        <label>Sibling(s) Attending</label>
+                                        <span class="field-icon"><i class="bi bi-people"></i></span>
+                                    </div>
+                                    {% if form.sibling_attending.errors %}<div class="field-error">{% for e in form.sibling_attending.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group full-width">
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            {{ form.set_active_on_enrollment }}
+                                            <span class="checkbox-text">
+                                                <i class="bi bi-toggles"></i>
+                                                Automatically set student to Active on enrollment date
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="field-group full-width {% if form.programs.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.programs }}
+                                        <label>Programs Enrolled In</label>
+                                        <span class="field-icon"><i class="bi bi-grid"></i></span>
+                                    </div>
+                                    {% if form.programs.errors %}<div class="field-error">{% for e in form.programs.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                                <div class="field-group full-width {% if form.additional_details.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.additional_details }}
+                                        <label>Additional Details</label>
+                                        <span class="field-icon"><i class="bi bi-card-text"></i></span>
+                                    </div>
+                                    {% if form.additional_details.errors %}<div class="field-error">{% for e in form.additional_details.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── 12 Notes ── -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-number">12</div>
+                                <div class="section-info">
+                                    <h3>General Notes</h3>
+                                    <p>Any additional notes or comments about this student</p>
+                                </div>
+                                <div class="section-icon notes">
+                                    <i class="bi bi-sticky-fill"></i>
+                                </div>
+                            </div>
+                            <div class="fields-grid single">
+                                <div class="field-group {% if form.notes.errors %}has-error{% endif %}">
+                                    <div class="floating-input">
+                                        {{ form.notes }}
+                                        <label>Notes</label>
+                                        <span class="field-icon"><i class="bi bi-pencil-square"></i></span>
+                                    </div>
+                                    {% if form.notes.errors %}<div class="field-error">{% for e in form.notes.errors %}<i class="bi bi-exclamation-circle-fill"></i> {{ e }}{% endfor %}</div>{% endif %}
+                                </div>
                             </div>
                         </div>
 
                         <!-- Form Actions -->
                         <div class="form-actions">
-                            <a href="{% url 'students:list' %}" class="action-button secondary">
+                            <a href="{% if student %}{% url 'students:detail' student.pk %}{% else %}{% url 'students:list' %}{% endif %}" class="action-button secondary">
                                 <i class="bi bi-x-circle"></i>
                                 <span>Cancel</span>
                             </a>
@@ -464,24 +722,20 @@
     --success-gradient: linear-gradient(135deg, #38d9a9 0%, #20c997 100%);
     --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
     
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1);
     
-    --radius-sm: 0.375rem;
-    --radius-md: 0.75rem;
+    --radius-sm: .375rem;
+    --radius-md: .75rem;
     --radius-lg: 1rem;
     --radius-xl: 1.5rem;
     
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all .3s cubic-bezier(.4,0,.2,1);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -489,13 +743,8 @@ body {
     line-height: 1.6;
 }
 
-/* ============================================================
-   ALERT MESSAGES
-   ============================================================ */
-.alert-danger-custom,
-.alert-success-custom,
-.alert-error-custom,
-.alert-info-custom {
+/* ── ALERTS ── */
+.alert-danger-custom, .alert-success-custom, .alert-error-custom, .alert-info-custom {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
@@ -504,900 +753,291 @@ body {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
 }
-
-.alert-danger-custom,
-.alert-error-custom {
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 111, 0.15));
+.alert-danger-custom, .alert-error-custom {
+    background: linear-gradient(135deg, rgba(255,107,107,.1), rgba(238,90,111,.15));
     border-left: 4px solid var(--danger-color);
 }
-
 .alert-success-custom {
-    background: linear-gradient(135deg, rgba(56, 217, 169, 0.1), rgba(32, 201, 151, 0.15));
+    background: linear-gradient(135deg, rgba(56,217,169,.1), rgba(32,201,151,.15));
     border-left: 4px solid var(--success-color);
 }
-
 .alert-info-custom {
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.15));
+    background: linear-gradient(135deg, rgba(79,172,254,.1), rgba(0,242,254,.15));
     border-left: 4px solid var(--info-color);
 }
-
 .alert-icon {
     flex-shrink: 0;
-    width: 50px;
-    height: 50px;
+    width: 50px; height: 50px;
     border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: white;
 }
+.alert-danger-custom .alert-icon, .alert-error-custom .alert-icon { background: var(--danger-gradient); }
+.alert-success-custom .alert-icon { background: var(--success-gradient); }
+.alert-info-custom .alert-icon { background: linear-gradient(135deg,#4facfe,#00f2fe); }
+.alert-content { flex: 1; }
+.alert-content h5 { margin: 0 0 .5rem; font-weight:700; font-size:1.1rem; color:var(--text-primary); }
+.alert-content p { margin:0; color:var(--text-secondary); }
+.error-list { list-style:none; margin:.5rem 0 0; padding:0; }
+.error-list li { padding:.5rem 0; color:var(--text-secondary); font-size:.95rem; }
+.error-list li strong { color:var(--danger-color); font-weight:600; }
 
-.alert-danger-custom .alert-icon,
-.alert-error-custom .alert-icon {
-    background: var(--danger-gradient);
-}
-
-.alert-success-custom .alert-icon {
-    background: var(--success-gradient);
-}
-
-.alert-info-custom .alert-icon {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-}
-
-.alert-content {
-    flex: 1;
-}
-
-.alert-content h5 {
-    margin: 0 0 0.5rem 0;
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--text-primary);
-}
-
-.alert-content p {
-    margin: 0;
-    color: var(--text-secondary);
-}
-
-.error-list {
-    list-style: none;
-    margin: 0.5rem 0 0 0;
-    padding: 0;
-}
-
-.error-list li {
-    padding: 0.5rem 0;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
-.error-list li strong {
-    color: var(--danger-color);
-    font-weight: 600;
-}
-
-/* ============================================================
-   FIELD ERRORS
-   ============================================================ */
+/* ── FIELD ERRORS ── */
 .field-group.has-error .floating-input input,
 .field-group.has-error .floating-input select,
 .field-group.has-error .floating-input textarea {
     border-color: var(--danger-color) !important;
-    background-color: rgba(255, 107, 107, 0.05);
+    background-color: rgba(255,107,107,.05);
 }
-
-.field-group.has-error .floating-input label {
-    color: var(--danger-color);
-}
-
+.field-group.has-error .floating-input label { color: var(--danger-color); }
 .field-error {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 107, 107, 0.1);
+    display:flex; align-items:center; gap:.5rem;
+    margin-top:.5rem; padding:.5rem .75rem;
+    background: rgba(255,107,107,.1);
     border-radius: var(--radius-sm);
-    color: var(--danger-color);
-    font-size: 0.875rem;
-    font-weight: 500;
+    color: var(--danger-color); font-size:.875rem; font-weight:500;
 }
-
-.field-error i {
-    flex-shrink: 0;
-}
-
 .field-help {
-    margin-top: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(79, 172, 254, 0.1);
-    border-radius: var(--radius-sm);
-    color: var(--info-color);
-    font-size: 0.875rem;
+    margin-top:.5rem; padding:.5rem .75rem;
+    background:rgba(79,172,254,.1);
+    border-radius:var(--radius-sm);
+    color:var(--info-color); font-size:.875rem;
 }
 
-/* Background Decoration */
+/* ── BACKGROUND ── */
 .student-form-wrapper {
-    position: relative;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    overflow: hidden;
+    position:relative; min-height:100vh;
+    background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+    overflow:hidden;
 }
-
-.background-decoration {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.3;
-    animation: float 20s ease-in-out infinite;
-}
-
-.blob-1 {
-    width: 500px;
-    height: 500px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    top: -100px;
-    left: -100px;
-    animation-delay: 0s;
-}
-
-.blob-2 {
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(135deg, #38d9a9, #4facfe);
-    bottom: -100px;
-    right: -100px;
-    animation-delay: 5s;
-}
-
-.blob-3 {
-    width: 350px;
-    height: 350px;
-    background: linear-gradient(135deg, #ffd93d, #ff6b6b);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation-delay: 10s;
-}
-
+.background-decoration { position:absolute; top:0;left:0; width:100%;height:100%; overflow:hidden; pointer-events:none; z-index:0; }
+.blob { position:absolute; border-radius:50%; filter:blur(60px); opacity:.3; animation:float 20s ease-in-out infinite; }
+.blob-1 { width:500px;height:500px; background:linear-gradient(135deg,#667eea,#764ba2); top:-100px;left:-100px; animation-delay:0s; }
+.blob-2 { width:400px;height:400px; background:linear-gradient(135deg,#38d9a9,#4facfe); bottom:-100px;right:-100px; animation-delay:5s; }
+.blob-3 { width:350px;height:350px; background:linear-gradient(135deg,#ffd93d,#ff6b6b); top:50%;left:50%; transform:translate(-50%,-50%); animation-delay:10s; }
 @keyframes float {
-    0%, 100% {
-        transform: translate(0, 0) scale(1);
-    }
-    25% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-    50% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
-    75% {
-        transform: translate(20px, 30px) scale(1.05);
-    }
+    0%,100% { transform:translate(0,0) scale(1); }
+    25% { transform:translate(30px,-30px) scale(1.1); }
+    50% { transform:translate(-20px,20px) scale(.9); }
+    75% { transform:translate(20px,30px) scale(1.05); }
 }
 
-/* Header Section */
-.header-section {
-    text-align: center;
-    margin-bottom: 3rem;
-    position: relative;
-    z-index: 1;
-}
+/* ── HEADER ── */
+.header-section { text-align:center; margin-bottom:3rem; position:relative; z-index:1; }
+.form-icon-wrapper { width:120px;height:120px; margin:0 auto 1.5rem; position:relative; display:flex; align-items:center; justify-content:center; }
+.icon-glow { position:absolute; width:100%;height:100%; background:var(--primary-gradient); border-radius:30% 70% 70% 30%/30% 30% 70% 70%; animation:morph 8s ease-in-out infinite,rotate 20s linear infinite; opacity:.2; filter:blur(20px); }
+@keyframes morph { 0%,100% { border-radius:30% 70% 70% 30%/30% 30% 70% 70%; } 50% { border-radius:70% 30% 30% 70%/70% 70% 30% 30%; } }
+@keyframes rotate { from { transform:rotate(0); } to { transform:rotate(360deg); } }
+.form-icon-wrapper i { font-size:4rem; background:var(--primary-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; position:relative; z-index:2; }
+.form-title { font-size:2.5rem; font-weight:800; margin-bottom:.5rem; background:var(--primary-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.form-subtitle { font-size:1.1rem; color:var(--text-secondary); font-weight:500; }
 
-.form-icon-wrapper {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 1.5rem;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+/* ── DOCUMENTS NOTICE ── */
+.documents-notice { background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(255,255,255,.7)); backdrop-filter:blur(10px); border-radius:var(--radius-xl); padding:2rem; margin-bottom:2rem; box-shadow:var(--shadow-lg); border:1px solid rgba(255,255,255,.5); position:relative; }
+.notice-badge { position:absolute; top:-20px;right:2rem; width:70px;height:70px; background:var(--primary-gradient); border-radius:20px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-lg); transform:rotate(-5deg); }
+.notice-badge i { font-size:2rem; color:white; }
+.notice-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.notice-header h5 { font-weight:700; color:var(--text-primary); margin:0; display:flex; align-items:center; gap:.5rem; }
+.pulse-icon { color:var(--warning-color); animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.7; transform:scale(1.1); } }
+.notice-content p { color:var(--text-secondary); margin-bottom:1.5rem; }
+.documents-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+.document-card { background:white; border-radius:var(--radius-md); padding:1rem; display:flex; align-items:center; gap:1rem; box-shadow:var(--shadow-sm); transition:var(--transition); }
+.document-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.doc-icon { width:50px;height:50px; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:white; flex-shrink:0; }
+.doc-icon.birth-cert { background:linear-gradient(135deg,#4facfe,#00f2fe); }
+.doc-icon.physical-form { background:linear-gradient(135deg,#fa709a,#fee140); }
+.doc-details h6 { margin:0 0 .25rem; font-weight:700; font-size:.95rem; color:var(--text-primary); }
+.doc-details p { margin:0; font-size:.85rem; color:var(--text-secondary); }
+.status-icon { margin-left:auto; font-size:1.5rem; color:var(--success-color); }
+.notice-footer { display:flex; align-items:center; gap:.5rem; padding:.75rem 1rem; background:rgba(102,126,234,.1); border-radius:var(--radius-md); color:var(--text-secondary); font-size:.9rem; }
+.notice-footer i { color:var(--primary-color); font-size:1.1rem; }
 
-.icon-glow {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: var(--primary-gradient);
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    animation: morph 8s ease-in-out infinite, rotate 20s linear infinite;
-    opacity: 0.2;
-    filter: blur(20px);
-}
+/* ── FORM CARD ── */
+.form-card { background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,255,255,.85)); backdrop-filter:blur(10px); border-radius:var(--radius-xl); padding:2.5rem; box-shadow:var(--shadow-xl); border:1px solid rgba(255,255,255,.5); position:relative; overflow:hidden; }
+.card-accent { position:absolute; top:0;left:0;right:0; height:6px; background:var(--primary-gradient); }
 
-@keyframes morph {
-    0%, 100% {
-        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    }
-    50% {
-        border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
-    }
-}
+/* ── FORM SECTIONS ── */
+.form-section { margin-bottom:2.5rem; padding-bottom:2.5rem; border-bottom:2px dashed var(--border-color); }
+.form-section:last-of-type { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.section-header { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:1.5rem; margin-bottom:1.5rem; }
+.section-number { width:60px;height:60px; border-radius:50%; background:var(--primary-gradient); color:white; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:800; box-shadow:var(--shadow-md); }
+.section-info h3 { margin:0 0 .25rem; font-size:1.5rem; font-weight:800; color:var(--text-primary); }
+.section-info p { margin:0; font-size:.95rem; color:var(--text-secondary); }
+.section-icon { width:60px;height:60px; border-radius:var(--radius-md); background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1)); display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--primary-color); }
+.section-icon.medical   { background:linear-gradient(135deg,rgba(255,107,107,.1),rgba(238,90,111,.1)); color:var(--danger-color); }
+.section-icon.emergency { background:linear-gradient(135deg,rgba(255,217,61,.1),rgba(255,183,77,.1)); color:var(--warning-color); }
+.section-icon.school    { background:linear-gradient(135deg,rgba(56,217,169,.1),rgba(32,201,151,.1)); color:#20c997; }
+.section-icon.address   { background:linear-gradient(135deg,rgba(79,172,254,.1),rgba(0,242,254,.1)); color:var(--info-color); }
+.section-icon.demographics { background:linear-gradient(135deg,rgba(250,112,154,.1),rgba(254,225,64,.1)); color:#fa709a; }
+.section-icon.financial    { background:linear-gradient(135deg,rgba(56,217,169,.1),rgba(32,201,151,.1)); color:#20c997; }
+.section-icon.enrollment   { background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1)); color:var(--primary-color); }
+.section-icon.notes        { background:linear-gradient(135deg,rgba(255,217,61,.1),rgba(255,183,77,.1)); color:#ffb347; }
 
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* ── ADMIN NOTICE ── */
+.admin-notice {
+    display:flex; align-items:center; gap:.75rem;
+    padding:.75rem 1rem; margin-bottom:1.25rem;
+    background:linear-gradient(135deg,rgba(118,75,162,.08),rgba(102,126,234,.08));
+    border:1px solid rgba(118,75,162,.2);
+    border-radius:var(--radius-md);
+    color:var(--secondary-color); font-size:.875rem; font-weight:500;
 }
+.admin-notice i { font-size:1.1rem; flex-shrink:0; }
 
-.form-icon-wrapper i {
-    font-size: 4rem;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    position: relative;
-    z-index: 2;
-}
+/* ── FIELDS GRID ── */
+.fields-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; }
+.fields-grid.single { grid-template-columns:1fr; }
+.field-group { position:relative; }
+.field-group.full-width { grid-column:1/-1; }
 
-.form-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.form-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* Documents Notice */
-.documents-notice {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-    backdrop-filter: blur(10px);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    position: relative;
-}
-
-.notice-badge {
-    position: absolute;
-    top: -20px;
-    right: 2rem;
-    width: 70px;
-    height: 70px;
-    background: var(--primary-gradient);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-lg);
-    transform: rotate(-5deg);
-}
-
-.notice-badge i {
-    font-size: 2rem;
-    color: white;
-}
-
-.notice-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.notice-header h5 {
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.pulse-icon {
-    color: var(--warning-color);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.7;
-        transform: scale(1.1);
-    }
-}
-
-.notice-content p {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-}
-
-.documents-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.document-card {
-    background: white;
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-}
-
-.document-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-.doc-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-    flex-shrink: 0;
-}
-
-.doc-icon.birth-cert {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-}
-
-.doc-icon.physical-form {
-    background: linear-gradient(135deg, #fa709a, #fee140);
-}
-
-.doc-details h6 {
-    margin: 0 0 0.25rem 0;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-}
-
-.doc-details p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-.status-icon {
-    margin-left: auto;
-    font-size: 1.5rem;
-    color: var(--success-color);
-}
-
-.notice-footer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: rgba(102, 126, 234, 0.1);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.notice-footer i {
-    color: var(--primary-color);
-    font-size: 1.1rem;
-}
-
-/* Form Card */
-.form-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
-    backdrop-filter: blur(10px);
-    border-radius: var(--radius-xl);
-    padding: 2.5rem;
-    box-shadow: var(--shadow-xl);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    position: relative;
-    overflow: hidden;
-}
-
-.card-accent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: var(--primary-gradient);
-}
-
-/* Form Sections */
-.form-section {
-    margin-bottom: 2.5rem;
-    padding-bottom: 2.5rem;
-    border-bottom: 2px dashed var(--border-color);
-}
-
-.form-section:last-of-type {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.section-header {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.section-number {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--primary-gradient);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 800;
-    box-shadow: var(--shadow-md);
-}
-
-.section-info h3 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-
-.section-info p {
-    margin: 0;
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-}
-
-.section-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: var(--radius-md);
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: var(--primary-color);
-}
-
-.section-icon.medical {
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 111, 0.1));
-    color: var(--danger-color);
-}
-
-.section-icon.emergency {
-    background: linear-gradient(135deg, rgba(255, 217, 61, 0.1), rgba(255, 183, 77, 0.1));
-    color: var(--warning-color);
-}
-
-/* Fields Grid */
-.fields-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.fields-grid.single {
-    grid-template-columns: 1fr;
-}
-
-/* Floating Input */
-.field-group {
-    position: relative;
-}
-
-.floating-input {
-    position: relative;
-}
-
+/* ── FLOATING INPUT ── */
+.floating-input { position:relative; }
 .floating-input input,
 .floating-input select,
 .floating-input textarea {
-    width: 100%;
-    padding: 1.25rem 1rem 0.5rem 3rem;
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-family: inherit;
-    color: var(--text-primary);
-    background: white;
-    transition: var(--transition);
-    outline: none;
+    width:100%; padding:1.25rem 1rem .5rem 3rem;
+    border:2px solid var(--border-color); border-radius:var(--radius-md);
+    font-size:1rem; font-family:inherit; color:var(--text-primary);
+    background:white; transition:var(--transition); outline:none;
 }
-
-.floating-input textarea {
-    resize: vertical;
-    min-height: 100px;
-    padding-top: 1.5rem;
-}
-
+.floating-input textarea { resize:vertical; min-height:100px; padding-top:1.5rem; }
 .floating-input input:focus,
 .floating-input select:focus,
-.floating-input textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.floating-input label {
-    position: absolute;
-    left: 3rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-light);
-    font-size: 1rem;
-    font-weight: 500;
-    pointer-events: none;
-    transition: var(--transition);
-    background: white;
-    padding: 0 0.5rem;
-}
-
-.floating-input textarea ~ label {
-    top: 1.5rem;
-    transform: none;
-}
-
+.floating-input textarea:focus { border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(102,126,234,.1); }
+.floating-input label { position:absolute; left:3rem; top:50%; transform:translateY(-50%); color:var(--text-light); font-size:1rem; font-weight:500; pointer-events:none; transition:var(--transition); background:white; padding:0 .5rem; }
+.floating-input textarea ~ label { top:1.5rem; transform:none; }
 .floating-input input:focus ~ label,
 .floating-input input:not(:placeholder-shown) ~ label,
 .floating-input select:focus ~ label,
 .floating-input select:not([value=""]) ~ label,
 .floating-input textarea:focus ~ label,
-.floating-input textarea:not(:placeholder-shown) ~ label {
-    top: -0.5rem;
-    font-size: 0.75rem;
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.field-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-light);
-    font-size: 1.25rem;
-    pointer-events: none;
-    transition: var(--transition);
-}
-
-.floating-input textarea ~ .field-icon {
-    top: 1.5rem;
-    transform: none;
-}
-
+.floating-input textarea:not(:placeholder-shown) ~ label { top:-.5rem; font-size:.75rem; color:var(--primary-color); font-weight:600; }
+.field-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-light); font-size:1.25rem; pointer-events:none; transition:var(--transition); }
+.floating-input textarea ~ .field-icon { top:1.5rem; transform:none; }
 .floating-input input:focus ~ .field-icon,
 .floating-input select:focus ~ .field-icon,
-.floating-input textarea:focus ~ .field-icon {
-    color: var(--primary-color);
-}
+.floating-input textarea:focus ~ .field-icon { color:var(--primary-color); }
+.required-mark { position:absolute; right:1rem; top:50%; transform:translateY(-50%); color:var(--danger-color); font-weight:700; font-size:1.25rem; }
+.mt-3 { margin-top:1rem; }
 
-.required-mark {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--danger-color);
-    font-weight: 700;
-    font-size: 1.25rem;
-}
+/* ── CHECKBOX GROUP ── */
+.checkbox-group { display:flex; align-items:center; }
+.checkbox-label { display:flex; align-items:center; gap:.75rem; cursor:pointer; font-weight:500; color:var(--text-primary); }
+.checkbox-label input[type="checkbox"] { width:20px;height:20px; accent-color:var(--primary-color); cursor:pointer; flex-shrink:0; }
+.checkbox-text { display:flex; align-items:center; gap:.5rem; font-size:.95rem; }
+.checkbox-text i { color:var(--primary-color); font-size:1.1rem; }
 
-/* Photo Upload */
-.photo-upload-zone {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-}
+/* ── PHOTO UPLOAD ── */
+.photo-upload-zone { display:flex; gap:2rem; align-items:center; }
+.upload-preview { width:200px;height:200px; border-radius:var(--radius-lg); overflow:hidden; border:3px dashed var(--border-color); display:flex; align-items:center; justify-content:center; background:var(--bg-light); }
+.upload-preview img { width:100%;height:100%; object-fit:cover; }
+.preview-placeholder { text-align:center; color:var(--text-light); }
+.preview-placeholder i { font-size:3rem; margin-bottom:.5rem; display:block; }
+.preview-placeholder p { margin:0; font-size:.9rem; }
+.upload-controls { flex:1; }
+.upload-controls input[type="file"] { display:none; }
+.upload-button { display:inline-flex; align-items:center; gap:.75rem; padding:1rem 2rem; background:var(--primary-gradient); color:white; border-radius:var(--radius-md); font-weight:700; font-size:1rem; cursor:pointer; transition:var(--transition); box-shadow:var(--shadow-md); }
+.upload-button:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.upload-hint { margin-top:1rem; font-size:.75rem; color:var(--text-secondary); font-weight:500; }
 
-.upload-preview {
-    width: 200px;
-    height: 200px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 3px dashed var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-light);
-}
+/* ── FORM ACTIONS ── */
+.form-actions { display:flex; gap:1rem; justify-content:flex-end; padding-top:2rem; }
+.action-button { display:inline-flex; align-items:center; gap:.75rem; padding:1rem 2.5rem; border-radius:var(--radius-md); font-size:1rem; font-weight:700; text-decoration:none; border:none; cursor:pointer; transition:var(--transition); font-family:'Plus Jakarta Sans',sans-serif; }
+.action-button.secondary { background:var(--bg-light); color:var(--text-primary); border:2px solid var(--border-color); }
+.action-button.secondary:hover { background:var(--border-color); transform:translateY(-2px); }
+.action-button.primary { background:var(--primary-gradient); color:white; box-shadow:var(--shadow-md); }
+.action-button.primary:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.action-button:disabled { opacity:.6; cursor:not-allowed; transform:none !important; }
 
-.upload-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+/* ── ANIMATIONS ── */
+.animate-on-scroll { opacity:0; transform:translateY(30px); animation:fadeInUp .6s ease forwards; }
+@keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
 
-.preview-placeholder {
-    text-align: center;
-    color: var(--text-light);
+/* ── RESPONSIVE ── */
+@media (max-width:768px) {
+    .form-title { font-size:2rem; }
+    .form-card { padding:1.5rem; }
+    .section-header { grid-template-columns:auto 1fr; gap:1rem; }
+    .section-icon { display:none; }
+    .section-number { width:50px;height:50px; font-size:1.25rem; }
+    .fields-grid { grid-template-columns:1fr; }
+    .photo-upload-zone { flex-direction:column; text-align:center; }
+    .documents-grid { grid-template-columns:1fr; }
+    .notice-badge { top:-10px;right:1rem; width:60px;height:60px; }
+    .notice-badge i { font-size:1.5rem; }
+    .form-actions { flex-direction:column; }
+    .action-button { width:100%; justify-content:center; }
 }
-
-.preview-placeholder i {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    display: block;
-}
-
-.preview-placeholder p {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-.upload-controls {
-    flex: 1;
-}
-
-.upload-controls input[type="file"] {
-    display: none;
-}
-
-.upload-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 2rem;
-    background: var(--primary-gradient);
-    color: white;
-    border-radius: var(--radius-md);
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--shadow-md);
-}
-
-.upload-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.upload-hint {
-    margin-top: 1rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* Form Actions */
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    padding-top: 2rem;
-}
-
-.action-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 2.5rem;
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: var(--transition);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.action-button.secondary {
-    background: var(--bg-light);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
-}
-
-.action-button.secondary:hover {
-    background: var(--border-color);
-    transform: translateY(-2px);
-}
-
-.action-button.primary {
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: var(--shadow-md);
-}
-
-.action-button.primary:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-}
-
-.action-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-/* Animations */
-.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeInUp 0.6s ease forwards;
-}
-
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .form-title {
-        font-size: 2rem;
-    }
-    
-    .form-card {
-        padding: 1.5rem;
-    }
-    
-    .section-header {
-        grid-template-columns: auto 1fr;
-        gap: 1rem;
-    }
-    
-    .section-icon {
-        grid-column: 1;
-        grid-row: 1 / 3;
-    }
-    
-    .section-number {
-        width: 50px;
-        height: 50px;
-        font-size: 1.25rem;
-    }
-    
-    .fields-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .photo-upload-zone {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .documents-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .notice-badge {
-        top: -10px;
-        right: 1rem;
-        width: 60px;
-        height: 60px;
-    }
-    
-    .notice-badge i {
-        font-size: 1.5rem;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .action-button {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .notice-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
+@media (max-width:480px) {
+    .notice-header { flex-direction:column; align-items:flex-start; gap:.5rem; }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Animate elements on scroll
-    const animateElements = document.querySelectorAll('.animate-on-scroll');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.animationPlayState = 'running';
-                observer.unobserve(entry.target);
+    // Animate on scroll
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.style.animationPlayState = 'running';
+                observer.unobserve(e.target);
             }
         });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
-    animateElements.forEach(el => {
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
         el.style.animationPlayState = 'paused';
         observer.observe(el);
     });
-    
+
     // Photo preview
     const photoInput = document.querySelector('input[type="file"]');
     const photoPreview = document.getElementById('photoPreview');
-    
     if (photoInput) {
         photoInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = e => {
                     photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                }
+                };
                 reader.readAsDataURL(file);
             }
         });
     }
-    
-    // Add placeholder attribute to all inputs for floating label effect
-    const inputs = document.querySelectorAll('.floating-input input, .floating-input textarea, .floating-input select');
-    inputs.forEach(input => {
-        if (!input.hasAttribute('placeholder')) {
-            input.setAttribute('placeholder', ' ');
-        }
+
+    // Ensure placeholder on all inputs for floating label
+    document.querySelectorAll('.floating-input input, .floating-input textarea, .floating-input select').forEach(el => {
+        if (!el.hasAttribute('placeholder')) el.setAttribute('placeholder', ' ');
     });
-    
-    // Form submission - add loading state
+
+    // Loading state on submit
     const form = document.getElementById('studentForm');
     const submitBtn = document.getElementById('submitBtn');
-    
     if (form && submitBtn) {
-        form.addEventListener('submit', function(e) {
-            // Show loading state
+        form.addEventListener('submit', function() {
             submitBtn.disabled = true;
-            const originalHTML = submitBtn.innerHTML;
-            submitBtn.innerHTML = `
-                <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <span>Saving...</span>
-            `;
-            
-            // Re-enable after a timeout (in case of validation errors)
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalHTML;
-            }, 3000);
+            const orig = submitBtn.innerHTML;
+            submitBtn.innerHTML = `<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div><span>Saving...</span>`;
+            setTimeout(() => { submitBtn.disabled = false; submitBtn.innerHTML = orig; }, 3000);
         });
     }
-    
-    // Scroll to first error on page load
+
+    // Scroll to first error
     const firstError = document.querySelector('.field-group.has-error, .alert-danger-custom');
     if (firstError) {
-        setTimeout(() => {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 500);
+        setTimeout(() => firstError.scrollIntoView({ behavior: 'smooth', block: 'center' }), 500);
+    }
+
+    // Toggle subsidy details visibility based on checkbox
+    const hasSubsidy = document.getElementById('{{ form.has_subsidy.id_for_label }}') || document.querySelector('[name="has_subsidy"]');
+    const subsidyDetails = document.querySelector('[name="subsidy_details"]');
+    if (hasSubsidy && subsidyDetails) {
+        const wrapper = subsidyDetails.closest('.floating-input');
+        const toggle = () => { if (wrapper) wrapper.style.display = hasSubsidy.checked ? 'block' : 'none'; };
+        toggle();
+        hasSubsidy.addEventListener('change', toggle);
     }
 });
 </script>
