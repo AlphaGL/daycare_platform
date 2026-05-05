@@ -79,7 +79,7 @@ def student_detail(request, pk):
 
     if show_immunizations:
         try:
-            immunization_record = student.immunization_record
+            immunization_record = student.immunization
             overdue_vaccines = immunization_record.get_overdue_vaccines()
             due_soon_vaccines = immunization_record.get_due_soon_vaccines()
             completion_percentage = immunization_record.get_completion_percentage()
@@ -615,7 +615,7 @@ def immunization_detail(request, student_pk):
     if created:
         initialize_vaccine_doses(immunization)
 
-    vaccine_doses = immunization.vaccine_doses.select_related(
+    vaccine_doses = immunization.doses.select_related(
         'vaccine_type', 'dose_schedule'
     ).order_by('vaccine_type__display_order', 'dose_schedule__dose_number')
 
@@ -688,7 +688,7 @@ def vaccine_dose_update(request, dose_pk):
 @user_passes_test(is_admin_or_staff)
 def vaccine_dose_bulk_update(request, student_pk):
     student = get_object_or_404(Student, pk=student_pk)
-    immunization = student.immunization_record
+    immunization, _ = Immunization.objects.get_or_create(student=student)
 
     if request.method == 'POST':
         form = BulkVaccineDoseUpdateForm(request.POST)
@@ -715,7 +715,7 @@ def vaccine_dose_bulk_update(request, student_pk):
     else:
         form = BulkVaccineDoseUpdateForm()
 
-    doses = immunization.vaccine_doses.select_related('vaccine_type', 'dose_schedule')
+    doses = immunization.doses.select_related('vaccine_type', 'dose_schedule')
     return render(request, 'students/vaccine_bulk_update.html', {
         'form': form, 'student': student, 'doses': doses
     })
