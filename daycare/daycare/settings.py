@@ -4,6 +4,7 @@ Security-first, scalable configuration.
 """
 
 import os
+import cloudinary
 from pathlib import Path
 from decouple import config, Csv
 import dj_database_url
@@ -129,20 +130,24 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
+# Explicitly configure the core cloudinary library so that
+# CloudinaryResource.url works correctly in templates
+cloudinary.config(
+    cloud_name=config('CLOUDINARY_CLOUD_NAME', default=''),
+    api_key=config('CLOUDINARY_API_KEY', default=''),
+    api_secret=config('CLOUDINARY_API_SECRET', default=''),
+    secure=True,
+)
+
 # ==========================================
-# EMAIL SETTINGS - Brevo SMTP  ✅ FIXED
+# EMAIL SETTINGS - Brevo SMTP
 # ==========================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
-# FIX: HOST_USER must be the Brevo SMTP login (not the API key)
 EMAIL_HOST_USER = config('BREVO_SMTP_LOGIN', default='a2da3c001@smtp-brevo.com')
-
-# FIX: HOST_PASSWORD must be the SMTP key (not the API key)
 EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY', default='')
-
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='sugamamaadaycare@gmail.com')
 DEFAULT_FROM_NAME  = config('DEFAULT_FROM_NAME',  default='Sugamama Sugababies Daycare')
 

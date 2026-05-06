@@ -78,14 +78,12 @@ def student_detail(request, pk):
     completion_percentage = 0
 
     if show_immunizations:
-        try:
-            immunization_record = student.immunization
-            overdue_vaccines = immunization_record.get_overdue_vaccines()
-            due_soon_vaccines = immunization_record.get_due_soon_vaccines()
-            completion_percentage = immunization_record.get_completion_percentage()
-        except Immunization.DoesNotExist:
-            immunization_record = Immunization.objects.create(student=student)
+        immunization_record, created = Immunization.objects.get_or_create(student=student)
+        if created:
             initialize_vaccine_doses(immunization_record)
+        overdue_vaccines = immunization_record.get_overdue_vaccines()
+        due_soon_vaccines = immunization_record.get_due_soon_vaccines()
+        completion_percentage = immunization_record.get_completion_percentage()
 
     recent_attendance = student.attendance_records.all()[:10]
 
@@ -612,10 +610,11 @@ def immunization_detail(request, student_pk):
     student = get_object_or_404(Student, pk=student_pk)
     immunization, created = Immunization.objects.get_or_create(student=student)
 
-    if created:
-        initialize_vaccine_doses(immunization)
+    # Always sync — handles existing records created before vaccine types were set up.
+    # initialize_vaccine_doses uses get_or_create so it never duplicates doses.
+    initialize_vaccine_doses(immunization)
 
-    vaccine_doses = immunization.doses.select_related(
+    vaccine_doses = immunization.vaccine_doses.select_related(
         'vaccine_type', 'dose_schedule'
     ).order_by('vaccine_type__display_order', 'dose_schedule__dose_number')
 
@@ -715,7 +714,7 @@ def vaccine_dose_bulk_update(request, student_pk):
     else:
         form = BulkVaccineDoseUpdateForm()
 
-    doses = immunization.doses.select_related('vaccine_type', 'dose_schedule')
+    doses = immunization.vaccine_doses.select_related('vaccine_type', 'dose_schedule')
     return render(request, 'students/vaccine_bulk_update.html', {
         'form': form, 'student': student, 'doses': doses
     })
