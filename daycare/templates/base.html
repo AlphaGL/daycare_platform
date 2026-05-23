@@ -454,6 +454,13 @@
                                     <li><a class="dropdown-item" href="{% url 'attendance:timecard_list' %}">
                                         <i class="bi bi-clock"></i> Timecards
                                     </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'time_tracker:live_dashboard' %}">
+                                        <i class="bi bi-broadcast"></i> Live Time Tracker
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'time_tracker:analytics' %}">
+                                        <i class="bi bi-bar-chart-fill"></i> Time Analytics
+                                    </a></li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -485,6 +492,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end rounded-4 shadow border-0 mt-2">
                                 <li><a class="dropdown-item rounded-3" href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle"></i> Profile</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{% url 'time_tracker:my_sessions' %}"><i class="bi bi-stopwatch-fill"></i> My Sessions</a></li>
                                 {% if user.is_admin %}
                                     <li><a class="dropdown-item rounded-3" href="{% url 'school:settings' %}"><i class="bi bi-gear-fill"></i> Settings</a></li>
                                 {% endif %}

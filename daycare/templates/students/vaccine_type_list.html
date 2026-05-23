@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Vaccine Types{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">⚙️ Vaccine Type Catalogue</h2>
+    <a href="{% url 'students:vaccine_type_create' %}" class="btn btn-success">+ Add Vaccine Type</a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Full Name</th>
+            <th class="text-center">Total Doses</th>
+            <th class="text-center">Order</th>
+            <th class="text-center">Active</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vt in vaccine_types %}
+          <tr>
+            <td class="fw-semibold">{{ vt.name }}</td>
+            <td class="text-muted">{{ vt.full_name }}</td>
+            <td class="text-center">{{ vt.total_doses }}</td>
+            <td class="text-center">{{ vt.display_order }}</td>
+            <td class="text-center">
+              {% if vt.is_active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'students:vaccine_type_update' vt.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <a href="{% url 'students:vaccine_type_delete' vt.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No vaccine types defined yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <a href="{% url 'students:immunization_list' %}" class="btn btn-outline-secondary btn-sm">← Back to Immunizations</a>
+  </div>
+</div>
+{% endblock %}

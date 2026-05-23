@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}My Sessions — Time Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tt-hero { background:linear-gradient(135deg,#1b5e20 0%,#43a047 100%); color:#fff;
+             border-radius:1rem; padding:1.5rem 2rem; margin-bottom:1.5rem; }
+  .tt-hero h1 { font-size:1.4rem; font-weight:700; margin:0; }
+
+  .stat-box { border-radius:.75rem; border:1px solid #e0e0e0; text-align:center; padding:1.2rem; }
+  .stat-box .val { font-size:1.8rem; font-weight:700; color:#1565c0; }
+  .stat-box .lbl { font-size:.78rem; color:#757575; margin-top:.2rem; }
+
+  .timer-live { font-size:1.5rem; font-weight:700; font-family:monospace; color:#2e7d32; }
+  .session-row td { font-size:.87rem; vertical-align:middle; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="tt-hero">
+    <h1>⏱ My Time Sessions</h1>
+    <small>Your clock-in / clock-out history</small>
+  </div>
+
+  <!-- Active session banner -->
+  {% for s in active_sessions %}
+  <div class="alert alert-success d-flex align-items-center gap-3 mb-3" role="alert">
+    <span style="font-size:1.5rem;">🟢</span>
+    <div class="flex-grow-1">
+      <strong>You are currently clocked in</strong> since {{ s.clock_in|time:"H:i" }}
+    </div>
+    <div>
+      <span class="timer-live" data-session="{{ s.id }}" data-seconds="{{ s.elapsed_seconds }}">
+        {{ s.elapsed_display }}
+      </span>
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Weekly stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-box">
+        <div class="val">{{ week_hours }}h</div>
+        <div class="lbl">Hours this week</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-box">
+        <div class="val">{{ week_days }}</div>
+        <div class="lbl">Days this week</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-box">
+        <div class="val">{{ sessions|length }}</div>
+        <div class="lbl">Total sessions (60d)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-box">
+        <div class="val">
+          {% if sessions %}
+            {% widthratio week_hours week_days 1 %}h
+          {% else %}—{% endif %}
+        </div>
+        <div class="lbl">Avg hours/day</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session history -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <p class="fw-bold mb-3">📋 Session History</p>
+      {% if sessions %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead style="font-size:.8rem; background:#f5f5f5;">
+            <tr>
+              <th>Date</th>
+              <th>Clock-in</th>
+              <th>Clock-out</th>
+              <th>Duration</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for s in sessions %}
+          <tr class="session-row">
+            <td>{{ s.date|date:"M j, Y" }}</td>
+            <td>{{ s.clock_in|time:"H:i" }}</td>
+            <td>
+              {% if s.clock_out %}{{ s.clock_out|time:"H:i" }}
+              {% else %}<span class="text-success fw-semibold">— ongoing</span>{% endif %}
+            </td>
+            <td>
+              {% if s.is_active %}
+                <span class="timer-live"
+                      style="font-size:1rem;"
+                      data-session="{{ s.id }}"
+                      data-seconds="{{ s.elapsed_seconds }}">
+                  {{ s.elapsed_display }}
+                </span>
+              {% else %}
+                {{ s.elapsed_display }}
+              {% endif %}
+            </td>
+            <td>
+              {% if s.is_active %}
+                <span class="badge bg-success-subtle text-success rounded-pill">Active</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill">Closed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center py-4">No session history yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fmtSeconds(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  if (h) return `${h}h ${m}m`;
+  if (m) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+setInterval(() => {
+  document.querySelectorAll('[data-session]').forEach(el => {
+    const cur = parseInt(el.dataset.seconds, 10) + 1;
+    el.dataset.seconds = cur;
+    el.textContent = fmtSeconds(cur);
+  });
+}, 1000);
+async function sync() {
+  try {
+    const res  = await fetch("{% url 'time_tracker:session_status_api' %}");
+    const data = await res.json();
+    data.sessions.forEach(s => {
+      const el = document.querySelector(`[data-session="${s.id}"]`);
+      if (el) el.dataset.seconds = s.elapsed_seconds;
+    });
+  } catch(e) {}
+}
+setInterval(sync, 30000);
+</script>
+{% endblock %}

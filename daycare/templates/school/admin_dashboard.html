@@ -5,1429 +5,1347 @@
 
 {% block extra_css %}
 <style>
+/* =============================================
+   ADMIN DASHBOARD - Redesigned & Responsive
+   Warm coral + teal palette (matches brand)
+   Collapsible sidebar with overlay on mobile
+   ============================================= */
+
 :root {
-    --primary-color: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary-color: #8b5cf6;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #06b6d4;
-    --light-bg: #f8fafc;
-    --card-bg: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --sidebar-width: 280px;
-    --header-height: 80px;
+  --db-sidebar-w: 260px;
+  --db-sidebar-collapsed-w: 72px;
+  --db-coral:   #FF6B6B;
+  --db-coral-d: #e85555;
+  --db-teal:    #4ECDC4;
+  --db-teal-d:  #38b2aa;
+  --db-amber:   #FFB347;
+  --db-lime:    #6BCB77;
+  --db-sky:     #4D96FF;
+  --db-purple:  #C77DFF;
+  --db-dark:    #1a2236;
+  --db-dark2:   #243048;
+  --db-dark3:   #2e3c58;
+  --db-ink:     #0f172a;
+  --db-muted:   #64748b;
+  --db-border:  #e2e8f0;
+  --db-surface: #ffffff;
+  --db-bg:      #f5f7fa;
+  --db-transition: 0.28s cubic-bezier(0.4,0,0.2,1);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ── Reset ───────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Layout shell ─────────────────────────── */
+.db-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--db-bg);
+  font-family: 'Quicksand', 'Nunito', sans-serif;
 }
 
-body {
-    background: var(--light-bg);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: var(--text-primary);
-    overflow-x: hidden;
+/* ── SIDEBAR ──────────────────────────────── */
+.db-sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--db-sidebar-w);
+  background: linear-gradient(180deg, var(--db-dark) 0%, var(--db-ink) 100%);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform var(--db-transition), width var(--db-transition);
+  box-shadow: 4px 0 32px rgba(0,0,0,0.18);
 }
 
-/* Dashboard Layout */
-.dashboard-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
+/* collapsed state (desktop) */
+.db-shell.sidebar-collapsed .db-sidebar {
+  width: var(--db-sidebar-collapsed-w);
+}
+.db-shell.sidebar-collapsed .db-sidebar .nav-text,
+.db-shell.sidebar-collapsed .db-sidebar .nav-section-label,
+.db-shell.sidebar-collapsed .db-sidebar .sidebar-tagline,
+.db-shell.sidebar-collapsed .db-sidebar .sidebar-name,
+.db-shell.sidebar-collapsed .db-sidebar .nav-badge {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.db-shell.sidebar-collapsed .sidebar-brand-inner { justify-content: center; }
+.db-shell.sidebar-collapsed .db-sidebar .sidebar-divider { margin: 0.5rem 0.75rem; }
+.db-shell.sidebar-collapsed .db-sidebar .nav-link {
+  justify-content: center;
+  padding: 0.875rem 0;
+}
+.db-shell.sidebar-collapsed .db-sidebar .nav-link i { margin: 0; }
+
+/* mobile: hidden off-screen */
+@media (max-width: 991px) {
+  .db-sidebar {
+    transform: translateX(-100%);
+    width: var(--db-sidebar-w) !important;
+  }
+  .db-sidebar.mob-open { transform: translateX(0); }
 }
 
-/* Sidebar Navigation */
-.dashboard-sidebar {
-    width: var(--sidebar-width);
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    color: white;
-    position: fixed;
-    height: 100vh;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Overlay for mobile */
+.db-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1049;
+  backdrop-filter: blur(2px);
+}
+.db-overlay.active { display: block; }
+
+/* Brand */
+.sidebar-brand-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-decoration: none;
+}
+.brand-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--db-coral), var(--db-amber));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255,107,107,0.35);
+}
+.sidebar-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1.2;
+  transition: opacity var(--db-transition), width var(--db-transition);
+}
+.sidebar-tagline {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.45);
+  transition: opacity var(--db-transition), width var(--db-transition);
 }
 
-.dashboard-sidebar::-webkit-scrollbar {
-    width: 6px;
+/* Collapse toggle (desktop) */
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 1.35rem;
+  right: -14px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--db-coral);
+  border: 3px solid var(--db-bg);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background var(--db-transition), transform var(--db-transition);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
+.sidebar-collapse-btn:hover { background: var(--db-coral-d); }
+.db-shell.sidebar-collapsed .sidebar-collapse-btn { transform: rotate(180deg); }
+@media (max-width: 991px) { .sidebar-collapse-btn { display: none; } }
 
-.dashboard-sidebar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+/* Scrollable nav area */
+.sidebar-nav-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.75rem 0 1rem;
 }
+.sidebar-nav-scroll::-webkit-scrollbar { width: 3px; }
+.sidebar-nav-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
-.dashboard-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-}
-
-.dashboard-sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.sidebar-header {
-    padding: 2rem 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-}
-
-.sidebar-brand {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: transform 0.2s ease;
-}
-
-.sidebar-brand:hover {
-    transform: translateX(4px);
-}
-
-.sidebar-brand i {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    padding: 0.5rem;
-    border-radius: 12px;
-    font-size: 1.25rem;
-}
-
-.sidebar-nav {
-    padding: 1.5rem 0;
-}
-
-.nav-section {
-    margin-bottom: 2rem;
-}
-
-.nav-section-title {
-    padding: 0.5rem 1.5rem;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+.nav-section { margin-bottom: 0.25rem; }
+.nav-section-label {
+  padding: 0.625rem 1.25rem 0.25rem;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: rgba(255,255,255,0.35);
+  transition: opacity var(--db-transition);
+  white-space: nowrap;
 }
 
 .nav-link {
-    display: flex;
-    align-items: center;
-    padding: 0.875rem 1.5rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border-left: 3px solid transparent;
-    position: relative;
-    margin: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-left: 3px solid transparent;
+  transition: all var(--db-transition);
+  white-space: nowrap;
+  position: relative;
 }
-
-.nav-link::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 0;
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
-    transition: width 0.3s ease;
-}
-
-.nav-link:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-    transform: translateX(4px);
-}
-
-.nav-link:hover::before {
-    width: 100%;
-}
-
-.nav-link.active {
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
-    color: white;
-    border-left-color: var(--primary-color);
-    font-weight: 600;
-}
-
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    right: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    box-shadow: 0 0 12px var(--primary-color);
-}
-
 .nav-link i {
-    width: 24px;
-    margin-right: 0.875rem;
-    font-size: 1.25rem;
-    transition: transform 0.2s ease;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+  transition: transform var(--db-transition);
 }
-
-.nav-link:hover i {
-    transform: scale(1.1);
+.nav-link:hover {
+  background: rgba(255,255,255,0.07);
+  color: white;
+  border-left-color: rgba(255,255,255,0.3);
 }
-
+.nav-link:hover i { transform: scale(1.15); }
+.nav-link.active {
+  background: linear-gradient(90deg, rgba(255,107,107,0.18), transparent);
+  color: white;
+  border-left-color: var(--db-coral);
+  font-weight: 700;
+}
+.nav-link.active::after {
+  content: '';
+  position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+  width: 6px; height: 6px;
+  background: var(--db-coral);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--db-coral);
+}
 .nav-badge {
-    margin-left: auto;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    padding: 0.25rem 0.625rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-    animation: pulse-badge 2s ease-in-out infinite;
+  margin-left: auto;
+  background: var(--db-coral);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  min-width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: opacity var(--db-transition);
+  box-shadow: 0 2px 6px rgba(255,107,107,0.4);
+}
+.nav-badge.teal { background: var(--db-teal); box-shadow: 0 2px 6px rgba(78,205,196,0.4); }
+
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 0.5rem 1.25rem;
 }
 
-@keyframes pulse-badge {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+/* Sidebar user footer */
+.sidebar-user {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sidebar-user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--db-teal), var(--db-sky));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  color: white;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.sidebar-user-info { flex: 1; min-width: 0; overflow: hidden; }
+.sidebar-user-name {
+  font-size: 0.82rem; font-weight: 700; color: white;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: opacity var(--db-transition);
+}
+.sidebar-user-role {
+  font-size: 0.7rem; color: rgba(255,255,255,0.45);
+  transition: opacity var(--db-transition);
+}
+.db-shell.sidebar-collapsed .sidebar-user { justify-content: center; padding: 0.75rem 0; }
+.db-shell.sidebar-collapsed .sidebar-user-info,
+.db-shell.sidebar-collapsed .sidebar-user-logout { display: none; }
+.sidebar-user-logout {
+  color: rgba(255,255,255,0.4);
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color var(--db-transition);
+  flex-shrink: 0;
+}
+.sidebar-user-logout:hover { color: var(--db-coral); }
+
+/* ── MAIN AREA ─────────────────────────────── */
+.db-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--db-sidebar-w);
+  transition: margin-left var(--db-transition);
+  display: flex;
+  flex-direction: column;
+}
+.db-shell.sidebar-collapsed .db-main { margin-left: var(--db-sidebar-collapsed-w); }
+@media (max-width: 991px) {
+  .db-main { margin-left: 0 !important; }
 }
 
-/* Main Content */
-.dashboard-main {
-    margin-left: var(--sidebar-width);
-    flex: 1;
-    min-height: 100vh;
-    background: var(--light-bg);
+/* ── TOP BAR ──────────────────────────────── */
+.db-topbar {
+  position: sticky; top: 0; z-index: 900;
+  background: rgba(245,247,250,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--db-border);
+  padding: 0.875rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar-hamburger {
+  display: none;
+  background: none; border: none;
+  font-size: 1.4rem;
+  color: var(--db-dark);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 8px;
+  transition: background var(--db-transition);
+}
+.topbar-hamburger:hover { background: rgb(0, 0, 0); }
+@media (max-width: 991px) { .topbar-hamburger { display: flex; align-items: center; } }
+
+.topbar-title-area { flex: 1; min-width: 0; }
+.topbar-greeting {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--db-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-greeting span { color: var(--db-coral); }
+.topbar-date {
+  font-size: 0.78rem;
+  color: var(--db-muted);
+  font-weight: 600;
+  display: flex; align-items: center; gap: 0.35rem;
+  margin-top: 0.1rem;
 }
 
-/* Header */
-.dashboard-header {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    padding: 2rem 2.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
+.topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+.topbar-icon-btn {
+  position: relative;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--db-border);
+  background: var(--db-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--db-muted);
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all var(--db-transition);
+}
+.topbar-icon-btn:hover { border-color: var(--db-coral); color: var(--db-coral); background: #fff5f5; }
+.topbar-badge {
+  position: absolute; top: -5px; right: -5px;
+  background: var(--db-coral);
+  color: white;
+  font-size: 0.6rem; font-weight: 800;
+  padding: 0.1rem 0.3rem;
+  border-radius: 10px;
+  min-width: 18px; text-align: center;
+  border: 2px solid var(--db-bg);
+}
+.topbar-checkin-btn {
+  background: linear-gradient(135deg, var(--db-coral), var(--db-amber));
+  color: white;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 0.4rem;
+  transition: all var(--db-transition);
+  box-shadow: 0 4px 12px rgba(255,107,107,0.3);
+  white-space: nowrap;
+}
+.topbar-checkin-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255,107,107,0.4);
+  color: white;
+}
+@media (max-width: 480px) {
+  .topbar-checkin-btn span { display: none; }
+  .topbar-checkin-btn { padding: 0.6rem; }
 }
 
-.dashboard-title {
-    font-size: 2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.02em;
+/* ── DASHBOARD CONTENT ────────────────────── */
+.db-content {
+  flex: 1;
+  padding: 1.5rem;
 }
+@media (max-width: 575px) { .db-content { padding: 1rem; } }
 
-.header-date {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+/* ── ALERT BANNERS ──────────────────────────── */
+.db-alert {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  border-left: 4px solid;
+  animation: slideIn 0.4s ease;
 }
+.db-alert.warn {
+  background: linear-gradient(135deg, #fff8e1, #fff3cd);
+  border-color: var(--db-amber);
+}
+.db-alert.danger {
+  background: linear-gradient(135deg, #fff0f0, #fee2e2);
+  border-color: var(--db-coral);
+}
+.db-alert-icon { font-size: 1.4rem; flex-shrink: 0; }
+.db-alert.warn .db-alert-icon { color: var(--db-amber); }
+.db-alert.danger .db-alert-icon { color: var(--db-coral); }
+.db-alert-body { flex: 1; min-width: 0; }
+.db-alert-body strong { display: block; font-size: 0.92rem; color: var(--db-ink); font-weight: 700; }
+.db-alert-body span { font-size: 0.82rem; color: var(--db-muted); }
+.db-alert-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--db-transition);
+  border: 2px solid;
+  white-space: nowrap;
+}
+.db-alert.warn .db-alert-btn { border-color: var(--db-amber); color: #9a6600; }
+.db-alert.warn .db-alert-btn:hover { background: var(--db-amber); color: white; }
+.db-alert.danger .db-alert-btn { border-color: var(--db-coral); color: var(--db-coral-d); }
+.db-alert.danger .db-alert-btn:hover { background: var(--db-coral); color: white; }
 
-.quick-scan-btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border: none;
-    padding: 0.875rem 2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 12px;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    position: relative;
-    overflow: hidden;
+/* ── STAT CARDS ─────────────────────────────── */
+.db-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
-
-.quick-scan-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.6s ease;
-}
-
-.quick-scan-btn:hover::before {
-    left: 100%;
-}
-
-.quick-scan-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-}
-
-/* Content Padding */
-.dashboard-content {
-    padding: 0 2.5rem 2.5rem;
-}
-
-/* Alerts */
-.alert-card {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border-left: 4px solid var(--warning-color);
-    padding: 1.25rem 1.5rem;
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
-    animation: slideInRight 0.6s ease forwards;
-}
-
-.alert-card.danger {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border-left-color: var(--danger-color);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
-}
-
-.alert-card .alert-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.alert-card i {
-    font-size: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-card strong {
-    font-size: 1.05rem;
-    color: var(--text-primary);
-}
-
-.alert-card p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.alert-btn {
-    padding: 0.625rem 1.25rem;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-}
-
-/* Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
-}
+@media (max-width: 1200px) { .db-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .db-stats { grid-template-columns: 1fr 1fr; gap: 0.75rem; } }
 
 .stat-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid transparent;
-    position: relative;
-    overflow: hidden;
+  background: var(--db-surface);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  border: 1px solid var(--db-border);
+  transition: all var(--db-transition);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
 }
-
 .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s ease;
 }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.09); }
+.stat-card:hover::before { transform: scaleX(1); }
+.stat-card.coral::before  { background: linear-gradient(90deg, var(--db-coral), var(--db-amber)); }
+.stat-card.teal::before   { background: linear-gradient(90deg, var(--db-teal), var(--db-sky)); }
+.stat-card.lime::before   { background: linear-gradient(90deg, var(--db-lime), var(--db-teal)); }
+.stat-card.purple::before { background: linear-gradient(90deg, var(--db-purple), var(--db-sky)); }
 
-.stat-card:hover::before {
-    transform: scaleX(1);
-}
-
-.stat-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-    border-color: var(--border-color);
-}
-
-.stat-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-}
-
-.stat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    position: relative;
-}
-
-.stat-icon::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 18px;
-    padding: 2px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-}
-
+.stat-row { display: flex; justify-content: space-between; align-items: flex-start; }
 .stat-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--db-muted); margin-bottom: 0.4rem;
+}
+.stat-value { font-size: 2rem; font-weight: 800; color: var(--db-ink); line-height: 1; }
+.stat-icon {
+  width: 48px; height: 48px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem;
+  color: white;
+  flex-shrink: 0;
+}
+.stat-icon.coral  { background: linear-gradient(135deg, var(--db-coral), var(--db-amber)); box-shadow: 0 4px 12px rgba(255,107,107,0.3); }
+.stat-icon.teal   { background: linear-gradient(135deg, var(--db-teal), var(--db-sky)); box-shadow: 0 4px 12px rgba(78,205,196,0.3); }
+.stat-icon.lime   { background: linear-gradient(135deg, var(--db-lime), var(--db-teal)); box-shadow: 0 4px 12px rgba(107,203,119,0.3); }
+.stat-icon.purple { background: linear-gradient(135deg, var(--db-purple), var(--db-sky)); box-shadow: 0 4px 12px rgba(199,125,255,0.3); }
+
+.stat-foot {
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--db-border);
+  font-size: 0.78rem;
+  color: var(--db-muted);
+  font-weight: 600;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.stat-foot i { font-size: 0.9rem; }
+.stat-foot.good { color: var(--db-lime); }
+.stat-foot.warn { color: var(--db-amber); }
+
+/* ── CARDS / SECTIONS ──────────────────────── */
+.db-card {
+  background: var(--db-surface);
+  border-radius: 16px;
+  border: 1px solid var(--db-border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.db-card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--db-border);
+  background: rgba(0,0,0,0.01);
+}
+.db-card-title {
+  font-size: 0.97rem; font-weight: 800; color: var(--db-ink);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.db-card-title i { color: var(--db-coral); font-size: 1rem; }
+.db-card-meta {
+  font-size: 0.76rem; color: var(--db-muted); font-weight: 600;
+  display: flex; align-items: center; gap: 0.35rem;
+  background: var(--db-bg); padding: 0.35rem 0.75rem; border-radius: 8px;
+}
+.db-card-body { padding: 1.25rem 1.4rem; }
+.db-card-footer {
+  padding: 0.875rem 1.4rem;
+  border-top: 1px solid var(--db-border);
+  text-align: center;
 }
 
-.stat-value {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    line-height: 1;
-    letter-spacing: -0.02em;
+/* View-all link */
+.view-all {
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--db-coral); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  transition: gap var(--db-transition);
 }
+.view-all:hover { gap: 0.55rem; color: var(--db-coral-d); }
 
-.stat-change {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-top: 1rem;
-    padding: 0.5rem 0.875rem;
-    border-radius: 8px;
-    background: var(--light-bg);
-    width: fit-content;
+/* ── ROOM ITEMS ──────────────────────────── */
+.room-summary-bar {
+  background: linear-gradient(135deg, #fff0ee, #fff8f0);
+  border: 1.5px solid rgba(255,107,107,0.2);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
-
-.stat-change.positive {
-    color: var(--success-color);
-    background: rgba(16, 185, 129, 0.1);
-}
-
-.stat-change.negative {
-    color: var(--danger-color);
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.stat-change i {
-    font-size: 1rem;
-}
-
-/* Room Ratios Section */
-.section-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    border: 1px solid var(--border-color);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 2px solid var(--light-bg);
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.section-title i {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.section-time {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--light-bg);
-    border-radius: 10px;
-}
-
-.section-time i {
-    color: var(--primary-color);
-}
-
-/* Room Item */
 .room-item {
-    display: flex;
-    align-items: center;
-    padding: 1.25rem;
-    border-radius: 16px;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-    background: var(--light-bg);
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.625rem;
+  background: var(--db-bg);
+  border: 1px solid transparent;
+  transition: all var(--db-transition);
+  text-decoration: none;
+  color: inherit;
 }
-
 .room-item:hover {
-    background: white;
-    transform: translateX(4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    border-color: var(--border-color);
+  background: white;
+  border-color: var(--db-border);
+  transform: translateX(3px);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+  color: inherit;
+}
+.room-avatar {
+  width: 44px; height: 44px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem; color: white;
+  flex-shrink: 0;
+}
+.room-info { flex: 1; min-width: 0; }
+.room-name { font-size: 0.9rem; font-weight: 700; color: var(--db-ink); margin-bottom: 0.2rem; }
+.room-sub { font-size: 0.76rem; color: var(--db-muted); display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.room-ratio-badge {
+  flex-shrink: 0;
+  font-size: 1rem; font-weight: 800;
+  color: var(--db-coral);
+  background: rgba(255,107,107,0.08);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  white-space: nowrap;
 }
 
-.room-item.all-rooms {
-    background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-    border: 2px solid #93c5fd;
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
+.chip {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.2rem 0.55rem; border-radius: 6px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
 }
+.chip-green  { background: #dcfce7; color: #15803d; }
+.chip-amber  { background: #fef9c3; color: #a16207; }
+.chip-red    { background: #fee2e2; color: #b91c1c; }
+.chip-blue   { background: #dbeafe; color: #1d4ed8; }
+.chip-purple { background: #ede9fe; color: #6d28d9; }
 
-.room-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1.375rem;
-    margin-right: 1.25rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    position: relative;
+/* ── ACTIVITY LIST ──────────────────────────── */
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--db-bg);
 }
-
-.room-icon::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 16px;
-    padding: 2px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.6), transparent);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+.activity-row:last-child { border-bottom: none; padding-bottom: 0; }
+.activity-dot {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
 }
-
-.room-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.room-name {
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    font-size: 1.05rem;
-}
-
-.room-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.room-stats strong {
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.room-ratio {
-    font-weight: 800;
-    color: var(--text-primary);
-    font-size: 1.75rem;
-    min-width: 60px;
-    text-align: right;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* Badge Styles */
-.badge-status {
-    padding: 0.375rem 0.875rem;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.badge-success {
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    color: #065f46;
-}
-
-.badge-warning {
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    color: #92400e;
-}
-
-.badge-danger {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
-    color: #991b1b;
-}
-
-.badge-info {
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-    color: #1e40af;
-}
-
-/* Activity Item */
-.activity-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    border-radius: 12px;
-    margin-bottom: 0.75rem;
-    border-left: 3px solid var(--border-color);
-    background: var(--light-bg);
-    transition: all 0.3s ease;
-}
-
-.activity-item:hover {
-    background: white;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.activity-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    flex-shrink: 0;
-    font-size: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.activity-details {
-    flex: 1;
-    min-width: 0;
-}
-
-.activity-title {
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.375rem;
-    font-size: 1rem;
-}
-
-.activity-meta {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
+.activity-body { flex: 1; min-width: 0; }
+.activity-name { font-size: 0.88rem; font-weight: 700; color: var(--db-ink); }
+.activity-meta { font-size: 0.76rem; color: var(--db-muted); margin-top: 0.1rem; }
 .activity-time {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    white-space: nowrap;
-    padding: 0.375rem 0.75rem;
-    background: white;
-    border-radius: 8px;
+  font-size: 0.76rem; font-weight: 600; color: var(--db-muted);
+  background: var(--db-bg); padding: 0.25rem 0.6rem; border-radius: 6px;
+  white-space: nowrap; flex-shrink: 0;
 }
 
-/* Quick Actions */
-.quick-actions-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    border: 1px solid var(--border-color);
-    margin-bottom: 2rem;
+/* ── QUICK ACTIONS ──────────────────────────── */
+.qa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+}
+.qa-btn {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 11px;
+  border: 1.5px solid var(--db-border);
+  background: var(--db-surface);
+  text-decoration: none;
+  color: var(--db-ink);
+  font-size: 0.82rem; font-weight: 700;
+  transition: all var(--db-transition);
+}
+.qa-btn:hover { border-color: var(--db-coral); color: var(--db-coral); background: #fff5f5; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,107,0.12); }
+.qa-btn i { font-size: 1.05rem; width: 20px; text-align: center; }
+
+/* ── ANNOUNCEMENT ITEMS ─────────────────────── */
+.ann-item {
+  display: flex; gap: 0.875rem; padding: 0.875rem 0;
+  border-bottom: 1px solid var(--db-bg);
+}
+.ann-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ann-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: linear-gradient(135deg, #fff3cd, #fde68a);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #b45309; font-size: 0.95rem;
+}
+.ann-body { flex: 1; min-width: 0; }
+.ann-title { font-size: 0.86rem; font-weight: 700; color: var(--db-ink); margin-bottom: 0.15rem; }
+.ann-meta { font-size: 0.74rem; color: var(--db-muted); }
+
+/* ── REMINDER ITEMS ─────────────────────────── */
+.reminder-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 0; border-bottom: 1px solid var(--db-bg);
+}
+.reminder-item:last-child { border-bottom: none; }
+.reminder-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.reminder-body { flex: 1; min-width: 0; }
+.reminder-title { font-size: 0.84rem; font-weight: 700; color: var(--db-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reminder-time { font-size: 0.72rem; color: var(--db-muted); }
+
+/* ── EMPTY STATE ──────────────────────────── */
+.db-empty {
+  text-align: center; padding: 2.5rem 1rem;
+  color: var(--db-muted); font-size: 0.88rem;
+}
+.db-empty i { font-size: 2.5rem; opacity: 0.2; display: block; margin-bottom: 0.75rem; }
+
+/* ── ANIMATIONS ───────────────────────────── */
+@keyframes slideIn {
+  from { opacity:0; transform: translateY(-10px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.anim-up {
+  opacity: 0;
+  animation: anim-up-kf 0.5s ease forwards;
+}
+@keyframes anim-up-kf {
+  from { opacity:0; transform: translateY(18px); }
+  to   { opacity:1; transform: translateY(0); }
 }
 
-.quick-actions-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    color: var(--text-primary);
-}
-
-.quick-action-btn {
-    display: flex;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--text-primary);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-bottom: 0.875rem;
-    background: white;
-    font-weight: 600;
-}
-
-.quick-action-btn:hover {
-    background: var(--light-bg);
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    transform: translateX(4px);
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1);
-}
-
-.quick-action-btn i {
-    width: 28px;
-    margin-right: 1rem;
-    font-size: 1.375rem;
-}
-
-/* View All Button */
-.view-all-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: var(--light-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}
-
-.view-all-btn:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-}
-
-.empty-state i {
-    font-size: 5rem;
-    opacity: 0.15;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.empty-state p {
-    color: var(--text-secondary);
-    margin: 1.5rem 0;
-    font-size: 1.05rem;
-}
-
-/* Mobile Menu Toggle */
-.mobile-menu-toggle {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1001;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border: none;
-    border-radius: 50%;
-    width: 64px;
-    height: 64px;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-    color: white;
-    font-size: 1.5rem;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.mobile-menu-toggle:hover {
-    transform: scale(1.1);
-    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .dashboard-sidebar {
-        transform: translateX(-100%);
-    }
-    
-    .dashboard-sidebar.show {
-        transform: translateX(0);
-    }
-    
-    .dashboard-main {
-        margin-left: 0;
-    }
-    
-    .dashboard-header {
-        padding: 1.5rem 1.25rem;
-    }
-    
-    .dashboard-content {
-        padding: 0 1.25rem 1.25rem;
-    }
-    
-    .dashboard-title {
-        font-size: 1.5rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .mobile-menu-toggle {
-        display: flex;
-    }
-    
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
-    .room-stats {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.animate-in {
-    animation: fadeInUp 0.6s ease forwards;
-    opacity: 0;
-}
-
-/* Loading Skeleton */
-.skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s ease-in-out infinite;
-}
-
-@keyframes loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--light-bg);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
-}
-
-/* Focus Styles */
-a:focus,
-button:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-/* Print Styles */
-@media print {
-    .dashboard-sidebar,
-    .mobile-menu-toggle,
-    .quick-scan-btn {
-        display: none;
-    }
-    
-    .dashboard-main {
-        margin-left: 0;
-    }
-}
+/* stagger helpers */
+.anim-up:nth-child(1) { animation-delay: 0.05s; }
+.anim-up:nth-child(2) { animation-delay: 0.12s; }
+.anim-up:nth-child(3) { animation-delay: 0.19s; }
+.anim-up:nth-child(4) { animation-delay: 0.26s; }
+.anim-up.d1 { animation-delay: 0.1s; }
+.anim-up.d2 { animation-delay: 0.2s; }
+.anim-up.d3 { animation-delay: 0.3s; }
+.anim-up.d4 { animation-delay: 0.4s; }
+.anim-up.d5 { animation-delay: 0.5s; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Sidebar Navigation -->
-    <aside class="dashboard-sidebar">
-        <div class="sidebar-header">
-            <a href="{% url 'school:dashboard' %}" class="sidebar-brand">
-                <i class="bi bi-star-fill"></i>
-                <span>Sugamama Sugababies Daycare</span>
-            </a>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <!-- Main Menu -->
-            <div class="nav-section">
-                <div class="nav-section-title">Main Menu</div>
-                <a href="{% url 'school:dashboard' %}" class="nav-link active">
-                    <i class="bi bi-house-fill"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{% url 'students:list' %}" class="nav-link">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Students</span>
-                    {% if total_students %}
-                    <span class="nav-badge">{{ total_students }}</span>
-                    {% endif %}
-                </a>
-                <a href="{% url 'rooms:list' %}" class="nav-link">
-                    <i class="bi bi-door-open-fill"></i>
-                    <span>Rooms</span>
-                </a>
-                <a href="{% url 'staff:list' %}" class="nav-link">
-                    <i class="bi bi-person-badge-fill"></i>
-                    <span>Staff & Payroll</span>
-                </a>
-                <a href="{% url 'attendance:attendance_list' %}" class="nav-link">
-                    <i class="bi bi-calendar-check-fill"></i>
-                    <span>Attendance</span>
-                    {% if checked_in_today %}
-                    <span class="nav-badge">{{ checked_in_today }}</span>
-                    {% endif %}
-                </a>
-            </div>
-            
-            <!-- Communication -->
-            <div class="nav-section">
-                <div class="nav-section-title">Communication</div>
-                <a href="{% url 'messages:inbox' %}" class="nav-link">
-                    <i class="bi bi-envelope-fill"></i>
-                    <span>Messaging</span>
-                    {% if unread_messages > 0 %}
-                    <span class="nav-badge">{{ unread_messages }}</span>
-                    {% endif %}
-                </a>
-                <a href="{% url 'messages:announcements' %}" class="nav-link">
-                    <i class="bi bi-megaphone-fill"></i>
-                    <span>Announcements</span>
-                </a>
-            </div>
-            
-            <!-- Management -->
-            <div class="nav-section">
-                <div class="nav-section-title">Management</div>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-credit-card-fill"></i>
-                    <span>Billing</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-receipt-cutoff"></i>
-                    <span>Expenses</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-book-fill"></i>
-                    <span>Learning</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-person-check-fill"></i>
-                    <span>Admissions</span>
-                    {% if pending_registrations > 0 %}
-                    <span class="nav-badge">{{ pending_registrations }}</span>
-                    {% endif %}
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-file-earmark-text-fill"></i>
-                    <span>Paperwork</span>
-                </a>
-            </div>
-            
-            <!-- Reporting -->
-            <div class="nav-section">
-                <div class="nav-section-title">Reporting</div>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Analytics</span>
-                </a>
-            </div>
-            
-            <!-- Settings -->
-            <div class="nav-section">
-                <div class="nav-section-title">System</div>
-                <a href="{% url 'school:settings' %}" class="nav-link">
-                    <i class="bi bi-gear-fill"></i>
-                    <span>Settings</span>
-                </a>
-                <a href="/admin/" class="nav-link">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <span>Admin Panel</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="bi bi-question-circle-fill"></i>
-                    <span>Help Center</span>
-                </a>
-            </div>
-        </nav>
-    </aside>
-    
-    <!-- Main Content -->
-    <main class="dashboard-main">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div>
-                    <h1 class="dashboard-title">
-                        Welcome , {{ user.first_name }}!
-                    </h1>
-                    <p class="header-date mb-0">
-                        <i class="bi bi-calendar3"></i>
-                        <span>{% now "l, F j, Y" %}</span>
-                    </p>
-                </div>
-                <!-- <div>
-                    <button class="quick-scan-btn">
-                        <i class="bi bi-plus-circle me-2"></i>
-                        Quick Scan
-                    </button>
-                </div> -->
-            </div>
-        </header>
-        
-        <div class="dashboard-content">
-            <!-- Alerts -->
-            {% if pending_registrations > 0 %}
-            <div class="alert-card">
-                <div class="alert-content">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <div class="flex-grow-1">
-                        <strong>{{ pending_registrations }} pending registration{{ pending_registrations|pluralize }}</strong>
-                        <p class="mb-0 mt-1">New applications are waiting for your review</p>
-                    </div>
-                    <a href="{% url 'students:registration_list' %}?status=PENDING" class="btn btn-warning alert-btn">Review Now</a>
-                </div>
-            </div>
-            {% endif %}
-            
-            {% if rooms_understaffed > 0 %}
-            <div class="alert-card danger">
-                <div class="alert-content">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    <div class="flex-grow-1">
-                        <strong>{{ rooms_understaffed }} room{{ rooms_understaffed|pluralize }} understaffed</strong>
-                        <p class="mb-0 mt-1">Some rooms have students but no staff assigned</p>
-                    </div>
-                    <a href="{% url 'staff:list' %}" class="btn btn-danger alert-btn">Assign Staff</a>
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card animate-in" style="animation-delay: 0s;">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Total Students</div>
-                            <div class="stat-value">{{ total_students }}</div>
-                        </div>
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                    </div>
-                    <div class="stat-change positive">
-                        <i class="bi bi-arrow-up-circle-fill"></i>
-                        <span>{{ recent_students }} this week</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card animate-in" style="animation-delay: 0.1s;">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Active Rooms</div>
-                            <div class="stat-value">{{ total_rooms }}</div>
-                        </div>
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-                            <i class="bi bi-door-open-fill"></i>
-                        </div>
-                    </div>
-                    <div class="stat-change">
-                        <i class="bi bi-info-circle-fill"></i>
-                        <span>{{ rooms_at_capacity }} at capacity</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card animate-in" style="animation-delay: 0.2s;">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Staff Members</div>
-                            <div class="stat-value">{{ total_staff }}</div>
-                        </div>
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-                            <i class="bi bi-person-badge-fill"></i>
-                        </div>
-                    </div>
-                    <div class="stat-change">
-                        <i class="bi bi-circle-fill"></i>
-                        <span>{{ total_staff_in }} currently on duty</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card animate-in" style="animation-delay: 0.3s;">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Messages</div>
-                            <div class="stat-value">{{ unread_messages }}</div>
-                        </div>
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
-                            <i class="bi bi-envelope-fill"></i>
-                        </div>
-                    </div>
-                    <div class="stat-change">
-                        <a href="{% url 'messages:inbox' %}" style="text-decoration: none; color: var(--primary-color); font-weight: 600;">
-                            View inbox →
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Two Column Layout -->
-            <div class="row g-4">
-                <!-- Left Column -->
-                <div class="col-lg-8">
-                    <!-- Current Room Ratios -->
-                    <div class="section-card animate-in" style="animation-delay: 0.4s;">
-                        <div class="section-header">
-                            <h2 class="section-title">
-                                <i class="bi bi-diagram-3-fill"></i>
-                                Current Room Ratios
-                            </h2>
-                            <div class="section-time">
-                                <i class="bi bi-clock-fill"></i>
-                                <span>{{ current_time|time:"g:i A" }}</span>
-                            </div>
-                        </div>
-                        
-                        <!-- All Rooms Summary -->
-                        <div class="room-item all-rooms">
-                            <div class="room-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;">
-                                <i class="bi bi-grid-3x3-gap-fill"></i>
-                            </div>
-                            <div class="room-info">
-                                <div class="room-name">All Rooms Combined</div>
-                                <div class="room-stats">
-                                    <span><strong>{{ total_students_in }}</strong> Students</span>
-                                    <span><strong>{{ total_staff_in }}</strong> Staff</span>
-                                    <span class="badge-status badge-info">Overview</span>
-                                </div>
-                            </div>
-                            <div class="room-ratio">
-                                {% if total_staff_in > 0 %}
-                                    {{ total_students_in|floatformat:0 }}:{{ total_staff_in }}
-                                {% else %}
-                                    --
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- Individual Rooms -->
-                        {% if rooms_with_ratios %}
-                            {% for room_data in rooms_with_ratios %}
-                            <div class="room-item">
-                                <div class="room-icon" style="background: linear-gradient(135deg, 
-                                    {% cycle '#667eea' '#f093fb' '#4facfe' '#fa709a' '#a8edea' '#fed6e3' '#c471f5' '#12c2e9' %}, 
-                                    {% cycle '#764ba2' '#f5576c' '#00f2fe' '#fee140' '#fed6e3' '#ffa8b4' '#fa71cd' '#c471ed' %}); color: white;">
-                                    {{ room_data.room.name|first|upper }}
-                                </div>
-                                <div class="room-info">
-                                    <div class="room-name">{{ room_data.room.name }}</div>
-                                    <div class="room-stats">
-                                        <span><strong>{{ room_data.students_in }}</strong> Students</span>
-                                        <span><strong>{{ room_data.staff_in }}</strong> Staff</span>
-                                        {% if room_data.available_spots == 0 %}
-                                            <span class="badge-status badge-danger">At Capacity</span>
-                                        {% elif room_data.available_spots <= 3 %}
-                                            <span class="badge-status badge-warning">{{ room_data.available_spots }} spots left</span>
-                                        {% else %}
-                                            <span class="badge-status badge-success">{{ room_data.available_spots }} spots available</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="room-ratio">{{ room_data.ratio }}</div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="empty-state">
-                                <i class="bi bi-inbox"></i>
-                                <p>No active rooms found</p>
-                                <a href="{% url 'rooms:create' %}" class="view-all-btn">
-                                    <i class="bi bi-plus-circle"></i>
-                                    Create First Room
-                                </a>
-                            </div>
-                        {% endif %}
-                        
-                        <div class="text-center mt-4">
-                            <a href="{% url 'rooms:list' %}" class="view-all-btn">
-                                View All Rooms
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Today's Activities -->
-                    <div class="section-card animate-in mt-4" style="animation-delay: 0.5s;">
-                        <div class="section-header">
-                            <h2 class="section-title">
-                                <i class="bi bi-clock-history"></i>
-                                Today's Activities
-                            </h2>
-                            <div class="section-time">
-                                <i class="bi bi-calendar-check"></i>
-                                <span>{% now "M j, Y" %}</span>
-                            </div>
-                        </div>
-                        
-                        {% if today_activities %}
-                            {% for attendance in today_activities %}
-                            <div class="activity-item">
-                                <div class="activity-icon" style="
-                                    background: {% if attendance.status == 'PRESENT' %}linear-gradient(135deg, #d1fae5, #a7f3d0){% else %}linear-gradient(135deg, #fee2e2, #fecaca){% endif %}; 
-                                    color: {% if attendance.status == 'PRESENT' %}#065f46{% else %}#991b1b{% endif %};">
-                                    <i class="bi bi-{% if attendance.status == 'PRESENT' %}check-circle-fill{% else %}x-circle-fill{% endif %}"></i>
-                                </div>
-                                <div class="activity-details">
-                                    <div class="activity-title">{{ attendance.student.get_full_name }}</div>
-                                    <div class="activity-meta">
-                                        {% if attendance.student.room %}
-                                            <i class="bi bi-door-open me-1"></i>{{ attendance.student.room.name }}
-                                        {% else %}
-                                            <i class="bi bi-exclamation-circle me-1"></i>No room assigned
-                                        {% endif %}
-                                        <span class="mx-2">•</span>
-                                        {{ attendance.get_status_display }}
-                                    </div>
-                                </div>
-                                <div class="activity-time">
-                                    {% if attendance.check_in_time %}
-                                        {{ attendance.check_in_time|time:"g:i A" }}
-                                    {% else %}
-                                        --:--
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="empty-state">
-                                <i class="bi bi-calendar-x"></i>
-                                <p>No activities logged today</p>
-                            </div>
-                        {% endif %}
-                        
-                        <div class="text-center mt-4">
-                            <a href="{% url 'attendance:attendance_list' %}" class="view-all-btn">
-                                View All Activities
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Right Column -->
-                <div class="col-lg-4">
-                    <!-- Quick Actions -->
-                    <div class="quick-actions-card animate-in" style="animation-delay: 0.6s;">
-                        <h3 class="quick-actions-title">
-                            <i class="bi bi-lightning-fill" style="color: var(--warning-color);"></i>
-                            Quick Actions
-                        </h3>
-                        <a href="{% url 'students:create' %}" class="quick-action-btn">
-                            <i class="bi bi-person-plus-fill" style="color: var(--primary-color);"></i>
-                            <span>Add Student</span>
-                        </a>
-                        <a href="{% url 'rooms:create' %}" class="quick-action-btn">
-                            <i class="bi bi-door-open-fill" style="color: var(--success-color);"></i>
-                            <span>Create Room</span>
-                        </a>
-                        <a href="{% url 'attendance:checkin' %}" class="quick-action-btn">
-                            <i class="bi bi-box-arrow-in-right" style="color: var(--info-color);"></i>
-                            <span>Check-In Student</span>
-                        </a>
-                        <a href="{% url 'messages:compose' %}" class="quick-action-btn">
-                            <i class="bi bi-envelope-fill" style="color: var(--secondary-color);"></i>
-                            <span>Send Message</span>
-                        </a>
-                        <a href="{% url 'school:reminder_create' %}" class="quick-action-btn">
-                            <i class="bi bi-bell-fill" style="color: var(--warning-color);"></i>
-                            <span>Add Reminder</span>
-                        </a>
-                        <a href="{% url 'school:profile' %}" class="quick-action-btn">
-                            <i class="bi bi-gear-fill" style="color: var(--text-secondary);"></i>
-                            <span>School Settings</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Active Reminders -->
-                    {% if active_reminders %}
-                    <div class="quick-actions-card animate-in mt-4" style="animation-delay: 0.7s;">
-                        <h3 class="quick-actions-title">
-                            <i class="bi bi-bell-fill" style="color: var(--danger-color);"></i>
-                            Active Reminders
-                        </h3>
-                        {% for reminder in active_reminders %}
-                        <div class="activity-item">
-                            <div class="activity-icon" style="
-                                background: {% if reminder.priority == 'URGENT' %}linear-gradient(135deg, #fee2e2, #fecaca){% elif reminder.priority == 'HIGH' %}linear-gradient(135deg, #fef3c7, #fde68a){% else %}linear-gradient(135deg, #dbeafe, #bfdbfe){% endif %}; 
-                                color: {% if reminder.priority == 'URGENT' %}#991b1b{% elif reminder.priority == 'HIGH' %}#92400e{% else %}#1e40af{% endif %};">
-                                <i class="bi bi-bell-fill"></i>
-                            </div>
-                            <div class="activity-details">
-                                <div class="activity-title">{{ reminder.title|truncatewords:4 }}</div>
-                                <div class="activity-meta">
-                                    <i class="bi bi-calendar3"></i>
-                                    {{ reminder.remind_at|date:"M d, g:i A" }}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        <div class="text-center mt-3">
-                            <a href="{% url 'school:reminder_list' %}" class="view-all-btn">View All</a>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Recent Announcements -->
-                    {% if recent_announcements %}
-                    <div class="quick-actions-card animate-in mt-4" style="animation-delay: 0.8s;">
-                        <h3 class="quick-actions-title">
-                            <i class="bi bi-megaphone-fill" style="color: var(--primary-color);"></i>
-                            Recent Announcements
-                        </h3>
-                        {% for announcement in recent_announcements %}
-                        <div class="activity-item">
-                            <div class="activity-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af;">
-                                <i class="bi bi-megaphone-fill"></i>
-                            </div>
-                            <div class="activity-details">
-                                <div class="activity-title">{{ announcement.title|truncatewords:5 }}</div>
-                                <div class="activity-meta">
-                                    <i class="bi bi-calendar3"></i>
-                                    {{ announcement.publish_date|date:"M d" }}
-                                    <span class="mx-2">•</span>
-                                    {{ announcement.get_target_audience_display }}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        <div class="text-center mt-3">
-                            <a href="{% url 'messages:announcements' %}" class="view-all-btn">View All</a>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </main>
-</div>
+<div class="db-shell" id="dbShell">
 
-<!-- Mobile Menu Toggle -->
-<button class="mobile-menu-toggle" onclick="document.querySelector('.dashboard-sidebar').classList.toggle('show')" aria-label="Toggle Menu">
-    <i class="bi bi-list"></i>
-</button>
+  <!-- Mobile overlay -->
+  <div class="db-overlay" id="dbOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ═══════════════════════════════════════
+       SIDEBAR
+       ═══════════════════════════════════════ -->
+  <aside class="db-sidebar" id="dbSidebar">
+
+    <!-- Collapse toggle (desktop) -->
+    <button class="sidebar-collapse-btn" onclick="toggleCollapse()" title="Toggle sidebar">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <!-- Brand -->
+    <a href="{% url 'school:dashboard' %}" class="sidebar-brand-inner" style="text-decoration:none;">
+      <div class="brand-icon"><i class="bi bi-stars"></i></div>
+      <div>
+        <div class="sidebar-name">Sugababies</div>
+        <div class="sidebar-tagline">Admin Portal</div>
+      </div>
+    </a>
+
+    <!-- Nav -->
+    <div class="sidebar-nav-scroll">
+
+      <!-- MAIN -->
+      <div class="nav-section">
+        <div class="nav-section-label">Main</div>
+        <a href="{% url 'school:dashboard' %}" class="nav-link active">
+          <i class="bi bi-house-fill"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="{% url 'students:list' %}" class="nav-link">
+          <i class="bi bi-people-fill"></i>
+          <span class="nav-text">Students</span>
+          {% if total_students %}<span class="nav-badge">{{ total_students }}</span>{% endif %}
+        </a>
+        <a href="{% url 'rooms:list' %}" class="nav-link">
+          <i class="bi bi-door-open-fill"></i>
+          <span class="nav-text">Rooms</span>
+        </a>
+        <a href="{% url 'staff:list' %}" class="nav-link">
+          <i class="bi bi-person-badge-fill"></i>
+          <span class="nav-text">Staff</span>
+        </a>
+        <a href="{% url 'attendance:attendance_list' %}" class="nav-link">
+          <i class="bi bi-calendar-check-fill"></i>
+          <span class="nav-text">Attendance</span>
+          {% if checked_in_today %}<span class="nav-badge teal">{{ checked_in_today }}</span>{% endif %}
+        </a>
+        <a href="{% url 'attendance:schedule_list' %}" class="nav-link">
+          <i class="bi bi-calendar3"></i>
+          <span class="nav-text">Schedules</span>
+        </a>
+        <a href="{% url 'attendance:timecard_list' %}" class="nav-link">
+          <i class="bi bi-clock-fill"></i>
+          <span class="nav-text">Timecards</span>
+        </a>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- TIME TRACKER -->
+      <div class="nav-section">
+        <div class="nav-section-label">Time Tracker</div>
+        <!-- <a href="{% url 'time_tracker:live_dashboard' %}" class="nav-link {% if 'time' in request.path and 'analytics' not in request.path and 'sessions' not in request.path %}active{% endif %}">
+          <i class="bi bi-broadcast"></i>
+          <span class="nav-text">Live Dashboard</span>
+          <span class="nav-badge teal" id="sidebar-live-count">—</span>
+        </a> -->
+        <a href="{% url 'time_tracker:analytics' %}" class="nav-link {% if 'time/analytics' in request.path %}active{% endif %}">
+          <i class="bi bi-bar-chart-fill"></i>
+          <span class="nav-text">Analytics</span>
+        </a>
+        <a href="{% url 'time_tracker:my_sessions' %}" class="nav-link {% if 'my-sessions' in request.path %}active{% endif %}">
+          <i class="bi bi-stopwatch-fill"></i>
+          <span class="nav-text">My Sessions</span>
+        </a>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- STUDENTS -->
+      <div class="nav-section">
+        <div class="nav-section-label">Students</div>
+        <a href="{% url 'students:registration_list' %}" class="nav-link">
+          <i class="bi bi-person-check-fill"></i>
+          <span class="nav-text">Registrations</span>
+          {% if pending_registrations > 0 %}<span class="nav-badge">{{ pending_registrations }}</span>{% endif %}
+        </a>
+        <a href="{% url 'students:immunization_list' %}" class="nav-link">
+          <i class="bi bi-shield-plus-fill"></i>
+          <span class="nav-text">Immunizations</span>
+        </a>
+        <a href="{% url 'students:mark_absent' %}" class="nav-link">
+          <i class="bi bi-person-x-fill"></i>
+          <span class="nav-text">Mark Absent</span>
+        </a>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- COMMUNICATION -->
+      <div class="nav-section">
+        <div class="nav-section-label">Communication</div>
+        <a href="{% url 'messages:inbox' %}" class="nav-link">
+          <i class="bi bi-envelope-fill"></i>
+          <span class="nav-text">Inbox</span>
+          {% if unread_messages > 0 %}<span class="nav-badge">{{ unread_messages }}</span>{% endif %}
+        </a>
+        <a href="{% url 'messages:compose' %}" class="nav-link">
+          <i class="bi bi-pencil-square"></i>
+          <span class="nav-text">Compose</span>
+        </a>
+        <a href="{% url 'messages:announcements' %}" class="nav-link">
+          <i class="bi bi-megaphone-fill"></i>
+          <span class="nav-text">Announcements</span>
+        </a>
+        <a href="{% url 'messages:announcement_create' %}" class="nav-link">
+          <i class="bi bi-plus-circle-fill"></i>
+          <span class="nav-text">New Announcement</span>
+        </a>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- SYSTEM -->
+      <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <a href="{% url 'school:profile' %}" class="nav-link">
+          <i class="bi bi-building-fill"></i>
+          <span class="nav-text">School Profile</span>
+        </a>
+        <a href="{% url 'school:settings' %}" class="nav-link">
+          <i class="bi bi-gear-fill"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <a href="{% url 'school:reminder_list' %}" class="nav-link">
+          <i class="bi bi-bell-fill"></i>
+          <span class="nav-text">Reminders</span>
+        </a>
+        <a href="/custom-admin/" class="nav-link">
+          <i class="bi bi-shield-fill-check"></i>
+          <span class="nav-text">Admin Panel</span>
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="nav-link">
+          <i class="bi bi-person-circle"></i>
+          <span class="nav-text">My Profile</span>
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="nav-link" style="color: rgba(255,107,107,0.8);">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="nav-text">Sign Out</span>
+        </a>
+      </div>
+
+    </div><!-- /nav-scroll -->
+
+    <!-- User footer -->
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{ user.get_full_name }}</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+      <a href="{% url 'accounts:logout' %}" class="sidebar-user-logout" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+
+  </aside>
+  <!-- /sidebar -->
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════════ -->
+  <div class="db-main">
+
+    <!-- TOP BAR -->
+    <header class="db-topbar">
+      <button class="topbar-hamburger" onclick="openSidebar()" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title-area">
+        <div class="topbar-greeting">Good day, <span>{{ user.first_name }}</span>! 👋</div>
+        <div class="topbar-date">
+          <i class="bi bi-calendar3"></i>
+          <span>{% now "l, F j, Y" %}</span>
+          {% if school %}&nbsp;·&nbsp;{{ school.name }}{% endif %}
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Messages -->
+        <a href="{% url 'messages:inbox' %}" class="topbar-icon-btn" title="Inbox">
+          <i class="bi bi-envelope-fill"></i>
+          {% if unread_messages > 0 %}
+            <span class="topbar-badge">{{ unread_messages }}</span>
+          {% endif %}
+        </a>
+
+        <!-- Reminders -->
+        <a href="{% url 'school:reminder_list' %}" class="topbar-icon-btn" title="Reminders">
+          <i class="bi bi-bell-fill"></i>
+          {% if active_reminders %}
+            <span class="topbar-badge" style="background: var(--db-amber);">{{ active_reminders|length }}</span>
+          {% endif %}
+        </a>
+
+        <!-- Check-in CTA -->
+        <a href="{% url 'attendance:checkin' %}" class="topbar-checkin-btn">
+          <i class="bi bi-box-arrow-in-right"></i>
+          <span>Check In</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="db-content">
+
+      <!-- ── ALERTS ───────────────────── -->
+      {% if pending_registrations > 0 %}
+      <div class="db-alert warn anim-up">
+        <div class="db-alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="db-alert-body">
+          <strong>{{ pending_registrations }} pending registration{{ pending_registrations|pluralize }}</strong>
+          <span>New applications are waiting for your review</span>
+        </div>
+        <a href="{% url 'students:registration_list' %}?status=PENDING" class="db-alert-btn">Review Now</a>
+      </div>
+      {% endif %}
+
+      {% if rooms_understaffed > 0 %}
+      <div class="db-alert danger anim-up">
+        <div class="db-alert-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
+        <div class="db-alert-body">
+          <strong>{{ rooms_understaffed }} room{{ rooms_understaffed|pluralize }} understaffed</strong>
+          <span>Some rooms have students but no staff assigned</span>
+        </div>
+        <a href="{% url 'staff:list' %}" class="db-alert-btn">Assign Staff</a>
+      </div>
+      {% endif %}
+
+      <!-- ── STAT CARDS ─────────────────── -->
+      <div class="db-stats">
+
+        <a href="{% url 'students:list' %}" class="stat-card coral anim-up" style="animation-delay:0.05s;">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Total Students</div>
+              <div class="stat-value">{{ total_students }}</div>
+            </div>
+            <div class="stat-icon coral"><i class="bi bi-people-fill"></i></div>
+          </div>
+          <div class="stat-foot good">
+            <i class="bi bi-arrow-up-circle-fill"></i>
+            {{ recent_students }} new this week
+          </div>
+        </a>
+
+        <a href="{% url 'attendance:checkin' %}" class="stat-card teal anim-up" style="animation-delay:0.1s;">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Checked In Today</div>
+              <div class="stat-value">{{ checked_in_today }}</div>
+            </div>
+            <div class="stat-icon teal"><i class="bi bi-calendar-check-fill"></i></div>
+          </div>
+          <div class="stat-foot">
+            <i class="bi bi-info-circle-fill"></i>
+            of {{ total_attendance_today }} total today
+          </div>
+        </a>
+
+        <a href="{% url 'staff:list' %}" class="stat-card lime anim-up" style="animation-delay:0.15s;">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Staff Members</div>
+              <div class="stat-value">{{ total_staff }}</div>
+            </div>
+            <div class="stat-icon lime"><i class="bi bi-person-badge-fill"></i></div>
+          </div>
+          <div class="stat-foot">
+            <i class="bi bi-circle-fill"></i>
+            {{ total_staff_in }} on duty now
+          </div>
+        </a>
+
+        <a href="{% url 'messages:inbox' %}" class="stat-card purple anim-up" style="animation-delay:0.2s;">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Unread Messages</div>
+              <div class="stat-value">{{ unread_messages }}</div>
+            </div>
+            <div class="stat-icon purple"><i class="bi bi-envelope-fill"></i></div>
+          </div>
+          <div class="stat-foot {% if unread_messages > 0 %}warn{% endif %}">
+            <i class="bi bi-arrow-right-circle-fill"></i>
+            Open inbox
+          </div>
+        </a>
+
+      </div><!-- /stats -->
+
+      <!-- ── TWO-COLUMN LAYOUT ─────────────── -->
+      <div class="row g-3">
+
+        <!-- LEFT: 8 cols -->
+        <div class="col-lg-8">
+
+          <!-- Room Ratios -->
+          <div class="db-card anim-up d1">
+            <div class="db-card-header">
+              <div class="db-card-title"><i class="bi bi-diagram-3-fill"></i> Room Ratios</div>
+              <div class="db-card-meta"><i class="bi bi-clock-fill"></i> {{ current_time|time:"g:i A" }}</div>
+            </div>
+            <div class="db-card-body">
+
+              <!-- Summary row -->
+              <div class="room-summary-bar">
+                <div class="room-avatar" style="background: linear-gradient(135deg, var(--db-coral), var(--db-amber));">
+                  <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+                <div class="room-info">
+                  <div class="room-name">All Rooms Combined</div>
+                  <div class="room-sub">
+                    <span><strong>{{ total_students_in }}</strong> students in</span>
+                    <span><strong>{{ total_staff_in }}</strong> staff on duty</span>
+                    <span class="chip chip-blue">Overview</span>
+                  </div>
+                </div>
+                <div class="room-ratio-badge" style="font-size:1.25rem;">
+                  {% if total_staff_in > 0 %}{{ total_students_in }}:{{ total_staff_in }}{% else %}—{% endif %}
+                </div>
+              </div>
+
+              {% if rooms_with_ratios %}
+                {% for rd in rooms_with_ratios %}
+                <a href="{% url 'rooms:detail' rd.room.pk %}" class="room-item">
+                  <div class="room-avatar" style="background: linear-gradient(135deg,
+                    {% cycle '#FF6B6B' '#4ECDC4' '#4D96FF' '#6BCB77' '#C77DFF' '#FFB347' %},
+                    {% cycle '#FFB347' '#38b2aa' '#764ba2' '#38b2aa' '#4D96FF' '#FF6B6B' %});">
+                    {{ rd.room.name|first|upper }}
+                  </div>
+                  <div class="room-info">
+                    <div class="room-name">{{ rd.room.name }}</div>
+                    <div class="room-sub">
+                      <span><strong>{{ rd.students_in }}</strong> in · <strong>{{ rd.students_enrolled }}</strong> enrolled</span>
+                      <span><strong>{{ rd.staff_in }}</strong> staff</span>
+                      <span><strong>{{ rd.capacity }}</strong> cap</span>
+                      {% if rd.available_spots <= 0 %}
+                        <span class="chip chip-red">At Capacity</span>
+                      {% elif rd.available_spots <= 3 %}
+                        <span class="chip chip-amber">{{ rd.available_spots }} left</span>
+                      {% else %}
+                        <span class="chip chip-green">{{ rd.available_spots }} open</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="room-ratio-badge">{{ rd.ratio }}</div>
+                </a>
+                {% endfor %}
+              {% else %}
+                <div class="db-empty">
+                  <i class="bi bi-door-closed"></i>
+                  No rooms yet
+                  <br>
+                  <a href="{% url 'rooms:create' %}" class="view-all mt-2">Create a room <i class="bi bi-arrow-right"></i></a>
+                </div>
+              {% endif %}
+            </div>
+            <div class="db-card-footer">
+              <a href="{% url 'rooms:list' %}" class="view-all">All Rooms <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <!-- Today's Activities -->
+          <div class="db-card anim-up d2">
+            <div class="db-card-header">
+              <div class="db-card-title"><i class="bi bi-clock-history"></i> Today's Activities</div>
+              <div class="db-card-meta"><i class="bi bi-calendar-check"></i> {% now "M j" %}</div>
+            </div>
+            <div class="db-card-body">
+              {% if today_activities %}
+                {% for att in today_activities %}
+                <div class="activity-row">
+                  <div class="activity-dot"
+                    style="background: {% if att.status == 'PRESENT' %}#dcfce7; color:#15803d{% else %}#fee2e2; color:#b91c1c{% endif %};">
+                    <i class="bi bi-{% if att.status == 'PRESENT' %}check-circle-fill{% else %}x-circle-fill{% endif %}"></i>
+                  </div>
+                  <div class="activity-body">
+                    <div class="activity-name">{{ att.student.get_full_name }}</div>
+                    <div class="activity-meta">
+                      {% if att.student.room %}<i class="bi bi-door-open me-1"></i>{{ att.student.room.name }}{% endif %}
+                      · {{ att.get_status_display }}
+                    </div>
+                  </div>
+                  <div class="activity-time">
+                    {% if att.check_in_time %}{{ att.check_in_time|time:"g:i A" }}{% else %}—{% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="db-empty">
+                  <i class="bi bi-calendar-x"></i>No activities yet today
+                </div>
+              {% endif %}
+            </div>
+            <div class="db-card-footer">
+              <a href="{% url 'attendance:attendance_list' %}" class="view-all">All Attendance <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+
+        </div><!-- /col-lg-8 -->
+
+        <!-- RIGHT: 4 cols -->
+        <div class="col-lg-4">
+
+          <!-- Quick Actions -->
+          <div class="db-card anim-up d3">
+            <div class="db-card-header">
+              <div class="db-card-title"><i class="bi bi-lightning-fill" style="color:var(--db-amber);"></i> Quick Actions</div>
+            </div>
+            <div class="db-card-body">
+              <div class="qa-grid">
+                <a href="{% url 'students:create' %}" class="qa-btn">
+                  <i class="bi bi-person-plus-fill" style="color:var(--db-coral);"></i> Add Student
+                </a>
+                <a href="{% url 'rooms:create' %}" class="qa-btn">
+                  <i class="bi bi-door-open-fill" style="color:var(--db-lime);"></i> New Room
+                </a>
+                <a href="{% url 'attendance:checkin' %}" class="qa-btn">
+                  <i class="bi bi-box-arrow-in-right" style="color:var(--db-teal);"></i> Check In
+                </a>
+                <a href="{% url 'attendance:staff_clock_in' %}" class="qa-btn">
+                  <i class="bi bi-clock-fill" style="color:var(--db-sky);"></i> Clock In
+                </a>
+                <a href="{% url 'messages:compose' %}" class="qa-btn">
+                  <i class="bi bi-envelope-fill" style="color:var(--db-purple);"></i> Message
+                </a>
+                <a href="{% url 'messages:announcement_create' %}" class="qa-btn">
+                  <i class="bi bi-megaphone-fill" style="color:var(--db-amber);"></i> Announce
+                </a>
+                <a href="{% url 'students:registration_list' %}" class="qa-btn">
+                  <i class="bi bi-person-check-fill" style="color:var(--db-lime);"></i> Registrations
+                </a>
+                <a href="{% url 'school:reminder_create' %}" class="qa-btn">
+                  <i class="bi bi-bell-fill" style="color:var(--db-coral);"></i> Reminder
+                </a>
+                <a href="{% url 'time_tracker:live_dashboard' %}" class="qa-btn">
+                  <i class="bi bi-broadcast" style="color:var(--db-teal);"></i> Live Tracker
+                </a>
+                <a href="{% url 'time_tracker:analytics' %}" class="qa-btn">
+                  <i class="bi bi-bar-chart-fill" style="color:var(--db-sky);"></i> Time Analytics
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Reminders -->
+          {% if active_reminders %}
+          <div class="db-card anim-up d3">
+            <div class="db-card-header">
+              <div class="db-card-title"><i class="bi bi-bell-fill" style="color:var(--db-coral);"></i> Reminders</div>
+              <a href="{% url 'school:reminder_create' %}" class="view-all">+ Add</a>
+            </div>
+            <div class="db-card-body">
+              {% for r in active_reminders %}
+              <div class="reminder-item">
+                <div class="reminder-dot" style="background:
+                  {% if r.priority == 'URGENT' %}var(--db-coral)
+                  {% elif r.priority == 'HIGH' %}var(--db-amber)
+                  {% else %}var(--db-sky){% endif %};"></div>
+                <div class="reminder-body">
+                  <div class="reminder-title">{{ r.title|truncatewords:5 }}</div>
+                  <div class="reminder-time"><i class="bi bi-calendar3 me-1"></i>{{ r.remind_at|date:"M d, g:i A" }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="db-card-footer">
+              <a href="{% url 'school:reminder_list' %}" class="view-all">All Reminders <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- ⏱ Live On-Site Mini Card -->
+          <div class="db-card anim-up d3" id="liveOnSiteCard">
+            <div class="db-card-header">
+              <div class="db-card-title">
+                <i class="bi bi-broadcast" style="color:var(--db-teal);"></i> On Site Right Now
+              </div>
+              <a href="{% url 'time_tracker:live_dashboard' %}" class="view-all">Full view <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="db-card-body" style="padding-top:0.875rem;">
+              <div class="d-flex justify-content-between text-center mb-2" id="liveCountsRow">
+                <div style="flex:1;">
+                  <div style="font-size:1.75rem;font-weight:800;color:var(--db-teal);" id="live-students">—</div>
+                  <div style="font-size:0.7rem;color:var(--db-muted);font-weight:600;">Students</div>
+                </div>
+                <div style="flex:1;border-left:1px solid var(--db-border);border-right:1px solid var(--db-border);">
+                  <div style="font-size:1.75rem;font-weight:800;color:var(--db-lime);" id="live-staff">—</div>
+                  <div style="font-size:0.7rem;color:var(--db-muted);font-weight:600;">Staff</div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:1.75rem;font-weight:800;color:var(--db-purple);" id="live-parents">—</div>
+                  <div style="font-size:0.7rem;color:var(--db-muted);font-weight:600;">Parents</div>
+                </div>
+              </div>
+              <div style="font-size:0.7rem;color:var(--db-muted);text-align:center;" id="liveUpdatedAt">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Recent Announcements -->
+          {% if recent_announcements %}
+          <div class="db-card anim-up d4">
+            <div class="db-card-header">
+              <div class="db-card-title"><i class="bi bi-megaphone-fill"></i> Announcements</div>
+              <a href="{% url 'messages:announcement_create' %}" class="view-all">+ New</a>
+            </div>
+            <div class="db-card-body">
+              {% for ann in recent_announcements %}
+              <div class="ann-item">
+                <div class="ann-icon"><i class="bi bi-megaphone-fill"></i></div>
+                <div class="ann-body">
+                  <div class="ann-title">{{ ann.title|truncatewords:6 }}</div>
+                  <div class="ann-meta">
+                    <i class="bi bi-calendar3 me-1"></i>{{ ann.publish_date|date:"M d" }}
+                    &nbsp;·&nbsp;{{ ann.get_target_audience_display }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="db-card-footer">
+              <a href="{% url 'messages:announcements' %}" class="view-all">All Announcements <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Recent Messages -->
+          {% if recent_messages %}
+          <div class="db-card anim-up d5">
+            <div class="db-card-header">
+              <div class="db-card-title"><i class="bi bi-chat-dots-fill"></i> Recent Messages</div>
+            </div>
+            <div class="db-card-body">
+              {% for msg in recent_messages %}
+              <a href="{% url 'messages:detail' msg.pk %}" class="activity-row" style="text-decoration:none; display:flex;">
+                <div class="activity-dot" style="background: {% if not msg.is_read and msg.recipient == user %}#dbeafe; color:#1d4ed8{% else %}var(--db-bg); color:var(--db-muted){% endif %};">
+                  <i class="bi bi-envelope{% if not msg.is_read and msg.recipient == user %}-fill{% endif %}"></i>
+                </div>
+                <div class="activity-body">
+                  <div class="activity-name">{{ msg.subject|default:"(No subject)"|truncatewords:5 }}</div>
+                  <div class="activity-meta">
+                    {% if msg.sender == user %}To: {{ msg.recipient.get_full_name }}{% else %}From: {{ msg.sender.get_full_name }}{% endif %}
+                  </div>
+                </div>
+                <div class="activity-time">{{ msg.created_at|timesince|truncatewords:2 }} ago</div>
+              </a>
+              {% endfor %}
+            </div>
+            <div class="db-card-footer">
+              <a href="{% url 'messages:inbox' %}" class="view-all">Open Inbox <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          {% endif %}
+
+        </div><!-- /col-lg-4 -->
+      </div><!-- /row -->
+
+    </div><!-- /db-content -->
+  </div><!-- /db-main -->
+</div><!-- /db-shell -->
 
 <script>
-// Close mobile menu when clicking outside
-document.addEventListener('click', function(event) {
-    const sidebar = document.querySelector('.dashboard-sidebar');
-    const toggle = document.querySelector('.mobile-menu-toggle');
-    
-    if (sidebar.classList.contains('show') && 
-        !sidebar.contains(event.target) && 
-        !toggle.contains(event.target)) {
-        sidebar.classList.remove('show');
-    }
+// ── Sidebar: mobile open/close ──────────────────
+function openSidebar() {
+  document.getElementById('dbSidebar').classList.add('mob-open');
+  document.getElementById('dbOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('dbSidebar').classList.remove('mob-open');
+  document.getElementById('dbOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ── Sidebar: desktop collapse ───────────────────
+function toggleCollapse() {
+  const shell = document.getElementById('dbShell');
+  const collapsed = shell.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+}
+
+// Restore collapse state on load
+(function() {
+  if (localStorage.getItem('sidebarCollapsed') === '1') {
+    document.getElementById('dbShell').classList.add('sidebar-collapsed');
+  }
+})();
+
+// Close sidebar on escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeSidebar();
 });
 
-// Add stagger animation to stats cards
-document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.animate-in');
-    cards.forEach((card, index) => {
-        setTimeout(() => {
-            card.style.opacity = '1';
-        }, index * 100);
-    });
-});
+// ── Live Time Tracker mini-card ─────────────────
+async function fetchLiveCounts() {
+  try {
+    const res  = await fetch("{% url 'time_tracker:session_status_api' %}");
+    const data = await res.json();
+
+    // Update mini card
+    const s = document.getElementById('live-students');
+    const f = document.getElementById('live-staff');
+    const p = document.getElementById('live-parents');
+    if (s) s.textContent = data.counts.students;
+    if (f) f.textContent = data.counts.staff;
+    if (p) p.textContent = data.counts.parents;
+
+    const upd = document.getElementById('liveUpdatedAt');
+    if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+    // Update sidebar badge
+    const badge = document.getElementById('sidebar-live-count');
+    const total = data.counts.students + data.counts.staff + data.counts.parents;
+    if (badge) {
+      badge.textContent = total > 0 ? total : '0';
+    }
+  } catch(e) {
+    const upd = document.getElementById('liveUpdatedAt');
+    if (upd) upd.textContent = 'Could not load live data';
+  }
+}
+fetchLiveCounts();
+setInterval(fetchLiveCounts, 30000);
 </script>
 {% endblock %}

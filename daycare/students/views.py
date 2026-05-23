@@ -13,17 +13,10 @@ from django.utils import timezone
 from datetime import date
 import threading
 
-from .models import (
-    Student, StudentRegistration, StudentContact, CustomField,
-    IncidentReport, Immunization, VaccineDose, VaccineType,
-    VaccineDoseSchedule, Attendance
-)
-from .forms import (
-    StudentForm, StudentRegistrationForm, AttendanceForm,
-    StudentContactForm, CustomFieldForm, IncidentReportForm,
-    ImmunizationForm, VaccineDoseForm, BulkVaccineDoseUpdateForm,
-    MarkAbsentForm
-)
+from .models import  *
+
+from .forms import  *
+
 from accounts.models import UserActivity
 
 
@@ -606,119 +599,397 @@ def _email_incident_report(report):
 
 @login_required
 @user_passes_test(is_admin_or_staff)
+def immunization_list(request):
+    """
+    Dashboard-style list of every student's immunization status.
+    Supports search by student name and filter by completion / overdue.
+    URL: /students/immunizations/
+    """
+    students = Student.objects.filter(status='ACTIVE').select_related('parent', 'room').order_by('last_name', 'first_name')
+ 
+    search = request.GET.get('search', '').strip()
+    if search:
+        students = students.filter(
+            first_name__icontains=search
+        ) | students.filter(
+            last_name__icontains=search
+        )
+        students = students.distinct()
+ 
+    filter_by = request.GET.get('filter', '')  # 'overdue' | 'incomplete' | ''
+ 
+    rows = []
+    for student in students:
+        immunization, created = Immunization.objects.get_or_create(student=student)
+        if created:
+            initialize_vaccine_doses(immunization)
+ 
+        overdue_count    = len(immunization.get_overdue_vaccines())
+        completion       = immunization.get_completion_percentage()
+        due_soon_count   = len(immunization.get_due_soon_vaccines())
+ 
+        if filter_by == 'overdue' and overdue_count == 0:
+            continue
+        if filter_by == 'incomplete' and completion == 100:
+            continue
+ 
+        rows.append({
+            'student':      student,
+            'immunization': immunization,
+            'completion':   completion,
+            'overdue':      overdue_count,
+            'due_soon':     due_soon_count,
+        })
+ 
+    context = {
+        'rows':      rows,
+        'search':    search,
+        'filter_by': filter_by,
+    }
+    return render(request, 'students/immunization_list.html', context)
+
+@login_required
+@user_passes_test(is_admin_or_staff)
 def immunization_detail(request, student_pk):
+    """
+    Full immunization record for a single student.
+    Shows all vaccine types grouped, with per-dose status.
+    URL: /students/<student_pk>/immunizations/
+    """
     student = get_object_or_404(Student, pk=student_pk)
     immunization, created = Immunization.objects.get_or_create(student=student)
-
-    # Always sync — handles existing records created before vaccine types were set up.
-    # initialize_vaccine_doses uses get_or_create so it never duplicates doses.
-    initialize_vaccine_doses(immunization)
-
+    if created:
+        initialize_vaccine_doses(immunization)
+    else:
+        # Sync in case new VaccineTypes were added after initial creation
+        initialize_vaccine_doses(immunization)
+ 
     vaccine_doses = immunization.vaccine_doses.select_related(
         'vaccine_type', 'dose_schedule'
-    ).order_by('vaccine_type__display_order', 'dose_schedule__dose_number')
-
+    ).order_by('vaccine_type__display_order', 'vaccine_type__name', 'dose_schedule__dose_number')
+ 
+    # Group doses by vaccine type
     vaccines_by_type = {}
     for dose in vaccine_doses:
-        vaccine_name = dose.vaccine_type.name
-        if vaccine_name not in vaccines_by_type:
-            vaccines_by_type[vaccine_name] = {'vaccine': dose.vaccine_type, 'doses': []}
-        vaccines_by_type[vaccine_name]['doses'].append(dose)
-
-    overdue = immunization.get_overdue_vaccines()
-    due_soon = immunization.get_due_soon_vaccines()
-    completion = immunization.get_completion_percentage()
-
+        key = dose.vaccine_type.name
+        if key not in vaccines_by_type:
+            vaccines_by_type[key] = {'vaccine': dose.vaccine_type, 'doses': []}
+        vaccines_by_type[key]['doses'].append(dose)
+ 
     context = {
-        'student': student,
-        'immunization': immunization,
+        'student':          student,
+        'immunization':     immunization,
         'vaccines_by_type': vaccines_by_type,
-        'overdue_vaccines': overdue,
-        'due_soon_vaccines': due_soon,
-        'completion_percentage': completion,
+        'overdue_vaccines': immunization.get_overdue_vaccines(),
+        'due_soon_vaccines':immunization.get_due_soon_vaccines(),
+        'completion':       immunization.get_completion_percentage(),
+        'add_form':         AddVaccineDoseForm(),   # quick-add panel
     }
     return render(request, 'students/immunization_detail.html', context)
+ 
 
+@login_required
+@user_passes_test(is_admin_or_staff)
+def immunization_add_dose(request, student_pk):
+    """
+    Add a vaccine dose for a student.
+    - If the vaccine type doesn't exist yet, create it on the fly.
+    - If the dose_schedule slot doesn't exist, create it on the fly.
+    - If the VaccineDose row already exists (pre-seeded), update it.
+    - If it doesn't exist yet (custom type), create it.
+    URL: /students/<student_pk>/immunizations/add-dose/
+    """
+    student      = get_object_or_404(Student, pk=student_pk)
+    immunization, _ = Immunization.objects.get_or_create(student=student)
+ 
+    if request.method == 'POST':
+        form = AddVaccineDoseForm(request.POST)
+        if form.is_valid():
+            cd          = form.cleaned_data
+            custom_name = (cd.get('vaccine_name_custom') or '').strip()
+            dose_num    = cd['dose_number']
+ 
+            with transaction.atomic():
+                # 1. Resolve vaccine type
+                if cd.get('vaccine_type'):
+                    vaccine_type = cd['vaccine_type']
+                else:
+                    vaccine_type, _ = VaccineType.objects.get_or_create(
+                        name=custom_name,
+                        defaults={
+                            'full_name':     custom_name,
+                            'total_doses':   dose_num,
+                            'is_active':     True,
+                            'display_order': 999,
+                        }
+                    )
+ 
+                # 2. Resolve dose schedule slot
+                schedule, _ = VaccineDoseSchedule.objects.get_or_create(
+                    vaccine_type=vaccine_type,
+                    dose_number=dose_num,
+                    defaults={
+                        'cdc_recommendation_text': f'Dose {dose_num}',
+                        'recommended_age_months':  0,
+                    }
+                )
+ 
+                # 3. Get or create the VaccineDose row
+                dose, created = VaccineDose.objects.get_or_create(
+                    immunization=immunization,
+                    vaccine_type=vaccine_type,
+                    dose_schedule=schedule,
+                )
+ 
+                # 4. Fill in administration details
+                dose.date_administered = cd['date_administered']
+                dose.administered_by   = cd.get('administered_by', '')
+                dose.location          = cd.get('location', '')
+                dose.lot_number        = cd.get('lot_number', '')
+                dose.notes             = cd.get('notes', '')
+                dose.recorded_by       = request.user
+                dose.save()
+ 
+            action = 'recorded' if created else 'updated'
+            messages.success(
+                request,
+                f"{vaccine_type.name} dose {dose_num} {action} for {student.get_full_name()}."
+            )
+            return redirect('students:immunization_detail', student_pk=student.pk)
+    else:
+        form = AddVaccineDoseForm()
+ 
+    return render(request, 'students/immunization_add_dose.html', {
+        'form':    form,
+        'student': student,
+    })
+ 
 
 @login_required
 @user_passes_test(is_admin_or_staff)
 def immunization_settings(request, student_pk):
-    student = get_object_or_404(Student, pk=student_pk)
+    """
+    Edit exemption status, catch-up notes, general notes.
+    URL: /students/<student_pk>/immunizations/settings/
+    """
+    student      = get_object_or_404(Student, pk=student_pk)
     immunization, _ = Immunization.objects.get_or_create(student=student)
-
+ 
     if request.method == 'POST':
-        form = ImmunizationForm(request.POST, instance=immunization)
+        form = ImmunizationSettingsForm(request.POST, instance=immunization)
         if form.is_valid():
-            obj = form.save(commit=False)
+            obj                 = form.save(commit=False)
             obj.last_updated_by = request.user
             obj.save()
-            messages.success(request, "Immunization settings updated!")
+            messages.success(request, "Immunization settings updated.")
             return redirect('students:immunization_detail', student_pk=student.pk)
     else:
-        form = ImmunizationForm(instance=immunization)
-
+        form = ImmunizationSettingsForm(instance=immunization)
+ 
     return render(request, 'students/immunization_settings.html', {
-        'form': form, 'student': student, 'immunization': immunization
+        'form':        form,
+        'student':     student,
+        'immunization': immunization,
     })
-
 
 @login_required
 @user_passes_test(is_admin_or_staff)
 def vaccine_dose_update(request, dose_pk):
-    dose = get_object_or_404(VaccineDose, pk=dose_pk)
-
+    """
+    Edit administration details of one dose.
+    URL: /students/vaccine-dose/<dose_pk>/update/
+    """
+    dose    = get_object_or_404(VaccineDose, pk=dose_pk)
+    student = dose.immunization.student
+ 
     if request.method == 'POST':
         form = VaccineDoseForm(request.POST, instance=dose)
         if form.is_valid():
-            obj = form.save(commit=False)
+            obj             = form.save(commit=False)
             obj.recorded_by = request.user
             obj.save()
-            messages.success(request, f"{dose.vaccine_type.name} dose updated!")
-            return redirect('students:immunization_detail', student_pk=dose.immunization.student.pk)
+            messages.success(request, f"{dose.vaccine_type.name} dose updated.")
+            return redirect('students:immunization_detail', student_pk=student.pk)
     else:
         form = VaccineDoseForm(instance=dose)
-
+ 
     return render(request, 'students/vaccine_dose_form.html', {
-        'form': form, 'dose': dose, 'student': dose.immunization.student
+        'form':    form,
+        'dose':    dose,
+        'student': student,
     })
 
 
 @login_required
 @user_passes_test(is_admin_or_staff)
-def vaccine_dose_bulk_update(request, student_pk):
-    student = get_object_or_404(Student, pk=student_pk)
-    immunization, _ = Immunization.objects.get_or_create(student=student)
-
+def vaccine_dose_delete(request, dose_pk):
+    """
+    Clear the administration details from a dose (sets date_administered to None).
+    For doses seeded from the standard schedule this keeps the row alive but marks
+    it as un-administered. For custom (non-scheduled) doses, removes the row entirely.
+    URL: /students/vaccine-dose/<dose_pk>/delete/
+    """
+    dose    = get_object_or_404(VaccineDose, pk=dose_pk)
+    student = dose.immunization.student
+ 
     if request.method == 'POST':
-        form = BulkVaccineDoseUpdateForm(request.POST)
-        dose_ids = request.POST.getlist('dose_ids')
-
-        if form.is_valid() and dose_ids:
-            date_administered = form.cleaned_data.get('date_administered')
-            administered_by = form.cleaned_data.get('administered_by')
-            location = form.cleaned_data.get('location')
-
-            doses = VaccineDose.objects.filter(id__in=dose_ids, immunization=immunization)
-            for dose in doses:
-                if date_administered:
-                    dose.date_administered = date_administered
-                if administered_by:
-                    dose.administered_by = administered_by
-                if location:
-                    dose.location = location
-                dose.recorded_by = request.user
-                dose.save()
-
-            messages.success(request, f"{len(dose_ids)} vaccine doses updated!")
-            return redirect('students:immunization_detail', student_pk=student.pk)
-    else:
-        form = BulkVaccineDoseUpdateForm()
-
-    doses = immunization.vaccine_doses.select_related('vaccine_type', 'dose_schedule')
-    return render(request, 'students/vaccine_bulk_update.html', {
-        'form': form, 'student': student, 'doses': doses
+        vaccine_name = dose.vaccine_type.name
+        dose_num     = dose.dose_schedule.dose_number
+ 
+        # If the schedule was auto-seeded from VaccineDoseSchedule, just clear it
+        if VaccineDoseSchedule.objects.filter(pk=dose.dose_schedule.pk).exists():
+            dose.date_administered = None
+            dose.administered_by   = ''
+            dose.location          = ''
+            dose.lot_number        = ''
+            dose.notes             = ''
+            dose.recorded_by       = request.user
+            dose.save()
+            messages.warning(
+                request,
+                f"{vaccine_name} dose {dose_num} administration record cleared."
+            )
+        else:
+            # Fully custom dose — delete the row
+            dose.delete()
+            messages.warning(
+                request,
+                f"{vaccine_name} dose {dose_num} deleted."
+            )
+        return redirect('students:immunization_detail', student_pk=student.pk)
+ 
+    return render(request, 'students/vaccine_dose_confirm_delete.html', {
+        'dose':    dose,
+        'student': student,
     })
 
+@login_required
+@user_passes_test(is_admin_or_staff)
+def vaccine_dose_bulk_update(request, student_pk):
+    """
+    Apply the same administration details to multiple selected dose rows.
+    URL: /students/<student_pk>/immunizations/bulk-update/
+    """
+    student      = get_object_or_404(Student, pk=student_pk)
+    immunization, _ = Immunization.objects.get_or_create(student=student)
+ 
+    if request.method == 'POST':
+        form     = BulkVaccineDoseUpdateForm(request.POST)
+        dose_ids = request.POST.getlist('dose_ids')
+ 
+        if form.is_valid() and dose_ids:
+            cd     = form.cleaned_data
+            doses  = VaccineDose.objects.filter(id__in=dose_ids, immunization=immunization)
+            count  = 0
+            for dose in doses:
+                if cd.get('date_administered'):
+                    dose.date_administered = cd['date_administered']
+                if cd.get('administered_by'):
+                    dose.administered_by = cd['administered_by']
+                if cd.get('location'):
+                    dose.location = cd['location']
+                if cd.get('lot_number'):
+                    dose.lot_number = cd['lot_number']
+                if cd.get('notes'):
+                    dose.notes = cd['notes']
+                dose.recorded_by = request.user
+                dose.save()
+                count += 1
+ 
+            messages.success(request, f"{count} dose(s) updated.")
+            return redirect('students:immunization_detail', student_pk=student.pk)
+        else:
+            messages.error(request, "Please select at least one dose and fill the form.")
+    else:
+        form = BulkVaccineDoseUpdateForm()
+ 
+    doses = immunization.vaccine_doses.select_related('vaccine_type', 'dose_schedule')
+    return render(request, 'students/vaccine_bulk_update.html', {
+        'form':    form,
+        'student': student,
+        'doses':   doses,
+    })
+
+
+
+@login_required
+@user_passes_test(is_admin)
+def vaccine_type_list(request):
+    """
+    List all VaccineTypes with edit / delete links.
+    URL: /students/vaccine-types/
+    """
+    vaccine_types = VaccineType.objects.all().order_by('display_order', 'name')
+    return render(request, 'students/vaccine_type_list.html', {
+        'vaccine_types': vaccine_types,
+    })
+
+
+
+@login_required
+@user_passes_test(is_admin)
+def vaccine_type_create(request):
+    """
+    Create a new VaccineType.
+    URL: /students/vaccine-types/create/
+    """
+    if request.method == 'POST':
+        form = VaccineTypeForm(request.POST)
+        if form.is_valid():
+            vt = form.save()
+            messages.success(request, f"Vaccine type '{vt.name}' created.")
+            return redirect('students:vaccine_type_list')
+    else:
+        form = VaccineTypeForm()
+ 
+    return render(request, 'students/vaccine_type_form.html', {
+        'form':  form,
+        'title': 'Add Vaccine Type',
+    })
+
+
+@login_required
+@user_passes_test(is_admin)
+def vaccine_type_update(request, pk):
+    """
+    Edit an existing VaccineType.
+    URL: /students/vaccine-types/<pk>/update/
+    """
+    vt = get_object_or_404(VaccineType, pk=pk)
+ 
+    if request.method == 'POST':
+        form = VaccineTypeForm(request.POST, instance=vt)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"'{vt.name}' updated.")
+            return redirect('students:vaccine_type_list')
+    else:
+        form = VaccineTypeForm(instance=vt)
+ 
+    return render(request, 'students/vaccine_type_form.html', {
+        'form':  form,
+        'title': f'Edit — {vt.name}',
+        'vt':    vt,
+    })
+
+
+
+@login_required
+@user_passes_test(is_admin)
+def vaccine_type_delete(request, pk):
+    """
+    Delete a VaccineType (and cascade its doses).
+    URL: /students/vaccine-types/<pk>/delete/
+    """
+    vt = get_object_or_404(VaccineType, pk=pk)
+ 
+    if request.method == 'POST':
+        name = vt.name
+        vt.delete()
+        messages.warning(request, f"Vaccine type '{name}' deleted.")
+        return redirect('students:vaccine_type_list')
+ 
+    return render(request, 'students/vaccine_type_confirm_delete.html', {'vt': vt})
 
 # ========== ATTENDANCE VIEWS ==========
 

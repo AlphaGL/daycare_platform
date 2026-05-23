@@ -3,11 +3,7 @@ Enhanced Student Forms
 Including Immunization Management
 """
 from django import forms
-from .models import (
-    Student, StudentRegistration, Attendance, StudentContact,
-    CustomField, IncidentReport, Immunization, VaccineDose,
-    VaccineType, VaccineDoseSchedule
-)
+from .models import *
 from accounts.models import User
 
 
@@ -464,6 +460,28 @@ class BulkVaccineDoseUpdateForm(forms.Form):
         label='Location'
     )
 
+    lot_number = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. AB1234 (same for all selected doses)'
+        }),
+        label='Lot Number',
+        help_text='Vaccine lot number — leave blank to keep each dose\'s existing value'
+    )
+
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 2,
+            'placeholder': 'e.g. No adverse reactions observed'
+        }),
+        label='Notes',
+        help_text='Any reactions, side effects, or general notes for all selected doses'
+    )
+
 
 # ========== ATTENDANCE FORMS ==========
 
@@ -602,4 +620,147 @@ class MarkAbsentForm(forms.Form):
             'placeholder': 'Reason for absence (optional)'
         }),
         label='Notes'
+    )
+
+
+
+class AddVaccineDoseForm(forms.Form):
+    """
+    Freeform form that lets staff add ANY vaccine dose for a student,
+    including vaccines that are not yet in the VaccineType table
+    (they'll be created on the fly).
+ 
+    Steps performed in the view:
+      1. Get-or-create the VaccineType by name.
+      2. Get-or-create a VaccineDoseSchedule for that type + dose_number.
+      3. Get-or-create the VaccineDose record.
+      4. Set administration details and save.
+    """
+ 
+    # ── Vaccine identity ──────────────────────────────────────────────────────
+    vaccine_type = forms.ModelChoiceField(
+        queryset=VaccineType.objects.filter(is_active=True).order_by('display_order', 'name'),
+        required=False,
+        label='Existing Vaccine Type',
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_vaccine_type'}),
+        help_text='Pick from the list OR type a new name below.',
+        empty_label='— Select a vaccine —',
+    )
+ 
+    vaccine_name_custom = forms.CharField(
+        required=False,
+        max_length=100,
+        label='New Vaccine Name',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. Rotavirus, Hepatitis A …',
+            'id': 'id_vaccine_name_custom',
+        }),
+        help_text='Only fill this if the vaccine is not in the list above.',
+    )
+ 
+    dose_number = forms.IntegerField(
+        min_value=1,
+        max_value=10,
+        initial=1,
+        label='Dose Number',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '1'}),
+    )
+ 
+    # ── Administration details ────────────────────────────────────────────────
+    date_administered = forms.DateField(
+        label='Date Administered',
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+    )
+ 
+    administered_by = forms.CharField(
+        required=False,
+        max_length=200,
+        label='Administered By',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Healthcare provider name'}),
+    )
+ 
+    location = forms.CharField(
+        required=False,
+        max_length=200,
+        label='Location',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Clinic / hospital'}),
+    )
+ 
+    lot_number = forms.CharField(
+        required=False,
+        max_length=100,
+        label='Lot Number',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Vaccine lot number'}),
+    )
+ 
+    notes = forms.CharField(
+        required=False,
+        label='Notes',
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Any reactions or additional notes'}),
+    )
+ 
+    def clean(self):
+        cleaned = super().clean()
+        vaccine_type   = cleaned.get('vaccine_type')
+        custom_name    = (cleaned.get('vaccine_name_custom') or '').strip()
+ 
+        if not vaccine_type and not custom_name:
+            raise forms.ValidationError(
+                'Please select an existing vaccine type or enter a new vaccine name.'
+            )
+        if vaccine_type and custom_name:
+            raise forms.ValidationError(
+                'Please either select an existing vaccine OR enter a new name — not both.'
+            )
+        return cleaned
+ 
+ 
+class VaccineTypeForm(forms.ModelForm):
+    """
+    Lets admin create or edit a VaccineType (the master vaccine catalogue).
+    Accessible at /students/vaccine-types/create/ and /update/<pk>/
+    """
+ 
+    class Meta:
+        model = VaccineType
+        fields = ['name', 'full_name', 'total_doses', 'description', 'display_order', 'is_active']
+        widgets = {
+            'name':          forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. MMR'}),
+            'full_name':     forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Measles, Mumps & Rubella'}),
+            'total_doses':   forms.NumberInput(attrs={'class': 'form-control'}),
+            'description':   forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'display_order': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_active':     forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+ 
+ 
+class BulkVaccineDoseUpdateForm(forms.Form):
+    """Apply the same admin details to multiple selected doses at once."""
+ 
+    date_administered = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        label='Date Administered',
+    )
+    administered_by = forms.CharField(
+        required=False, max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Healthcare provider'}),
+        label='Administered By',
+    )
+    location = forms.CharField(
+        required=False, max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Clinic / hospital'}),
+        label='Location',
+    )
+    lot_number = forms.CharField(
+        required=False, max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. AB1234'}),
+        label='Lot Number',
+        help_text="Leave blank to keep each dose's existing value.",
+    )
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        label='Notes',
     )

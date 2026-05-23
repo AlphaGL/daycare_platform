@@ -21,6 +21,7 @@ urlpatterns = [
     path('staff/', include('staff.urls')),
     path('messages/', include('notifications.urls')),
     path('attendance/', include('attendance.urls')),
+    path('time_tracker/', include('time_tracker.urls')),
 ]
 
 

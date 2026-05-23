@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}My Children's Time — Time Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tt-hero { background:linear-gradient(135deg,#4a148c 0%,#8e24aa 100%); color:#fff;
+             border-radius:1rem; padding:1.5rem 2rem; margin-bottom:1.5rem; }
+  .tt-hero h1 { font-size:1.4rem; font-weight:700; margin:0 0 .25rem; }
+
+  .child-card { border-radius:.75rem; border:2px solid #e0e0e0; padding:1.25rem; }
+  .child-card.active-card { border-color:#43a047; background:#f1f8e9; }
+
+  .timer-live { font-size:2rem; font-weight:700; font-family:monospace; color:#1565c0; }
+  .timer-live.active { color:#2e7d32; animation:glow 2s ease-in-out infinite; }
+  @keyframes glow { 0%,100%{ text-shadow:0 0 4px rgba(46,125,50,.3); }
+                    50%{ text-shadow:0 0 14px rgba(46,125,50,.7); } }
+
+  .session-row td { font-size:.87rem; vertical-align:middle; }
+  .badge-active { background:#e8f5e9; color:#2e7d32; font-weight:600; }
+  .badge-closed { background:#f5f5f5; color:#616161; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+  <div class="tt-hero">
+    <h1>👨‍👩‍👧 My Children's Time</h1>
+    <small>Track live check-in durations and history</small>
+  </div>
+
+  <!-- Per-child summary cards -->
+  {% if child_stats %}
+  <div class="row g-3 mb-4">
+    {% for stat in child_stats %}
+    <div class="col-md-6 col-lg-4">
+      {% for s in active_sessions %}
+        {% if s.student_checkin.student == stat.child %}
+        <div class="child-card active-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <strong>{{ stat.child.get_full_name }}</strong>
+            <span class="badge badge-active rounded-pill">● On site</span>
+          </div>
+          <div class="timer-live active"
+               data-session="{{ s.id }}"
+               data-seconds="{{ s.elapsed_seconds }}">
+            {{ s.elapsed_display }}
+          </div>
+          <div class="text-muted mt-1" style="font-size:.8rem;">
+            Checked in at {{ s.clock_in|time:"H:i" }}
+          </div>
+          <hr>
+          <div class="row text-center">
+            <div class="col">
+              <div class="fw-bold">{{ stat.week_days }}</div>
+              <div class="text-muted" style="font-size:.75rem;">Days this week</div>
+            </div>
+            <div class="col">
+              <div class="fw-bold">{{ stat.week_hours }}h</div>
+              <div class="text-muted" style="font-size:.75rem;">Hours this week</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% empty %}
+        <!-- No active session for this child -->
+        <div class="child-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <strong>{{ stat.child.get_full_name }}</strong>
+            <span class="badge badge-closed rounded-pill">Not on site</span>
+          </div>
+          <div class="text-muted" style="font-size:.9rem;">Not checked in today.</div>
+          <hr>
+          <div class="row text-center">
+            <div class="col">
+              <div class="fw-bold">{{ stat.week_days }}</div>
+              <div class="text-muted" style="font-size:.75rem;">Days this week</div>
+            </div>
+            <div class="col">
+              <div class="fw-bold">{{ stat.week_hours }}h</div>
+              <div class="text-muted" style="font-size:.75rem;">Hours this week</div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Session history table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <p class="fw-bold mb-3">📋 Recent Session History</p>
+      {% if sessions %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead style="font-size:.8rem; background:#f5f5f5;">
+            <tr>
+              <th>Child</th>
+              <th>Date</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Duration</th>
+              <th>Room</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for s in sessions %}
+          <tr class="session-row">
+            <td><strong>{{ s.display_name }}</strong></td>
+            <td>{{ s.date|date:"M j, Y" }}</td>
+            <td>{{ s.clock_in|time:"H:i" }}</td>
+            <td>
+              {% if s.clock_out %}
+                {{ s.clock_out|time:"H:i" }}
+              {% else %}
+                <span class="text-success fw-semibold">— ongoing</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if s.is_active %}
+                <span class="timer-live"
+                      style="font-size:1rem;"
+                      data-session="{{ s.id }}"
+                      data-seconds="{{ s.elapsed_seconds }}">
+                  {{ s.elapsed_display }}
+                </span>
+              {% else %}
+                {{ s.elapsed_display }}
+              {% endif %}
+            </td>
+            <td>{{ s.student_checkin.room.name|default:"—" }}</td>
+            <td>
+              {% if s.is_active %}
+                <span class="badge badge-active rounded-pill">Active</span>
+              {% else %}
+                <span class="badge badge-closed rounded-pill">Closed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center py-4">No session history yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fmtSeconds(s) {
+  const h   = Math.floor(s / 3600);
+  const m   = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h) return `${h}h ${m}m`;
+  if (m) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+
+// Tick all live timers
+setInterval(() => {
+  document.querySelectorAll('[data-session]').forEach(el => {
+    const cur = parseInt(el.dataset.seconds, 10) + 1;
+    el.dataset.seconds = cur;
+    el.textContent = fmtSeconds(cur);
+  });
+}, 1000);
+
+// Sync with server every 30 s
+async function sync() {
+  try {
+    const res  = await fetch("{% url 'time_tracker:session_status_api' %}");
+    const data = await res.json();
+    data.sessions.forEach(s => {
+      const el = document.querySelector(`[data-session="${s.id}"]`);
+      if (el) el.dataset.seconds = s.elapsed_seconds;
+    });
+  } catch(e) {}
+}
+setInterval(sync, 30000);
+</script>
+{% endblock %}

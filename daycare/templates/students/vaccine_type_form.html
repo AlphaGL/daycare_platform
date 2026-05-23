@@ -1,24 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Edit Dose — {{ dose.vaccine_type.name }}{% endblock %}
-
+{% block title %}{{ title }}{% endblock %}
 {% block content %}
-<div class="container py-4" style="max-width:600px">
+<div class="container py-4" style="max-width:560px">
 
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'students:immunization_list' %}">Immunizations</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'students:immunization_detail' student.pk %}">{{ student.get_full_name }}</a></li>
-      <li class="breadcrumb-item active">Edit Dose</li>
+      <li class="breadcrumb-item"><a href="{% url 'students:vaccine_type_list' %}">Vaccine Types</a></li>
+      <li class="breadcrumb-item active">{{ title }}</li>
     </ol>
   </nav>
 
   <div class="card shadow-sm">
-    <div class="card-header">
-      <span class="fw-bold">✏️ Edit Dose</span>
-      <span class="text-muted ms-2">
-        {{ dose.vaccine_type.name }} · Dose {{ dose.dose_schedule.dose_number }}
-      </span>
-    </div>
+    <div class="card-header fw-bold">{{ title }}</div>
     <div class="card-body">
       <form method="post" novalidate>
         {% csrf_token %}
@@ -38,17 +32,15 @@
         </div>
         {% endfor %}
 
-        <div class="d-flex gap-2 mt-3">
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-          <a href="{% url 'students:immunization_detail' student.pk %}" class="btn btn-outline-secondary">Cancel</a>
-          <a
-            href="{% url 'students:vaccine_dose_delete' dose.pk %}"
-            class="btn btn-outline-danger ms-auto"
-          >Clear / Delete</a>
+        <div class="d-flex gap-2 mt-2">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <a href="{% url 'students:vaccine_type_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          {% if vt %}
+          <a href="{% url 'students:vaccine_type_delete' vt.pk %}" class="btn btn-outline-danger ms-auto">Delete</a>
+          {% endif %}
         </div>
       </form>
     </div>
   </div>
-
 </div>
 {% endblock %}

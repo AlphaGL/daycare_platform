@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% load static %}
+{% load time_tracker_tags %}
+
+{% block title %}Analytics — Time Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tt-hero { background:linear-gradient(135deg,#1b5e20 0%,#43a047 100%); color:#fff;
+             border-radius:1rem; padding:1.5rem 2rem; margin-bottom:1.5rem; }
+  .tt-hero h1 { font-size:1.5rem; font-weight:700; margin:0 0 .25rem; }
+
+  .card { border-radius:.75rem; }
+  .card-title { font-weight:700; font-size:.95rem; }
+  .range-btn { border-radius:2rem !important; font-size:.8rem; }
+  .range-btn.active { font-weight:700; }
+
+  .student-row td { font-size:.88rem; }
+  .progress { height:.5rem; border-radius:1rem; }
+  .progress-bar { border-radius:1rem; }
+
+  .chart-wrap { position:relative; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+  <!-- Hero -->
+  <div class="tt-hero d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h1>📊 Analytics</h1>
+      <small>Showing last {{ range_days }} days ({{ start_date|date:"M j" }} – today)</small>
+    </div>
+    <a href="{% url 'time_tracker:live_dashboard' %}" class="btn btn-light btn-sm fw-semibold">
+      ← Live Dashboard
+    </a>
+  </div>
+
+  <!-- Range picker -->
+  <div class="mb-3 d-flex gap-2 flex-wrap">
+    {% for d in "7,14,30,60,90"|split:"," %}
+    <a href="?days={{ d }}"
+       class="btn btn-outline-secondary btn-sm range-btn {% if range_days == d|add:0 %}active{% endif %}">
+      {{ d }}d
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <div style="font-size:1.8rem; font-weight:700; color:#1976d2;">{{ total_student_sessions }}</div>
+        <div class="text-muted" style="font-size:.8rem;">Student sessions</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <div style="font-size:1.8rem; font-weight:700; color:#2e7d32;">{{ total_staff_sessions }}</div>
+        <div class="text-muted" style="font-size:.8rem;">Staff sessions</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <div style="font-size:1.8rem; font-weight:700; color:#e65100;">
+          {% if student_rows %}
+            {{ student_rows.0.avg_hours }}h
+          {% else %}—{% endif %}
+        </div>
+        <div class="text-muted" style="font-size:.8rem;">Top student avg/day</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm text-center p-3">
+        <div style="font-size:1.8rem; font-weight:700; color:#6a1b9a;">
+          {% if staff_rows %}
+            {{ staff_rows.0.total_hours }}h
+          {% else %}—{% endif %}
+        </div>
+        <div class="text-muted" style="font-size:.8rem;">Top staff total hours</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <!-- Daily trend -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <p class="card-title">📅 Daily Student Check-ins (last {{ range_days }} days)</p>
+          <div class="chart-wrap" style="height:220px;">
+            <canvas id="dailyChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Peak arrival hours -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <p class="card-title">⏰ Peak Arrival Hours</p>
+          <div class="chart-wrap" style="height:220px;">
+            <canvas id="peakChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Student breakdown -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="card-title">🧒 Student Hours Breakdown</p>
+          {% if student_rows %}
+          {% with max_h=student_rows.0.total_hours %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="font-size:.75rem;">Student</th>
+                  <th style="font-size:.75rem;">Sessions</th>
+                  <th style="font-size:.75rem;">Avg/day</th>
+                  <th style="font-size:.75rem;">Total hrs</th>
+                  <th style="width:25%"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for row in student_rows %}
+              <tr class="student-row">
+                <td>
+                  <a href="{% url 'students:detail' row.student_id %}" class="text-decoration-none">
+                    {{ row.name }}
+                  </a>
+                </td>
+                <td>{{ row.sessions }}</td>
+                <td>{{ row.avg_hours }}h</td>
+                <td><strong>{{ row.total_hours }}h</strong></td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar bg-primary"
+                         style="width:{% widthratio row.total_hours max_h 100 %}%"></div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endwith %}
+          {% else %}
+          <p class="text-muted text-center mt-3">No closed student sessions in this period.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff breakdown -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="card-title">👩‍🏫 Staff Hours Breakdown</p>
+          {% if staff_rows %}
+          {% with max_h=staff_rows.0.total_hours %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="font-size:.75rem;">Staff</th>
+                  <th style="font-size:.75rem;">Sessions</th>
+                  <th style="font-size:.75rem;">Avg/shift</th>
+                  <th style="font-size:.75rem;">Total hrs</th>
+                  <th style="width:25%"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for row in staff_rows %}
+              <tr class="student-row">
+                <td>{{ row.name }}</td>
+                <td>{{ row.sessions }}</td>
+                <td>{{ row.avg_hours }}h</td>
+                <td><strong>{{ row.total_hours }}h</strong></td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar bg-success"
+                         style="width:{% widthratio row.total_hours max_h 100 %}%"></div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endwith %}
+          {% else %}
+          <p class="text-muted text-center mt-3">No closed staff sessions in this period.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div><!-- /row -->
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ── Daily trend ─────────────────────────────────────────────────────────────
+const dailyData = {{ daily_totals_json|safe }};
+new Chart(document.getElementById('dailyChart'), {
+  type: 'line',
+  data: {
+    labels: dailyData.map(d => d.date),
+    datasets: [{
+      label: 'Check-ins',
+      data: dailyData.map(d => d.count),
+      borderColor: '#1976d2',
+      backgroundColor: 'rgba(25,118,210,.1)',
+      fill: true,
+      tension: .35,
+      pointRadius: 2,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 10 } } },
+      y: { beginAtZero: true, ticks: { stepSize: 1 } }
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+  }
+});
+
+// ── Peak arrival hours ──────────────────────────────────────────────────────
+const peakLabels = {{ peak_hour_labels_json|safe }};
+const peakData   = {{ peak_hour_data_json|safe }};
+// Only show 6:00 – 20:00
+const sliceStart = 6, sliceEnd = 21;
+new Chart(document.getElementById('peakChart'), {
+  type: 'bar',
+  data: {
+    labels: peakLabels.slice(sliceStart, sliceEnd),
+    datasets: [{
+      label: 'Arrivals',
+      data: peakData.slice(sliceStart, sliceEnd),
+      backgroundColor: 'rgba(230,81,0,.7)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { beginAtZero: true, ticks: { stepSize: 1 } }
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+  }
+});
+</script>
+{% endblock %}

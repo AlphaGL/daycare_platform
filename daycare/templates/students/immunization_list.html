@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Immunization Records{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  {# ── Header ── #}
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="mb-0 fw-bold">💉 Immunization Records</h2>
+      <p class="text-muted mb-0">All active students · {{ rows|length }} record{{ rows|length|pluralize }}</p>
+    </div>
+    {% if user.is_admin %}
+    <a href="{% url 'students:vaccine_type_list' %}" class="btn btn-outline-secondary btn-sm">
+      ⚙️ Manage Vaccine Types
+    </a>
+    {% endif %}
+  </div>
+
+  {# ── Search + Filter bar ── #}
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-12 col-md-6">
+      <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Search by student name…"
+        value="{{ search }}"
+      >
+    </div>
+    <div class="col-auto">
+      <select name="filter" class="form-select" onchange="this.form.submit()">
+        <option value=""          {% if filter_by == '' %}selected{% endif %}>All students</option>
+        <option value="overdue"   {% if filter_by == 'overdue' %}selected{% endif %}>⚠ Overdue only</option>
+        <option value="incomplete"{% if filter_by == 'incomplete' %}selected{% endif %}>○ Incomplete only</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+    {% if search or filter_by %}
+    <div class="col-auto">
+      <a href="{% url 'students:immunization_list' %}" class="btn btn-outline-secondary">Clear</a>
+    </div>
+    {% endif %}
+  </form>
+
+  {# ── Table ── #}
+  {% if rows %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Student</th>
+            <th>Room</th>
+            <th style="width:160px">Completion</th>
+            <th class="text-center">Overdue</th>
+            <th class="text-center">Due Soon</th>
+            <th class="text-center">Exempt</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>
+              <strong>{{ row.student.get_full_name }}</strong>
+              <div class="text-muted small">{{ row.student.age }} yrs</div>
+            </td>
+            <td>{{ row.student.room.name|default:"—" }}</td>
+            <td>
+              {# Progress bar #}
+              {% with p=row.completion %}
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height:8px">
+                  <div
+                    class="progress-bar {% if p == 100 %}bg-success{% elif p >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                    style="width:{{ p }}%"
+                  ></div>
+                </div>
+                <small class="text-nowrap">{{ p }}%</small>
+              </div>
+              {% endwith %}
+            </td>
+            <td class="text-center">
+              {% if row.overdue > 0 %}
+                <span class="badge bg-danger">{{ row.overdue }}</span>
+              {% else %}
+                <span class="text-success">✓</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if row.due_soon > 0 %}
+                <span class="badge bg-warning text-dark">{{ row.due_soon }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if row.immunization.is_exempt %}
+                <span class="badge bg-secondary">Exempt</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a
+                href="{% url 'students:immunization_detail' row.student.pk %}"
+                class="btn btn-sm btn-outline-primary"
+              >View / Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <div style="font-size:3rem">💉</div>
+    <p class="mt-2">No records found.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'notifications',
     'attendance',
     'notifications_service',
+    'time_tracker',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Live Dashboard — Time Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Layout ─────────────────────────────── */
+  .tt-hero { background: linear-gradient(135deg,#1a237e 0%,#1565c0 100%); color:#fff; border-radius:1rem; padding:2rem; margin-bottom:1.5rem; }
+  .tt-hero h1 { font-size:1.6rem; font-weight:700; margin:0 0 .25rem; }
+  .tt-hero small { opacity:.8; }
+
+  /* ── Stat cards ─────────────────────────── */
+  .stat-card { border-radius:.75rem; padding:1.25rem 1.5rem; color:#fff; display:flex; align-items:center; gap:1rem; }
+  .stat-card .icon { font-size:2.5rem; opacity:.85; }
+  .stat-card .value { font-size:2rem; font-weight:700; line-height:1; }
+  .stat-card .label { font-size:.8rem; opacity:.85; margin-top:.2rem; }
+  .stat-blue   { background:linear-gradient(135deg,#1976d2,#42a5f5); }
+  .stat-green  { background:linear-gradient(135deg,#2e7d32,#66bb6a); }
+  .stat-orange { background:linear-gradient(135deg,#e65100,#ffa726); }
+  .stat-purple { background:linear-gradient(135deg,#6a1b9a,#ab47bc); }
+
+  /* ── Session table ─────────────────────── */
+  .session-table th { background:#f5f5f5; font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; }
+  .session-table td { vertical-align:middle; }
+
+  /* ── Live timer badge ──────────────────── */
+  .timer-badge { font-family:monospace; font-size:.95rem; font-weight:700;
+                 background:#e3f2fd; color:#1565c0; border-radius:.4rem; padding:.15rem .5rem; }
+  .timer-badge.staff  { background:#e8f5e9; color:#2e7d32; }
+  .timer-badge.parent { background:#f3e5f5; color:#6a1b9a; }
+
+  /* ── Status dot ────────────────────────── */
+  .dot { display:inline-block; width:.6rem; height:.6rem; border-radius:50%; margin-right:.35rem; }
+  .dot-green  { background:#4caf50; box-shadow:0 0 6px #4caf50; animation:pulse 1.8s infinite; }
+  .dot-grey   { background:#9e9e9e; }
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+
+  /* ── Mini chart ────────────────────────── */
+  #sparkWrap { height:70px; }
+
+  /* ── Section headers ───────────────────── */
+  .section-hdr { font-weight:700; font-size:1rem; margin:1.5rem 0 .75rem;
+                 display:flex; align-items:center; gap:.5rem; }
+
+  /* ── Empty state ────────────────────────── */
+  .empty-state { text-align:center; padding:2rem; color:#9e9e9e; font-size:.9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+  <!-- Hero bar -->
+  <div class="tt-hero d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h1>🕐 Live Time Tracker</h1>
+      <small>{{ today|date:"l, F j, Y" }} &nbsp;·&nbsp; auto-refreshes every 30 s</small>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'time_tracker:analytics' %}" class="btn btn-light btn-sm fw-semibold">
+        📊 Analytics
+      </a>
+      <span class="badge bg-light text-dark align-self-center" id="lastUpdate">—</span>
+    </div>
+  </div>
+
+  <!-- Stat cards row -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-blue h-100">
+        <span class="icon">🧒</span>
+        <div>
+          <div class="value" id="cnt-students">{{ students_on_site_count }}</div>
+          <div class="label">Students on site</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-green h-100">
+        <span class="icon">👩‍🏫</span>
+        <div>
+          <div class="value" id="cnt-staff">{{ staff_on_site_count }}</div>
+          <div class="label">Staff clocked in</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-orange h-100">
+        <span class="icon">👨‍👩‍👧</span>
+        <div>
+          <div class="value" id="cnt-parents">{{ parents_on_site_count }}</div>
+          <div class="label">Parents on site</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-purple h-100">
+        <span class="icon">📋</span>
+        <div>
+          <div class="value">{{ total_students_today }}</div>
+          <div class="label">Total check-ins today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <!-- ── Active sessions table ── -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="section-hdr">
+            <span class="dot dot-green"></span> Active Sessions
+          </div>
+
+          <!-- Students -->
+          {% if students_on_site %}
+          <p class="text-muted fw-semibold mb-1" style="font-size:.8rem;">🧒 STUDENTS</p>
+          <div class="table-responsive mb-3">
+            <table class="table table-hover session-table mb-0">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Room</th><th>Checked in</th><th>Elapsed</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for s in students_on_site %}
+                <tr>
+                  <td><strong>{{ s.display_name }}</strong></td>
+                  <td>{{ s.student_checkin.room.name|default:"—" }}</td>
+                  <td>{{ s.clock_in|time:"H:i" }}</td>
+                  <td>
+                    <span class="timer-badge" data-session="{{ s.id }}" data-seconds="{{ s.elapsed_seconds }}">
+                      {{ s.elapsed_display }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if request.user.is_admin %}
+                    <form method="post" action="{% url 'time_tracker:force_close_session' s.id %}"
+                          onsubmit="return confirm('Force-close this session?');" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="notes" value="Closed from live dashboard.">
+                      <button class="btn btn-outline-danger btn-sm py-0">✕</button>
+                    </form>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+
+          <!-- Staff -->
+          {% if staff_on_site %}
+          <p class="text-muted fw-semibold mb-1" style="font-size:.8rem;">👩‍🏫 STAFF</p>
+          <div class="table-responsive mb-3">
+            <table class="table table-hover session-table mb-0">
+              <thead>
+                <tr><th>Name</th><th>Clocked in</th><th>Elapsed</th><th></th></tr>
+              </thead>
+              <tbody>
+              {% for s in staff_on_site %}
+                <tr>
+                  <td><strong>{{ s.display_name }}</strong></td>
+                  <td>{{ s.clock_in|time:"H:i" }}</td>
+                  <td>
+                    <span class="timer-badge staff" data-session="{{ s.id }}" data-seconds="{{ s.elapsed_seconds }}">
+                      {{ s.elapsed_display }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if request.user.is_admin %}
+                    <form method="post" action="{% url 'time_tracker:force_close_session' s.id %}"
+                          onsubmit="return confirm('Force-close?');" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="notes" value="Closed from live dashboard.">
+                      <button class="btn btn-outline-danger btn-sm py-0">✕</button>
+                    </form>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+
+          <!-- Parents -->
+          {% if parents_on_site %}
+          <p class="text-muted fw-semibold mb-1" style="font-size:.8rem;">👨‍👩‍👧 PARENTS</p>
+          <div class="table-responsive">
+            <table class="table table-hover session-table mb-0">
+              <thead>
+                <tr><th>Name</th><th>Arrived</th><th>Elapsed</th></tr>
+              </thead>
+              <tbody>
+              {% for s in parents_on_site %}
+                <tr>
+                  <td><strong>{{ s.display_name }}</strong></td>
+                  <td>{{ s.clock_in|time:"H:i" }}</td>
+                  <td>
+                    <span class="timer-badge parent" data-session="{{ s.id }}" data-seconds="{{ s.elapsed_seconds }}">
+                      {{ s.elapsed_display }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+
+          {% if not students_on_site and not staff_on_site and not parents_on_site %}
+          <div class="empty-state">🏫 No one is currently on site.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right column ── -->
+    <div class="col-lg-4">
+
+      <!-- 7-day sparkline -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <p class="fw-semibold mb-2" style="font-size:.85rem;">📈 Students this week</p>
+          <div style="height:90px; position:relative;">
+            <canvas id="sparkChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent departures -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="fw-semibold mb-2" style="font-size:.85rem;">
+            <span class="dot dot-grey"></span> Recent Departures
+          </p>
+          {% if recent_departures %}
+          <ul class="list-group list-group-flush">
+            {% for s in recent_departures %}
+            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+              <div>
+                <strong style="font-size:.9rem;">{{ s.display_name }}</strong>
+                <div class="text-muted" style="font-size:.75rem;">
+                  {{ s.clock_in|time:"H:i" }} → {{ s.clock_out|time:"H:i" }}
+                </div>
+              </div>
+              <span class="badge bg-secondary">{{ s.elapsed_display }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="empty-state">No departures yet today.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+</div><!-- /container -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ── Sparkline chart ────────────────────────────────────────────────────────
+const sparkData = {{ seven_days_json|safe }};
+new Chart(document.getElementById('sparkChart'), {
+  type: 'bar',
+  data: {
+    labels: sparkData.map(d => d.label),
+    datasets: [{
+      data: sparkData.map(d => d.count),
+      backgroundColor: 'rgba(25,118,210,.7)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, ticks: { stepSize: 1 } }
+    },
+    responsive: true,
+    maintainAspectRatio: false,  /* safe: parent div has explicit height:90px */
+  }
+});
+
+// ── Live timer logic ───────────────────────────────────────────────────────
+function fmtSeconds(s) {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h) return `${h}h ${m}m`;
+  if (m) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+
+// Tick every second locally
+function tickTimers() {
+  document.querySelectorAll('[data-session]').forEach(el => {
+    const current = parseInt(el.dataset.seconds, 10) + 1;
+    el.dataset.seconds = current;
+    el.textContent = fmtSeconds(current);
+  });
+}
+setInterval(tickTimers, 1000);
+
+// Re-sync with server every 30 s (picks up new arrivals / departures)
+async function syncWithServer() {
+  try {
+    const res  = await fetch("{% url 'time_tracker:session_status_api' %}");
+    const data = await res.json();
+
+    // Update counts
+    document.getElementById('cnt-students').textContent = data.counts.students;
+    document.getElementById('cnt-staff').textContent    = data.counts.staff;
+    document.getElementById('cnt-parents').textContent  = data.counts.parents;
+
+    // Sync elapsed seconds per session
+    data.sessions.forEach(s => {
+      const el = document.querySelector(`[data-session="${s.id}"]`);
+      if (el) el.dataset.seconds = s.elapsed_seconds;
+    });
+
+    // Update timestamp
+    document.getElementById('lastUpdate').textContent =
+      'Synced ' + new Date().toLocaleTimeString();
+
+  } catch(e) {
+    console.warn('Sync failed', e);
+  }
+}
+setInterval(syncWithServer, 30000);
+syncWithServer(); // initial call
+</script>
+{% endblock %}
