@@ -1,5 +1,7 @@
 """
 Attendance and Schedule Forms
+FIXED: CheckOutForm now handles empty check_in_code gracefully,
+       and falls back to staff override when no code is set.
 """
 from django import forms
 from .models import AttendanceCheckIn, Schedule, StaffTimecard
@@ -67,31 +69,35 @@ class CheckInForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        # Filter students based on user role
         if self.user:
             if self.user.is_parent:
-                # Parents see only their own children
                 self.fields['student'].queryset = Student.objects.filter(
                     parent=self.user,
                     status='ACTIVE'
                 ).order_by('first_name', 'last_name')
             else:
-                # Staff/Admin see all active students
                 self.fields['student'].queryset = Student.objects.filter(
                     status='ACTIVE'
                 ).order_by('first_name', 'last_name')
         
-        # Only show active rooms
         self.fields['room'].queryset = Room.objects.filter(is_active=True).order_by('name')
     
     def clean_parent_check_in_code(self):
         """Validate the check-in code"""
         code = self.cleaned_data.get('parent_check_in_code')
         
-        # Verify the code matches the logged-in user's code (if parent)
         if self.user and self.user.is_parent:
+            # BUG FIX: if the parent has no code set, block check-in and
+            # tell them to set one — don't silently fail or always pass.
+            if not self.user.check_in_code:
+                raise forms.ValidationError(
+                    "You have not set a check-in code yet. "
+                    "Please go to your profile and set a 6-digit check-in code first."
+                )
             if self.user.check_in_code != code:
-                raise forms.ValidationError("Invalid check-in code. Please verify your code and try again.")
+                raise forms.ValidationError(
+                    "Invalid check-in code. Please verify your code and try again."
+                )
         
         return code
 
@@ -99,12 +105,21 @@ class CheckInForm(forms.ModelForm):
 class CheckOutForm(forms.Form):
     """
     Student Check-Out Form
-    With parent code verification
+    With parent code verification.
+
+    FIXED BUGS:
+    1. Empty check_in_code on the parent caused silent validation failure —
+       we now detect this and show a clear error message.
+    2. Staff/Admin users do NOT need a parent code — they can check out
+       any student directly (previously the form always demanded a code,
+       blocking staff checkouts entirely).
+    3. Added `performed_by_user` kwarg so the form knows who is acting,
+       and skips code validation for staff/admin.
     """
-    
+
     parent_check_in_code = forms.CharField(
         max_length=6,
-        required=True,
+        required=False,          # FIX: not always required — staff don't need it
         widget=forms.TextInput(attrs={
             'class': 'form-control form-control-lg text-center',
             'placeholder': 'Enter 6-digit code',
@@ -127,18 +142,54 @@ class CheckOutForm(forms.Form):
     )
     
     def __init__(self, student, *args, **kwargs):
+        # FIX: accept the acting user so we can skip code check for staff/admin
         self.student = student
+        self.performed_by_user = kwargs.pop('performed_by_user', None)
         super().__init__(*args, **kwargs)
+
+        # If the acting user is staff or admin, make the code field optional
+        # and update the placeholder to reflect that.
+        user = self.performed_by_user
+        if user and (user.is_staff_member or user.is_admin):
+            self.fields['parent_check_in_code'].required = False
+            self.fields['parent_check_in_code'].help_text = (
+                "Staff/Admin: leave blank to check out without a code, "
+                "or enter the parent's code to verify."
+            )
+        else:
+            # For parents checking out their own child, code IS required
+            self.fields['parent_check_in_code'].required = True
     
     def clean_parent_check_in_code(self):
         """Validate the check-in code"""
-        code = self.cleaned_data.get('parent_check_in_code')
-        
-        if code and self.student:
-            # Verify the code matches the student's parent's code
-            if self.student.parent.check_in_code != code:
-                raise forms.ValidationError("Invalid check-in code. Please verify the code and try again.")
-        
+        code = self.cleaned_data.get('parent_check_in_code', '').strip()
+        user = self.performed_by_user
+
+        # Staff and Admin: if they left it blank, that's fine — no code needed
+        if user and (user.is_staff_member or user.is_admin):
+            return code  # blank or filled, either is accepted for staff
+
+        # Parents: code is required
+        if not code:
+            raise forms.ValidationError("Please enter your check-in code.")
+
+        if self.student and self.student.parent:
+            parent = self.student.parent
+
+            # FIX: if the parent never set a code, give a clear error instead
+            # of silently comparing "" != code and failing every time.
+            if not parent.check_in_code:
+                raise forms.ValidationError(
+                    f"This student's parent has not set a check-in code yet. "
+                    f"Please ask them to set one from their profile, or have a "
+                    f"staff member perform the check-out."
+                )
+
+            if parent.check_in_code != code:
+                raise forms.ValidationError(
+                    "Invalid check-in code. Please verify the code and try again."
+                )
+
         return code
 
 
@@ -211,7 +262,6 @@ class ScheduleForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filter querysets
         self.fields['assigned_staff'].queryset = User.objects.filter(
             role__in=[User.Role.STAFF, User.Role.ADMIN],
             is_active=True
@@ -225,7 +275,6 @@ class ScheduleForm(forms.ModelForm):
             is_active=True
         ).order_by('name')
         
-        # Make fields optional based on schedule type
         self.fields['assigned_staff'].required = False
         self.fields['assigned_students'].required = False
         self.fields['assigned_room'].required = False
@@ -235,7 +284,6 @@ class ScheduleForm(forms.ModelForm):
 class QuickCheckInForm(forms.Form):
     """
     Quick Check-In Form (for kiosk mode)
-    Streamlined check-in process
     """
     
     check_in_code = forms.CharField(
@@ -255,7 +303,6 @@ class QuickCheckInForm(forms.Form):
 class StaffTimecardForm(forms.ModelForm):
     """
     Staff Timecard Form
-    For staff clock-in/out
     """
     
     class Meta:

@@ -1,6 +1,14 @@
 """
 Attendance and Schedule Views – WITH EMAIL NOTIFICATIONS
 Check-In/Check-Out and Scheduling System
+
+FIXED BUGS in student_checkout:
+1. CheckOutForm now receives `performed_by_user=request.user` so it knows
+   whether to enforce code validation or skip it for staff/admin.
+2. Added explicit error message display when the form is invalid, so the
+   user actually sees why checkout failed instead of a blank re-render.
+3. Fixed the GET-request form instantiation to also pass `performed_by_user`
+   so the form renders correctly (e.g. shows optional vs required code field).
 """
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -59,7 +67,6 @@ def student_checkin(request):
             except Exception:
                 pass
 
-            # ── EMAIL: notify parent of check-in ──────────────────────────
             _send_async(send_checkin_notification, checkin)
 
             messages.success(
@@ -67,6 +74,7 @@ def student_checkin(request):
                 f"✅ {checkin.student.get_full_name()} has been checked in successfully!"
             )
             return redirect('attendance:checkin')
+        # Form errors will be shown in the template via {{ form.errors }}
     else:
         form = CheckInForm(user=request.user)
 
@@ -97,19 +105,33 @@ def student_checkin(request):
 
 @login_required
 def student_checkout(request, pk):
-    """Student Check-Out View"""
+    """
+    Student Check-Out View
+
+    FIXED:
+    - Pass `performed_by_user=request.user` to CheckOutForm on both GET and POST
+      so the form knows whether to enforce or skip code validation.
+    - Show a clear error message when the form is invalid instead of silently
+      re-rendering with no feedback.
+    """
     checkin = get_object_or_404(
         AttendanceCheckIn,
         pk=pk,
         status=AttendanceCheckIn.Status.CHECKED_IN
     )
 
+    # Parents can only check out their own children
     if request.user.is_parent and checkin.student.parent != request.user:
         messages.error(request, "You can only check out your own children.")
         return redirect('attendance:attendance_list')
 
     if request.method == 'POST':
-        form = CheckOutForm(student=checkin.student, data=request.POST)
+        # FIX: pass performed_by_user so the form validates correctly
+        form = CheckOutForm(
+            checkin.student,
+            request.POST,
+            performed_by_user=request.user,
+        )
         if form.is_valid():
             checkin.perform_checkout(user=request.user, code_verified=True)
 
@@ -126,7 +148,6 @@ def student_checkout(request, pk):
             except Exception:
                 pass
 
-            # ── EMAIL: notify parent of check-out ─────────────────────────
             _send_async(send_checkout_notification, checkin)
 
             messages.success(
@@ -134,13 +155,26 @@ def student_checkout(request, pk):
                 f"✅ {checkin.student.get_full_name()} has been checked out successfully!"
             )
             return redirect('attendance:attendance_list')
+        else:
+            # FIX: explicitly show form errors so the user knows what went wrong
+            for field, error_list in form.errors.items():
+                for error in error_list:
+                    if field == '__all__':
+                        messages.error(request, error)
+                    else:
+                        label = form.fields[field].label or field
+                        messages.error(request, f"{label}: {error}")
     else:
-        form = CheckOutForm(student=checkin.student)
+        # FIX: pass performed_by_user on GET too so the form renders correctly
+        form = CheckOutForm(
+            checkin.student,
+            performed_by_user=request.user,
+        )
 
     context = {
         'form': form,
         'checkin': checkin,
-        'student': checkin.student
+        'student': checkin.student,
     }
     return render(request, 'attendance/checkout.html', context)
 
@@ -353,7 +387,6 @@ def staff_clock_in(request):
             timecard.date = date.today()
             timecard.save()
 
-            # ── EMAIL: notify admins of clock-in ──────────────────────────
             _send_async(send_staff_clockin_notification, timecard)
 
             messages.success(request, f"✅ {timecard.staff.get_full_name()} clocked in successfully!")
@@ -380,7 +413,6 @@ def staff_clock_out(request, pk):
             timecard.notes += f"\nClock-out: {notes}"
         timecard.save()
 
-        # ── EMAIL: notify admins of clock-out ─────────────────────────────
         _send_async(send_staff_clockout_notification, timecard)
 
         messages.success(request, f"✅ {timecard.staff.get_full_name()} clocked out successfully!")
