@@ -99,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Lagos'  # Nigerian timezone
+TIME_ZONE = 'America/Chicago'  # US Central timezone
 USE_I18N = True
 USE_TZ = True
 

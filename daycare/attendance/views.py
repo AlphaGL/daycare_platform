@@ -2,18 +2,17 @@
 Attendance and Schedule Views – WITH EMAIL NOTIFICATIONS
 Check-In/Check-Out and Scheduling System
 
-FIXED BUGS in student_checkout:
-1. CheckOutForm now receives `performed_by_user=request.user` so it knows
-   whether to enforce code validation or skip it for staff/admin.
-2. Added explicit error message display when the form is invalid, so the
-   user actually sees why checkout failed instead of a blank re-render.
-3. Fixed the GET-request form instantiation to also pass `performed_by_user`
-   so the form renders correctly (e.g. shows optional vs required code field).
+FIXED:
+1. Uses timezone.localdate() instead of date.today() everywhere so dates
+   match US Central time (America/Chicago), not the server OS clock.
+2. CheckOutForm receives `performed_by_user=request.user` on both GET and POST.
+3. Explicit form error messages shown on invalid checkout.
 """
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils import timezone
+from django.utils.timezone import localdate
 from django.db.models import Q
 from datetime import date, timedelta
 from .models import AttendanceCheckIn, Schedule, StaffTimecard
@@ -55,6 +54,7 @@ def student_checkin(request):
             checkin.check_in_time = timezone.now()
             checkin.check_in_by = request.user
             checkin.check_in_code_verified = True
+            checkin.date = localdate()          # FIX: use timezone-aware local date
             checkin.status = AttendanceCheckIn.Status.CHECKED_IN
             checkin.save()
 
@@ -78,7 +78,7 @@ def student_checkin(request):
     else:
         form = CheckInForm(user=request.user)
 
-    today = date.today()
+    today = localdate()   # FIX: timezone-aware
 
     if request.user.is_parent:
         todays_checkins = AttendanceCheckIn.objects.filter(
@@ -109,10 +109,8 @@ def student_checkout(request, pk):
     Student Check-Out View
 
     FIXED:
-    - Pass `performed_by_user=request.user` to CheckOutForm on both GET and POST
-      so the form knows whether to enforce or skip code validation.
-    - Show a clear error message when the form is invalid instead of silently
-      re-rendering with no feedback.
+    - Pass `performed_by_user=request.user` to CheckOutForm on both GET and POST.
+    - Show a clear error message when the form is invalid.
     """
     checkin = get_object_or_404(
         AttendanceCheckIn,
@@ -126,7 +124,6 @@ def student_checkout(request, pk):
         return redirect('attendance:attendance_list')
 
     if request.method == 'POST':
-        # FIX: pass performed_by_user so the form validates correctly
         form = CheckOutForm(
             checkin.student,
             request.POST,
@@ -156,7 +153,6 @@ def student_checkout(request, pk):
             )
             return redirect('attendance:attendance_list')
         else:
-            # FIX: explicitly show form errors so the user knows what went wrong
             for field, error_list in form.errors.items():
                 for error in error_list:
                     if field == '__all__':
@@ -165,7 +161,6 @@ def student_checkout(request, pk):
                         label = form.fields[field].label or field
                         messages.error(request, f"{label}: {error}")
     else:
-        # FIX: pass performed_by_user on GET too so the form renders correctly
         form = CheckOutForm(
             checkin.student,
             performed_by_user=request.user,
@@ -182,11 +177,12 @@ def student_checkout(request, pk):
 @login_required
 def attendance_list(request):
     """Attendance List View"""
-    today = date.today()
+    today = localdate()   # FIX: timezone-aware
 
-    selected_date = request.GET.get('date', today.isoformat())
+    selected_date_str = request.GET.get('date', today.isoformat())
     try:
-        filter_date = date.fromisoformat(selected_date)
+        from datetime import date as date_cls
+        filter_date = date_cls.fromisoformat(selected_date_str)
     except Exception:
         filter_date = today
 
@@ -235,7 +231,7 @@ def attendance_detail(request, pk):
 @login_required
 def schedule_list(request):
     """Schedule List View"""
-    today = date.today()
+    today = localdate()   # FIX: timezone-aware
     schedules = Schedule.objects.filter(is_active=True)
 
     if request.user.is_parent:
@@ -354,7 +350,7 @@ def schedule_delete(request, pk):
 @user_passes_test(is_staff_or_admin)
 def timecard_list(request):
     """Staff timecard list"""
-    today = date.today()
+    today = localdate()   # FIX: timezone-aware
 
     if request.user.is_staff_member:
         timecards = StaffTimecard.objects.filter(staff=request.user)
@@ -384,7 +380,7 @@ def staff_clock_in(request):
         if form.is_valid():
             timecard = form.save(commit=False)
             timecard.clock_in_time = timezone.now()
-            timecard.date = date.today()
+            timecard.date = localdate()   # FIX: timezone-aware
             timecard.save()
 
             _send_async(send_staff_clockin_notification, timecard)

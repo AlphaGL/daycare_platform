@@ -1,5 +1,11 @@
 """
 time_tracker/apps.py
+
+Connects the signals in signals.py so that TimeSession rows are
+automatically created/closed whenever attendance check-in/out happens.
+
+Without this file the signals are never registered and the live dashboard
+shows nothing.
 """
 from django.apps import AppConfig
 
@@ -10,4 +16,5 @@ class TimeTrackerConfig(AppConfig):
     verbose_name = 'Time Tracker'
 
     def ready(self):
-        import time_tracker.signals  # noqa — connects all signal receivers
+        # Importing the signals module here registers all @receiver decorators.
+        import time_tracker.signals  # noqa: F401

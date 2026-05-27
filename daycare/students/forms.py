@@ -764,3 +764,31 @@ class BulkVaccineDoseUpdateForm(forms.Form):
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         label='Notes',
     )
+
+
+
+class ImmunizationSettingsForm(forms.ModelForm):
+    """Edit exemption and catch-up schedule settings for a student's immunization record."""
+
+    class Meta:
+        model = Immunization
+        fields = ['is_exempt', 'exemption_reason', 'on_catch_up_schedule', 'catch_up_notes', 'notes']
+        widgets = {
+            'is_exempt': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'exemption_reason': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Medical, religious, or other exemption reason',
+            }),
+            'on_catch_up_schedule': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'catch_up_notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Details about the catch-up schedule',
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'General immunization notes',
+            }),
+        }

@@ -1,20 +1,21 @@
 """
 time_tracker/templatetags/time_tracker_tags.py
 
-Custom template filters for the time_tracker app.
+Custom template tags used by analytics.html.
 
-Usage in templates:
+Usage in template:
     {% load time_tracker_tags %}
     {% for d in "7,14,30,60,90"|split:"," %}
-        ...
-    {% endfor %}
 """
 from django import template
 
 register = template.Library()
 
 
-@register.filter
-def split(value, delimiter=','):
-    """Split a string by a delimiter and return a list."""
+@register.filter(name='split')
+def split_filter(value, delimiter=','):
+    """Split a string by delimiter and return a list.
+    
+    Usage: {{ "a,b,c"|split:"," }}
+    """
     return value.split(delimiter)

@@ -4,14 +4,18 @@ Time Tracker Views
 - Personal session view (parents, staff)
 - Analytics API endpoint (JSON) for the live counter
 - Session management helpers
+
+FIXED: All date.today() calls replaced with timezone.localdate() so dates
+       are computed in America/Chicago (US Central), not the OS clock.
 """
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.utils import timezone
+from django.utils.timezone import localdate
 from django.db.models import Sum, Count, Avg, F, ExpressionWrapper, DurationField, Q
 from django.db.models.functions import TruncDate, TruncHour
-from datetime import date, timedelta, datetime
+from datetime import timedelta
 from decimal import Decimal
 import json
 
@@ -39,9 +43,8 @@ def live_dashboard(request):
     Real-time overview of everyone currently on site.
     Rendered once; the JS polling updates counters every 30 s.
     """
-    today = date.today()
+    today = localdate()  # FIX: timezone-aware
 
-    # Active sessions split by type
     active_sessions = TimeSession.objects.filter(
         status=TimeSession.Status.ACTIVE,
         date=today,
@@ -56,12 +59,10 @@ def live_dashboard(request):
     staff_on_site    = active_sessions.filter(session_type=TimeSession.SessionType.STAFF)
     parents_on_site  = active_sessions.filter(session_type=TimeSession.SessionType.PARENT)
 
-    # Today's totals (closed + active)
     all_today = TimeSession.objects.filter(date=today)
     total_students_today = all_today.filter(session_type=TimeSession.SessionType.STUDENT).count()
     total_staff_today    = all_today.filter(session_type=TimeSession.SessionType.STAFF).count()
 
-    # Recent departures (last 10 check-outs today)
     recent_departures = TimeSession.objects.filter(
         date=today,
         status=TimeSession.Status.CLOSED,
@@ -71,7 +72,6 @@ def live_dashboard(request):
         'parent',
     ).order_by('-clock_out')[:10]
 
-    # 7-day sparkline data (for the mini chart)
     seven_days = []
     for i in range(6, -1, -1):
         d = today - timedelta(days=i)
@@ -105,8 +105,7 @@ def analytics_view(request):
     """
     Full analytics: average hours, peak arrival times, per-student breakdowns.
     """
-    today  = date.today()
-    # Date range filter (default: last 30 days)
+    today = localdate()  # FIX: timezone-aware
     range_days = int(request.GET.get('days', 30))
     start_date = today - timedelta(days=range_days)
 
@@ -115,10 +114,8 @@ def analytics_view(request):
         status=TimeSession.Status.CLOSED,
     )
 
-    # ── Average hours per student per day ─────────────────────────────────
     student_sessions = sessions.filter(session_type=TimeSession.SessionType.STUDENT)
 
-    # Build a simple list of (student_name, avg_hours, total_sessions)
     from collections import defaultdict
     student_stats = defaultdict(lambda: {'total_seconds': 0, 'sessions': 0, 'name': ''})
 
@@ -143,14 +140,12 @@ def analytics_view(request):
         })
     student_rows.sort(key=lambda x: x['total_hours'], reverse=True)
 
-    # ── Peak arrival hour (students) ──────────────────────────────────────
     hour_counts = [0] * 24
     for s in student_sessions:
         hour_counts[s.clock_in.astimezone().hour] += 1
 
     peak_hour_labels = [f"{h:02d}:00" for h in range(24)]
 
-    # ── Staff hours summary ───────────────────────────────────────────────
     staff_sessions = sessions.filter(session_type=TimeSession.SessionType.STAFF)
     staff_stats = defaultdict(lambda: {'total_seconds': 0, 'sessions': 0, 'name': ''})
 
@@ -173,7 +168,6 @@ def analytics_view(request):
         })
     staff_rows.sort(key=lambda x: x['total_hours'], reverse=True)
 
-    # ── Daily totals (for the trend chart) ───────────────────────────────
     daily_totals = []
     for i in range(range_days - 1, -1, -1):
         d = today - timedelta(days=i)
@@ -206,13 +200,12 @@ def my_sessions(request):
     Admins see everything (redirect to dashboard).
     """
     user  = request.user
-    today = date.today()
+    today = localdate()  # FIX: timezone-aware
 
     if user.is_admin:
         return redirect('time_tracker:live_dashboard')
 
     if user.is_parent:
-        # Sessions for this parent's children
         sessions = TimeSession.objects.filter(
             session_type=TimeSession.SessionType.STUDENT,
             student_checkin__student__parent=user,
@@ -221,10 +214,8 @@ def my_sessions(request):
             'student_checkin__room',
         ).order_by('-clock_in')[:60]
 
-        # Live sessions for today
         active = sessions.filter(status=TimeSession.Status.ACTIVE, date=today)
 
-        # Per-child summary (last 7 days)
         week_ago = today - timedelta(days=7)
         children = Student.objects.filter(parent=user)
         child_stats = []
@@ -258,7 +249,6 @@ def my_sessions(request):
 
         active = sessions.filter(status=TimeSession.Status.ACTIVE, date=today)
 
-        # Weekly summary
         week_ago = today - timedelta(days=7)
         week_sessions = sessions.filter(date__gte=week_ago, status=TimeSession.Status.CLOSED)
         week_total_s  = sum(s.elapsed_seconds for s in week_sessions)
@@ -273,37 +263,27 @@ def my_sessions(request):
         return render(request, 'time_tracker/staff_sessions.html', context)
 
 
-# ─── JSON polling endpoint (used by the live-counter JS) ─────────────────────
+# ─── JSON polling endpoint ────────────────────────────────────────────────────
 
 @login_required
 def session_status_api(request):
     """
     Returns JSON with live elapsed seconds for all active sessions today.
     Called every 30 s by the front-end JS.
-
-    Response shape:
-    {
-      "sessions": [
-        {"id": 1, "elapsed_seconds": 3720, "display_name": "John Doe"},
-        ...
-      ],
-      "counts": {"students": 4, "staff": 2, "parents": 0}
-    }
     """
-    today = date.today()
+    today = localdate()  # FIX: timezone-aware
     active = TimeSession.objects.filter(
         status=TimeSession.Status.ACTIVE,
         date=today,
     ).select_related('student_checkin__student', 'staff', 'parent')
 
-    # Filter by role for non-admins
     if request.user.is_parent:
         active = active.filter(
             session_type=TimeSession.SessionType.STUDENT,
             student_checkin__student__parent=request.user,
         )
     elif request.user.is_staff_member:
-        active = active  # staff can see all active
+        active = active
 
     data = {
         'sessions': [
@@ -326,7 +306,7 @@ def session_status_api(request):
     return JsonResponse(data)
 
 
-# ─── Admin: manual session close (safety net) ─────────────────────────────────
+# ─── Admin: manual session close ──────────────────────────────────────────────
 
 @login_required
 @user_passes_test(is_admin)

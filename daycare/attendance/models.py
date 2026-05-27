@@ -1,6 +1,10 @@
 """
 Enhanced Attendance Models
 Check-in/Check-out with Code Verification and Health Screening
+
+FIXED: AttendanceCheckIn.date now defaults to timezone.localdate so new
+       records get the correct US Central date, not a UTC datetime cast to date.
+       StaffTimecard.date has the same fix.
 """
 from django.db import models
 from django.utils import timezone
@@ -25,7 +29,8 @@ class AttendanceCheckIn(models.Model):
         on_delete=models.CASCADE,
         related_name='checkin_records'
     )
-    date = models.DateField(default=timezone.now)
+    # FIX: use localdate() so date is always America/Chicago, not UTC
+    date = models.DateField(default=timezone.localdate)
     
     # Check-in Details
     check_in_time = models.DateTimeField(null=True, blank=True)
@@ -148,7 +153,7 @@ class Schedule(models.Model):
         default=RecurrenceType.ONCE
     )
     
-    # Assignments (optional - depends on schedule type)
+    # Assignments
     assigned_staff = models.ManyToManyField(
         User,
         related_name='attendance_schedules',
@@ -217,7 +222,8 @@ class StaffTimecard(models.Model):
         limit_choices_to={'role': User.Role.STAFF}
     )
     
-    date = models.DateField(default=timezone.now)
+    # FIX: use localdate() so date is always America/Chicago
+    date = models.DateField(default=timezone.localdate)
     
     # Clock times
     clock_in_time = models.DateTimeField()
@@ -257,7 +263,6 @@ class StaffTimecard(models.Model):
         
         total = self.clock_out_time - self.clock_in_time
         
-        # Subtract break time if applicable
         if self.break_start and self.break_end:
             break_time = self.break_end - self.break_start
             total -= break_time

@@ -1,121 +1,87 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Student Check-In - Sugamama Sugababies Daycare{% endblock %}
+{% block title %}Clock In - Sugamama Sugababies Daycare{% endblock %}
 
 {% block extra_css %}
 <style>
-.checkin-container {
+.clock-in-container {
     background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
     min-height: 100vh;
     padding: 2rem 0;
 }
 
-.checkin-card {
+.clock-in-card {
     background: white;
     border-radius: 24px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.checkin-header {
-    background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
+.clock-in-header {
+    background: linear-gradient(135deg, #43A047 0%, #2E7D32 100%);
     padding: 3rem 2rem;
     text-align: center;
     color: white;
-    position: relative;
 }
 
-.checkin-icon {
+.clock-icon {
     width: 100px;
     height: 100px;
-    background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
 }
 
-.code-input {
-    letter-spacing: 0.5rem;
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    border: 3px solid #66BB6A;
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
-.code-input:focus {
-    border-color: #43A047;
-    box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.2);
-    transform: scale(1.02);
-}
-
-.health-check-card {
-    background: linear-gradient(135deg, #FFF9E6, #FFE8B3);
+.current-time-display {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
     border-radius: 16px;
     padding: 2rem;
-    margin: 1.5rem 0;
-    border: 2px solid #FFD54F;
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-.health-option {
-    background: white;
-    border: 2px solid #E0E0E0;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.time-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1976D2;
+    font-family: 'Courier New', monospace;
 }
 
-.health-option:hover {
-    border-color: #66BB6A;
-    box-shadow: 0 4px 12px rgba(102, 187, 106, 0.2);
+.date-value {
+    font-size: 1.25rem;
+    color: #424242;
+    font-weight: 600;
 }
 
-.health-option input[type="radio"]:checked + label {
-    color: #43A047;
-    font-weight: bold;
+.form-section {
+    margin-bottom: 2rem;
 }
 
-.recent-checkins {
-    background: #F5F5F5;
-    border-radius: 16px;
-    padding: 1.5rem;
-}
-
-.checkin-item {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: all 0.3s ease;
-}
-
-.checkin-item:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.status-badge {
-    width: 40px;
-    height: 40px;
+.section-icon {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    display: flex;
+    background: linear-gradient(135deg, #43A047, #2E7D32);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #66BB6A, #43A047);
+    margin-right: 1rem;
 }
 
-.submit-btn {
-    background: linear-gradient(135deg, #66BB6A, #43A047);
+.clock-in-btn {
+    background: linear-gradient(135deg, #43A047, #2E7D32);
     border: none;
     padding: 1.25rem 3rem;
     font-size: 1.25rem;
@@ -125,9 +91,9 @@
     transition: all 0.3s ease;
 }
 
-.submit-btn:hover {
+.clock-in-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(67, 160, 71, 0.3);
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
 }
 
 .animate-in {
@@ -148,199 +114,117 @@
 {% endblock %}
 
 {% block content %}
-<div class="checkin-container">
+<div class="clock-in-container">
     <div class="container">
         <div class="row justify-content-center">
-            <!-- Main Check-In Form -->
             <div class="col-lg-8">
-                <div class="checkin-card animate-in">
-                    <div class="checkin-header">
-                        <div class="checkin-icon">
-                            <i class="bi bi-box-arrow-in-right display-3"></i>
+                <!-- Back Button -->
+                <div class="mb-4 animate-in">
+                    <a href="{% url 'attendance:timecard_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Timecards
+                    </a>
+                </div>
+
+                <div class="clock-in-card animate-in" style="animation-delay: 0.1s;">
+                    <div class="clock-in-header">
+                        <div class="clock-icon">
+                            <i class="bi bi-clock-fill display-3"></i>
                         </div>
-                        <h2 class="mb-2 fw-bold">Student Check-In</h2>
-                        <p class="mb-0 opacity-90">Check in your child for the day</p>
+                        <h2 class="mb-2 fw-bold">Clock In</h2>
+                        <p class="mb-0 opacity-90">Start your shift</p>
                     </div>
 
                     <div class="p-4 p-md-5">
+                        <!-- Current Time Display -->
+                        <div class="current-time-display">
+                            <div class="time-value" id="currentTime">--:--:--</div>
+                            <div class="date-value" id="currentDate">Loading...</div>
+                        </div>
+
                         <form method="post">
                             {% csrf_token %}
 
-                            <!-- Step 1: Parent Code Verification -->
-                            <div class="mb-5">
+                            <!-- Staff Selection -->
+                            <div class="form-section">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <strong>1</strong>
+                                    <div class="section-icon">
+                                        <i class="bi bi-person-fill text-white"></i>
                                     </div>
-                                    <h5 class="mb-0 fw-bold">Enter Your Check-In Code</h5>
-                                </div>
-                                
-                                <label class="form-label fw-semibold mb-3">
-                                    <i class="bi bi-shield-lock-fill text-success me-2"></i>
-                                    Your 6-Digit Check-In Code
-                                </label>
-                                {{ form.parent_check_in_code }}
-                                {% if form.parent_check_in_code.errors %}
-                                    <div class="alert alert-danger mt-3 rounded-4">
-                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                        {{ form.parent_check_in_code.errors }}
-                                    </div>
-                                {% endif %}
-                                <small class="text-muted d-block mt-2">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    You can find or change your code in Account Settings
-                                </small>
-                            </div>
-
-                            <!-- Step 2: Select Student -->
-                            <div class="mb-5">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <strong>2</strong>
-                                    </div>
-                                    <h5 class="mb-0 fw-bold">Select Your Child</h5>
+                                    <h5 class="mb-0 fw-bold">Staff Member</h5>
                                 </div>
                                 
                                 <label class="form-label fw-semibold">
-                                    <i class="bi bi-person-fill me-2"></i>
-                                    Which child are you checking in?
+                                    {{ form.staff.label }}
                                 </label>
-                                {{ form.student }}
-                                {% if form.student.errors %}
-                                    <div class="text-danger small mt-2">{{ form.student.errors }}</div>
+                                {{ form.staff }}
+                                {% if form.staff.errors %}
+                                    <div class="alert alert-danger mt-2 rounded-4">
+                                        {{ form.staff.errors }}
+                                    </div>
                                 {% endif %}
                             </div>
 
-                            <!-- Step 3: Select Room -->
-                            <div class="mb-5">
+                            <!-- Room Assignment -->
+                            <div class="form-section">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <strong>3</strong>
+                                    <div class="section-icon">
+                                        <i class="bi bi-door-open text-white"></i>
                                     </div>
                                     <h5 class="mb-0 fw-bold">Room Assignment</h5>
                                 </div>
                                 
                                 <label class="form-label fw-semibold">
-                                    <i class="bi bi-door-open-fill me-2"></i>
-                                    {{ form.room.label }}
+                                    {{ form.assigned_room.label }} <span class="text-muted">(Optional)</span>
                                 </label>
-                                {{ form.room }}
-                                {% if form.room.errors %}
-                                    <div class="text-danger small mt-2">{{ form.room.errors }}</div>
-                                {% endif %}
+                                {{ form.assigned_room }}
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Select the room you'll be working in today
+                                </small>
                             </div>
 
-                            <!-- Step 4: Health Screening -->
-                            <div class="mb-5">
+                            <!-- Notes -->
+                            <div class="form-section">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <strong>4</strong>
+                                    <div class="section-icon">
+                                        <i class="bi bi-journal-text text-white"></i>
                                     </div>
-                                    <h5 class="mb-0 fw-bold">Health Screening</h5>
+                                    <h5 class="mb-0 fw-bold">Shift Notes</h5>
                                 </div>
                                 
-                                <div class="health-check-card">
-                                    <h6 class="fw-bold mb-4">
-                                        <i class="bi bi-heart-pulse-fill text-danger me-2"></i>
-                                        Is the child healthy today?
-                                    </h6>
-                                    
-                                    {% for choice in form.is_healthy %}
-                                        <div class="health-option">
-                                            <div class="form-check">
-                                                {{ choice.tag }}
-                                                <label class="form-check-label w-100" for="{{ choice.id_for_label }}">
-                                                    {{ choice.choice_label }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                    
-                                    {% if form.is_healthy.errors %}
-                                        <div class="text-danger small">{{ form.is_healthy.errors }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Health Notes (Optional) -->
-                                <div class="mt-3">
-                                    <label class="form-label fw-semibold">
-                                        <i class="bi bi-chat-left-text-fill me-2"></i>
-                                        {{ form.health_notes.label }} (Optional)
-                                    </label>
-                                    {{ form.health_notes }}
-                                </div>
-                            </div>
-
-                            <!-- Additional Notes -->
-                            <div class="mb-5">
                                 <label class="form-label fw-semibold">
-                                    <i class="bi bi-journal-text me-2"></i>
                                     {{ form.notes.label }}
                                 </label>
                                 {{ form.notes }}
+                                <small class="text-muted d-block mt-2">
+                                    Any important notes about your shift
+                                </small>
                             </div>
 
-                            <!-- Submit Button -->
-                            <div class="text-center pt-4 border-top">
-                                <button type="submit" class="submit-btn">
-                                    <i class="bi bi-check-circle-fill me-2"></i>
-                                    Complete Check-In
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 pt-4 border-top flex-wrap justify-content-center">
+                                <button type="submit" class="clock-in-btn">
+                                    <i class="bi bi-play-circle-fill me-2"></i>
+                                    Clock In Now
                                 </button>
+                                <a href="{% url 'attendance:timecard_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancel
+                                </a>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sidebar: Recent Check-Ins -->
-            <div class="col-lg-4 mt-4 mt-lg-0">
-                <div class="card border-0 shadow-lg rounded-4 animate-in" style="animation-delay: 0.2s;">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-clock-history text-primary me-2"></i>
-                            Today's Check-Ins
-                        </h5>
-
-                        <!-- Statistics -->
-                        <div class="text-center mb-4 p-4 rounded-3" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB);">
-                            <div class="display-4 fw-bold text-primary mb-2">{{ total_checked_in }}</div>
-                            <small class="text-muted">Students Checked In</small>
-                        </div>
-
-                        <!-- Recent Check-Ins List -->
-                        <div class="recent-checkins">
-                            {% if todays_checkins %}
-                                {% for checkin in todays_checkins %}
-                                <div class="checkin-item">
-                                    <div class="status-badge">
-                                        <i class="bi bi-check text-white"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1 fw-bold">{{ checkin.student.get_full_name }}</h6>
-                                        <small class="text-muted">
-                                            <i class="bi bi-clock me-1"></i>
-                                            {{ checkin.check_in_time|time:"g:i A" }}
-                                        </small>
-                                    </div>
-                                    <span class="badge bg-success rounded-pill">
-                                        {{ checkin.room.name }}
-                                    </span>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="text-center py-4">
-                                    <i class="bi bi-inbox display-4 text-muted opacity-25"></i>
-                                    <p class="text-muted mt-3 mb-0">No check-ins yet today</p>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="mt-4 d-grid gap-2">
-                            <a href="{% url 'attendance:attendance_list' %}" class="btn btn-outline-primary rounded-pill">
-                                <i class="bi bi-list-check me-2"></i>
-                                View All Attendance
-                            </a>
+                <!-- Info Box -->
+                <div class="alert alert-info mt-4 rounded-4 animate-in" style="animation-delay: 0.2s;">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-2 fw-bold">Remember to Clock Out</h6>
+                            <p class="mb-0">
+                                Don't forget to clock out at the end of your shift to accurately track your hours worked.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -350,34 +234,34 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-focus on code input
-    const codeInput = document.querySelector('input[name="parent_check_in_code"]');
-    if (codeInput) {
-        codeInput.focus();
-    }
+// Update current time display
+function updateTime() {
+    const now = new Date();
+    const tz = 'America/Chicago';
 
-    // Format code input (digits only)
-    codeInput?.addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
+    // Format time — always US Central regardless of device timezone
+    const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: tz
     });
+    document.getElementById('currentTime').textContent = timeString;
 
-    // Health option selection styling
-    document.querySelectorAll('.health-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.health-option').forEach(opt => {
-                opt.style.borderColor = '#E0E0E0';
-                opt.style.background = 'white';
-            });
-            
-            const radio = this.querySelector('input[type="radio"]');
-            if (radio) {
-                radio.checked = true;
-                this.style.borderColor = '#66BB6A';
-                this.style.background = 'rgba(102, 187, 106, 0.05)';
-            }
-        });
+    // Format date — always US Central
+    const dateString = now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: tz
     });
-});
+    document.getElementById('currentDate').textContent = dateString;
+}
+
+// Update immediately and then every second
+updateTime();
+setInterval(updateTime, 1000);
 </script>
 {% endblock %}

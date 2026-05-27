@@ -6,7 +6,10 @@ and closes it when they check out — no extra code needed in attendance/views.p
 
 Also wires up staff clock-in/out from attendance.StaffTimecard.
 
-Connect these in time_tracker/apps.py → ready() method.
+Connected in time_tracker/apps.py → ready() method.
+
+FIXED: Uses timezone.localdate() so session dates match America/Chicago,
+       not the OS system clock.
 """
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -25,13 +28,12 @@ def sync_student_session(sender, instance, created, **kwargs):
     from .models import TimeSession
 
     if instance.status == 'CHECKED_IN':
-        # Create only if one doesn't exist yet for this check-in record
         TimeSession.objects.get_or_create(
             student_checkin=instance,
             defaults={
                 'session_type': TimeSession.SessionType.STUDENT,
                 'clock_in': instance.check_in_time or timezone.now(),
-                'date': instance.date,
+                'date': instance.date,   # date is already set correctly in the view
                 'status': TimeSession.Status.ACTIVE,
             },
         )
@@ -43,7 +45,6 @@ def sync_student_session(sender, instance, created, **kwargs):
                 status=TimeSession.Status.ACTIVE,
             )
             session.close()
-            # Patch clock_out to match the real check-out time if available
             if instance.check_out_time:
                 session.clock_out = instance.check_out_time
                 session.save(update_fields=['clock_out', 'updated_at'])
@@ -51,7 +52,7 @@ def sync_student_session(sender, instance, created, **kwargs):
             pass
 
 
-# ── Staff timecard (attendance.StaffTimecard) → open/close TimeSession ─────────
+# ── Staff timecard → open/close TimeSession ────────────────────────────────────
 
 @receiver(post_save, sender='attendance.StaffTimecard')
 def sync_staff_session(sender, instance, created, **kwargs):
@@ -74,7 +75,6 @@ def sync_staff_session(sender, instance, created, **kwargs):
         )
 
     elif instance.clock_out_time:
-        # Find the matching open session
         session_qs = TimeSession.objects.filter(
             staff=instance.staff,
             date=instance.date,
@@ -86,23 +86,16 @@ def sync_staff_session(sender, instance, created, **kwargs):
             session.save(update_fields=['clock_out', 'updated_at'])
 
 
-# ── Staff login via accounts User (for parent portal visits) ──────────────────
+# ── Parent portal visit tracking (optional) ───────────────────────────────────
 
 def open_parent_session(user, request=None):
     """
-    Call this from accounts/views.py → user_login() after a successful
-    parent login if you want to track how long parents stay on the portal.
-    (Optional feature — only activate if you need it.)
-
-    Example in accounts/views.py:
-        from time_tracker.signals import open_parent_session
-        if user.is_parent:
-            open_parent_session(user)
+    Call from accounts/views.py → user_login() after a successful parent login
+    if you want to track portal visit durations.
     """
     from .models import TimeSession
     today = timezone.localdate()
 
-    # Don't double-open on refresh
     already = TimeSession.objects.filter(
         parent=user,
         date=today,
