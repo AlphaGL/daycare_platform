@@ -65,6 +65,7 @@ def _fix_luna_immunizations(request):
 
     import datetime
     from django.db import transaction
+    from django.middleware.csrf import get_token
     from django.shortcuts import get_object_or_404
     from students.models import Student, Immunization, VaccineType, VaccineDoseSchedule, VaccineDose
 
@@ -72,10 +73,14 @@ def _fix_luna_immunizations(request):
 
     if request.method != 'POST':
         rows = ''.join(f'<li>{name} — dose {n} — {d}</li>' for name, n, d in _LUNA_DOSE_ENTRIES)
+        token = get_token(request)
         return HttpResponse(f'''
             <h3>Add remaining vaccine doses for {student.get_full_name()}?</h3>
             <ul>{rows}</ul>
-            <form method="post"><button type="submit">Confirm &amp; Add All</button></form>
+            <form method="post">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{token}">
+                <button type="submit">Confirm &amp; Add All</button>
+            </form>
         ''')
 
     immunization, _ = Immunization.objects.get_or_create(student=student)
