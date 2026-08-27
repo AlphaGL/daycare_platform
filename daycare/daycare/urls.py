@@ -1,16 +1,43 @@
 """
 Main URL Configuration for Sugamama sugababies Daycare
 """
+import io
 from django.contrib import admin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.management import call_command
+from django.http import HttpResponse, HttpResponseForbidden
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
 
+
+@staff_member_required
+def _export_full_backup(request):
+    """TEMPORARY: full-database export for migrating off this hosting account.
+    Remove this view + URL once the data has been downloaded."""
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Superuser access required.")
+
+    buffer = io.StringIO()
+    call_command(
+        'dumpdata',
+        exclude=['contenttypes', 'auth.permission', 'sessions.session', 'admin.logentry'],
+        indent=2,
+        stdout=buffer,
+    )
+    response = HttpResponse(buffer.getvalue(), content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename="daycare_full_backup.json"'
+    return response
+
+
 urlpatterns = [
     # Admin
     path('custom-admin/', admin.site.urls),
+
+    # TEMPORARY — remove after migrating the database, see comment above.
+    path('export-full-backup-8271/', _export_full_backup, name='temp_export_full_backup'),
 
     # Core apps
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
